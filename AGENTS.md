@@ -77,7 +77,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - [x] 安装并验证 Node.js LTS、Rust、Tauri 的 Windows 开发依赖
 - [x] 创建 Tauri 2 + Vue 3 + TypeScript 项目
 - [x] 理解 WebView、前端进程、Rust 后端和 Tauri Command 的关系
-- [ ] 初始化 Git，创建 GitHub 仓库并推送
+- [x] 初始化 Git，创建 GitHub 仓库并推送
 - [ ] 建立 README、格式化、Lint 和基础测试
 - [x] 在 Windows 上启动最小桌面应用
 
@@ -125,20 +125,39 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 
 ## 7. 当前进度
 
-- 当前里程碑：M0 环境、仓库和最小应用
-- 当前任务：M0-3 初始化 Git、审查首次提交并创建 GitHub 仓库
+- 当前里程碑：M1 应用骨架和第一个前后端调用
+- 当前任务：M1-1A 清理初版路由和占位页，然后开始侧栏与统一页面结构
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
-- 已知状态：`package-lock.json` 和 `src-tauri/Cargo.lock` 已生成；`dist`、`node_modules`、`src-tauri/target` 和 `src-tauri/gen` 是应忽略的生成目录
-- 下一步：初始化 `main` 分支，使用 Git 验证忽略规则并审查首次提交清单
+- 已完成：Git 仓库和 `main` 分支；首次提交 `d428427`；公开仓库 `https://github.com/liuxiangyu2026/TangTool`
+- 已完成：安装 Pinia 4.0.3、Vue Router 4.6.4、Lucide Vue Next 1.0.0、Tailwind CSS 4.3.3
+- 已完成：Tailwind 4 已通过 `@tailwindcss/vite` 接入；`src/styles.css` 已由 `src/main.ts` 导入；生产构建成功
+- 已完成：初版 Hash 路由已建立，`/` 可重定向到 `/json/format`，Windows Tauri 窗口能显示 JSON 格式化占位页
+- 已知状态：M0 尚待补充 ESLint、Prettier 和基础测试；Vue Router 5 与当前 Vite 6 存在 peer dependency 冲突
+- 交接基线：首次提交是 `d428427`；当前 M1 修改应与本文档一起形成下一次提交并推送，macOS 端以“包含本文交接说明”的最新 `origin/main` 为准
+- 下一步：按第 8 节清理当前实现；本步骤已明确暂停，尚未修改相关代码
 
 ## 8. 当前任务验收标准
 
-- `package.json` 中 npm 包名为 `tangtool`
-- `src-tauri/Cargo.toml` 中 Rust package 和 lib 名称符合 Rust 命名规则
-- `src-tauri/tauri.conf.json` 中产品名、窗口标题和唯一标识正确
-- 能解释 `src`、`src-tauri`、`Cargo.toml`、`tauri.conf.json` 和 `capabilities` 的职责
-- 安装依赖后能成功启动第一个 Windows 桌面窗口
+### 下一步必须先完成的代码清理
+
+- 将 `src/router/index.ts` 中仅用于组织 URL、没有父组件的 JSON 和文档嵌套路由改为六条扁平工具路由
+- 保留 `/` 到 `/json/format` 的重定向，并继续使用 `createWebHashHistory()`
+- 将路由 meta 分组中的 `json` 改为 `JSON`，`document` 改为 `文档`
+- 删除 `ToolPlaceholderView.vue` 中额外的 `Tool Placeholder` 标题、无意义外层 `div` 和空 style
+- `ToolPlaceholderView.vue` 只显示 `route.meta.group` 和 `route.meta.title`；meta 总是存在，无需可选链
+- `App.vue` 只保留 `<RouterView />`，删除空的 script 和 style 区块
+- 整理 `src/main.ts` 导入顺序，并删除第 11 行的多余空白行
+- 执行 `npm run build`，必须成功
+- 执行 `git diff --check`，必须没有输出
+- 执行 `npm run tauri dev`，默认页应只显示 `JSON` 和 `JSON 格式化`
+
+### 清理完成后的后续任务
+
+- 建立固定尺寸的桌面工具侧栏，覆盖第一期全部工具入口
+- 当前路由在侧栏中应有清晰选中状态
+- 建立统一页面标题和内容区域，不使用营销式首页
+- 页面壳不因标题、图标或路由变化产生位移
 
 ## 9. 关键技术决定
 
@@ -147,10 +166,45 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 2026-08-30：第一期坚持本地处理，不设计云端账户和文件上传。
 - 2026-08-30：采用 GitHub Actions 分别在 Windows 和 macOS runner 构建；macOS 安装包不能只依靠 Windows 本机完成最终验证。
 - 2026-08-30：应用唯一标识使用 `com.github.liuxiangyu2026.tangtool`。
+- 2026-08-30：当前脚手架保持 Vite 6，并固定 Vue Router 4；Vue Router 5 要求 Vite 7.3 或 8，不使用 `--force` 绕过 peer dependency 检查。
 
 ## 10. 待确认事项
 
-- GitHub 仓库名称及公开/私有属性
 - 应用最终图标
 - 第一版支持的界面语言
 - macOS 真机测试条件，以及后续是否进行 Apple 签名和公证
+
+## 11. 换机接续说明（macOS）
+
+### Windows 结束前
+
+2026-08-30 的换机交接提交应包含：
+
+- 修改：`AGENTS.md`、`package.json`、`package-lock.json`、`src/App.vue`、`src/main.ts`、`vite.config.ts`
+- 新增：`src/router/`、`src/views/`、`src/styles.css`
+
+在 Windows 上提交并执行 `git push` 后再换机，否则 macOS 无法拉取这些内容。当前代码已经能构建和运行，已知的结构与格式问题保留到下一次按第 8 节修复。macOS 拉取后如果能读到本节，说明交接文档已经进入仓库；仍需用 `git status` 和 `git log -1 --oneline` 确认分支状态。
+
+### macOS 首次准备
+
+安装 Xcode Command Line Tools、Node.js LTS 和 Rust stable：
+
+```bash
+xcode-select --install
+node --version
+npm --version
+rustc --version
+cargo --version
+```
+
+拉取并恢复项目：
+
+```bash
+git clone https://github.com/liuxiangyu2026/TangTool.git
+cd TangTool
+npm install
+npm run build
+npm run tauri dev
+```
+
+如果仓库已经存在，则在工作区干净的前提下执行 `git pull --ff-only`。首次 Rust 编译下载和编译 crate 会比较慢。启动成功后先阅读本文档第 7、8 节，从路由和占位页清理继续，不要直接跳到侧栏开发。
