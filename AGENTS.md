@@ -127,8 +127,8 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 
 ## 7. 当前进度
 
-- 当前里程碑：M1 应用骨架和第一个前后端调用
-- 当前任务：M2-1 建立 JSON 格式化核心逻辑与单元测试
+- 当前里程碑：M2 JSON 基础工具
+- 当前任务：M2-1 补强 JSON 格式化单元测试，然后接入格式化页面
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
 - 已完成：Git 仓库和 `main` 分支；首次提交 `d428427`；公开仓库 `https://github.com/liuxiangyu2026/TangTool`
@@ -142,10 +142,11 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已验证：本地开发页默认跳转到 `#/json/format`；六个侧栏入口均能切换到对应 Hash 路由和页面标题；`npm run build` 成功；控制台无错误或警告；`git diff --check` 无输出
 - 已完成：M1-1B-3 使用 `RouterLink` 的 `exact-active-class` 提供当前路由选中状态；刷新、直接访问 Hash 路由和点击导航均已验收
 - 已完成：M1-1B-4 统一页面标题和工具工作区；六个页面共用稳定的背景、标题区域和最小高度内容区；`npm run build` 与 `git diff --check` 已通过
-- 待提交前清理：当前 M1-1B 修改尚未提交；菜单对象属性排版仍可整理，但不影响运行
-- 已知状态：M0 尚待补充 ESLint、Prettier 和基础测试；M1 尚待实现正式的 Vue ↔ Rust Command 练习；Vue Router 5 与当前 Vite 6 存在 peer dependency 冲突
-- 交接基线：首次提交是 `d428427`；当前 M1 修改应与本文档一起形成下一次提交并推送，macOS 端以“包含本文交接说明”的最新 `origin/main` 为准
-- 下一步：提交 M1-1B 阶段成果；随后以纯函数和单元测试开始 JSON 格式化，之后再接编辑器界面
+- 已完成：M2-1 初版 `src/utils/json.ts`；空输入返回失败；解析异常返回错误信息；Vitest 已加入 `package.json`，当前 1 个测试通过
+- 待提交前清理：当前 JSON 工具函数、测试和 Vitest 依赖尚未提交；菜单对象属性排版仍可整理，但不影响运行
+- 已知状态：当前 JSON 测试只有 1 个用例，且只断言 `ok`，没有完整断言格式化后的 `value`；需要补充数组、非法 JSON 和空输入测试；M0 尚待补充 ESLint、Prettier；M1 尚待实现正式的 Vue ↔ Rust Command 练习；Vue Router 5 与当前 Vite 6 存在 peer dependency 冲突
+- 交接基线：最新远程提交是 `89c5911 feat: complete tool page shell`；当前 M2 修改应与本文档一起形成下一次提交并推送，macOS 端以“包含本文交接说明”的最新 `origin/main` 为准
+- 下一步：补齐 4 类 JSON 测试并确认 `npm test`、`npm run build`、`git diff --check`，然后把纯函数接入 JSON 格式化页面
 
 ## 8. 当前任务验收标准
 
@@ -183,13 +184,14 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - [x] 内容区域具备稳定的最小高度，不因占位内容为空而塌陷
 - [x] `npm run build` 和 `git diff --check` 均通过
 
-### 下一步：M2-1 JSON 格式化核心逻辑与单元测试
+### 当前任务：M2-1 JSON 格式化核心逻辑与单元测试
 
-- JSON 处理先拆成不依赖 Vue 的纯函数
-- 格式化成功时返回缩进后的 JSON
-- 格式化失败时返回可显示的错误信息，不吞掉异常
-- 先补 Vitest 测试，再把函数接入页面
-- 覆盖对象、数组、压缩 JSON、非法 JSON 和空输入
+- [x] JSON 处理先拆成不依赖 Vue 的纯函数
+- [x] 格式化成功时返回缩进后的 JSON
+- [x] 格式化失败时返回可显示的错误信息，不吞掉异常
+- [ ] 补齐 Vitest 测试：对象、数组、压缩 JSON、非法 JSON 和空输入
+- [ ] 测试成功结果中的 `value`，不要只测试 `ok`
+- [ ] 测试通过后把函数接入 JSON 格式化页面
 
 ### 已完成：M1-1B-1 页面壳外层结构
 
@@ -210,13 +212,13 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - [x] 执行 `git diff --check`，没有输出
 - [ ] 提交前补齐 `src/App.vue` 文件末尾换行并统一菜单数据字符串引号
 
-### 当前任务：M1-1B-3 侧栏当前路由选中状态
+### 已完成：M1-1B-3 侧栏当前路由选中状态
 
 - 为当前路由提供明显但克制的选中背景和文字/图标颜色
 - 使用 Vue Router 的路由状态或 `RouterLink` active class，不复制维护第二份当前路径状态
 - 确保页面刷新、直接访问 Hash 路由和点击导航后选中状态一致
 
-### 当前任务：M1-1B-4 统一页面标题和内容区域
+### 已完成：M1-1B-4 统一页面标题和内容区域
 
 - 页面背景覆盖主内容区的可视高度
 - 页面内边距在普通桌面和较宽窗口下保持合理
@@ -278,8 +280,9 @@ npm run tauri dev
 ### 最新交接状态（2026-08-31）
 
 - macOS 已完成 Rust stable、Tauri 原生编译和本地开发页验证；当前项目代码可以通过 `npm run tauri dev` 启动桌面窗口，前端修改会由 Vite HMR 自动刷新。
-- 当前最新远端提交仍为 `ea685bb feat: add Tailwind and initial tool routes`；M1-1A、M1-1B-1 和 M1-1B-2 的修改尚未形成新提交，具体以 `git status --short --branch` 和 `git log -1 --oneline` 为准。
-- 换到 Windows 前，必须在 macOS 完成提交并执行 `git push`；否则 Windows 只能看到旧的 `origin/main`，无法获得本次交接进度。
+- 当前最新远端提交为 `89c5911 feat: complete tool page shell`；JSON 工具函数、测试和 Vitest 依赖尚未形成新提交，具体以 `git status --short --branch` 和 `git log -1 --oneline` 为准。
+- 当前 `npm test` 有 1 个测试通过，但测试覆盖仍不完整；下次先补齐测试，不要把单个通过用例视为 M2-1 完成。
+- 换到 Windows 前，必须在 macOS 完成 JSON 测试补强、构建验收、提交并执行 `git push`；否则 Windows 只能看到旧的 `origin/main`，无法获得本次交接进度。
 
 Windows 端接续命令：
 
@@ -292,4 +295,4 @@ npm run build
 npm run tauri dev
 ```
 
-启动后先阅读本文档第 7、8 节：补齐 `src/App.vue` 的两个提交前格式细节，再开始 M1-1B-3 侧栏选中状态开发。
+下次继续时先阅读本文档第 7、8 节：补齐 JSON 测试覆盖并审查当前测试断言，再接入 JSON 格式化页面；完成后由开发者提交并推送。
