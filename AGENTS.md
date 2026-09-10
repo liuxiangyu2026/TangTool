@@ -92,9 +92,9 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 
 ### M2：JSON 基础工具
 
-- [ ] JSON 格式化、压缩、校验和错误定位
-- [ ] 增加编辑器、示例、清空、复制和文件导入导出
-- [ ] 添加核心逻辑单元测试
+- [x] JSON 格式化、压缩、校验和错误定位
+- [x] 增加编辑器、示例、清空、复制和文件导入导出
+- [x] 添加核心逻辑单元测试
 
 ### M3：JSON 对比和 JSON 转 Excel
 
@@ -128,7 +128,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 ## 7. 当前进度
 
 - 当前里程碑：M2 JSON 基础工具
-- 当前任务：M2-1 补强 JSON 格式化单元测试，然后接入格式化页面
+- 当前任务：M2 收尾验收与提交；完成后进入 M3-1 JSON 结构化对比
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
 - 已完成：Git 仓库和 `main` 分支；首次提交 `d428427`；公开仓库 `https://github.com/liuxiangyu2026/TangTool`
@@ -143,10 +143,29 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已完成：M1-1B-3 使用 `RouterLink` 的 `exact-active-class` 提供当前路由选中状态；刷新、直接访问 Hash 路由和点击导航均已验收
 - 已完成：M1-1B-4 统一页面标题和工具工作区；六个页面共用稳定的背景、标题区域和最小高度内容区；`npm run build` 与 `git diff --check` 已通过
 - 已完成：M2-1 初版 `src/utils/json.ts`；空输入返回失败；解析异常返回错误信息；Vitest 已加入 `package.json`，当前 1 个测试通过
-- 待提交前清理：当前 JSON 工具函数、测试和 Vitest 依赖尚未提交；菜单对象属性排版仍可整理，但不影响运行
-- 已知状态：当前 JSON 测试只有 1 个用例，且只断言 `ok`，没有完整断言格式化后的 `value`；需要补充数组、非法 JSON 和空输入测试；M0 尚待补充 ESLint、Prettier；M1 尚待实现正式的 Vue ↔ Rust Command 练习；Vue Router 5 与当前 Vite 6 存在 peer dependency 冲突
-- 交接基线：最新远程提交是 `89c5911 feat: complete tool page shell`；当前 M2 修改应与本文档一起形成下一次提交并推送，macOS 端以“包含本文交接说明”的最新 `origin/main` 为准
-- 下一步：补齐 4 类 JSON 测试并确认 `npm test`、`npm run build`、`git diff --check`，然后把纯函数接入 JSON 格式化页面
+- 已完成：M2-1 JSON 格式化测试补强；对象、数组、压缩 JSON、非法 JSON 和空输入共 5 个用例通过，成功结果已完整断言 `value`
+- 已完成：M2-1 JSON 格式化页面；新增 `JsonFormatView.vue`，完成输入、格式化操作、只读输出和错误提示，并将 `/json/format` 切换到专用页面
+- 已验证：有效 JSON 能输出两空格缩进结果；非法 JSON 会清空旧输出并显示解析错误；空输入显示“JSON 内容不能为空”；`npm test` 5 个用例通过；`npm run build` 和 `git diff --check` 通过
+- 已完成：M2-2 JSON 压缩与编辑体验；新增 `minifyJson` 和 5 个测试，JSON 测试共 10 个；格式化页改为单个 CodeMirror 6 编辑器，顶部提供格式化、压缩和复制按钮
+- 已完成：CodeMirror JSON 语法高亮和折叠槽；key、字符串、数字、布尔值和 null 使用不同颜色，格式化后的对象与数组支持收起和展开
+- 已完成：接入 Tauri Clipboard 插件，仅授予 `clipboard-manager:allow-write-text` 权限；默认窗口调整为 1200×800，最小尺寸为 900×640；所有工具页减少外边距并放宽内容区域
+- 已验证：`npm test` 10 个用例通过；`npm run build`、`cargo check` 和 `git diff --check` 通过；JSON 专用页面已懒加载，构建不再出现 500 KB 首屏块警告；`npm run tauri dev` 启动成功
+- 已完成：JSON 顶部工具栏增加清除按钮；格式化、压缩、复制和清除均使用 Lucide 小图标，并分别使用蓝、橙、绿、红配色
+- 已完成：按当前 `示例 → 格式化 → 压缩 → 复制 → 清除 → 导入 → 导出` 顺序保留工具栏位置；按钮缩小为 `px-3 py-1.5`、图标 14px，使界面更紧凑
+- 已完成：路由出口使用 `KeepAlive` 并以路由名作为缓存 key；切换到其他工具再返回时保留 JSON 内容、折叠状态和撤销历史，刷新或关闭应用后仍会清空
+- 已验证：JSON 格式化页切换到 JSON 对比页后再返回，编辑内容保持不变；清除按钮能清空内容并将焦点放回编辑器
+- 已完成：M2-3 新增 `validateJson` 和结构化错误结果；解析失败返回错误原因、字符位置、行号和列号，并使用 JSON 语法树作为不同运行时错误文案的定位兜底
+- 已完成：CodeMirror 接入实时 lint；输入停止约 300ms 后显示错误标记，格式化或压缩失败时自动滚动并定位错误字符，底部显示标准化原因和行列信息
+- 已验证：多行尾随逗号在第 3 行显示 lint 标记，点击格式化后显示第 3 行第 1 列；修正后错误标记和提示清除；`npm test` 13 个用例、`npm run build` 和 `git diff --check` 通过
+- 已完成：M2-4 增加示例、导入和导出按钮；示例覆盖对象、数组、字符串、数字、布尔值和 null；导入与导出使用 Tauri Dialog 和 FS 插件
+- 已完成：文件能力遵循最小权限；只开放打开/保存对话框、读取文本文件和写入文本文件，文件对话框选择的路径只在当前应用会话中临时加入 FS scope
+- 已验证：真实 Tauri debug 应用中完成 JSON 文件导入、导出、取消导入、取消导出和空内容阻止导出；导出文件与导入源逐字节一致；测试文件已清理
+- 已验证：`npm test` 13 个用例、`npm run build`、`cargo check --offline`、`git diff --check` 和 `npm run tauri build -- --debug --bundles app` 通过
+- 已验证：debug `.app` 中点击复制后显示“已复制到剪贴板”，Tauri Clipboard 写文本权限实际可用
+- 待提交前清理：当前 M2-1 至 M2-4 的页面、测试、依赖、Tauri 权限和进度文档尚未提交；菜单对象属性排版仍可整理，但不影响运行
+- 已知状态：M0 尚待补充 ESLint、Prettier；M1 尚待实现正式的 Vue ↔ Rust Command 练习；Vue Router 5 与当前 Vite 6 存在 peer dependency 冲突
+- 交接基线：最新远程提交是 `605839b feat: add JSON formatting core`；当前测试和后续页面修改应与本文档一起形成下一次提交并推送
+- 下一步：复查完整差异并由开发者提交、推送 M2；随后进入 M3-1 JSON 结构化对比
 
 ## 8. 当前任务验收标准
 
@@ -184,14 +203,58 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - [x] 内容区域具备稳定的最小高度，不因占位内容为空而塌陷
 - [x] `npm run build` 和 `git diff --check` 均通过
 
-### 当前任务：M2-1 JSON 格式化核心逻辑与单元测试
+### 已完成：M2-1 JSON 格式化核心逻辑、单元测试与页面接入
 
 - [x] JSON 处理先拆成不依赖 Vue 的纯函数
 - [x] 格式化成功时返回缩进后的 JSON
 - [x] 格式化失败时返回可显示的错误信息，不吞掉异常
-- [ ] 补齐 Vitest 测试：对象、数组、压缩 JSON、非法 JSON 和空输入
-- [ ] 测试成功结果中的 `value`，不要只测试 `ok`
-- [ ] 测试通过后把函数接入 JSON 格式化页面
+- [x] 补齐 Vitest 测试：对象、数组、压缩 JSON、非法 JSON 和空输入
+- [x] 测试成功结果中的 `value`，不要只测试 `ok`
+- [x] 测试通过后把函数接入 JSON 格式化页面
+- [x] 页面提供 JSON 输入、格式化按钮和只读输出
+- [x] 格式化失败时清空旧输出并显示错误提示
+- [x] 本地验证有效 JSON、非法 JSON 和空输入三条交互路径
+- [x] `npm test`、`npm run build` 和 `git diff --check` 均通过
+
+### 已完成：M2-2 JSON 压缩、CodeMirror 编辑器与复制
+
+- [x] 新增不依赖 Vue 的 JSON 压缩纯函数，保持与 `formatJson` 一致的结果类型和空输入行为
+- [x] 覆盖对象、数组、已压缩 JSON、非法 JSON 和空输入测试
+- [x] 格式化与压缩结果在同一个编辑器中展示
+- [x] 顶部工具栏提供格式化、压缩和复制按钮，编辑区尺寸变化不移动按钮
+- [x] 顶部工具栏提供清除按钮，清除后编辑器重新获得焦点
+- [x] 四个操作按钮均带 Lucide 小图标，并使用不同的语义颜色
+- [x] 使用 CodeMirror 6 提供 JSON 语法高亮、行号和折叠槽
+- [x] 格式化后的对象与数组支持收起和展开
+- [x] 使用 `KeepAlive` 保留菜单切换前的 JSON 内容、折叠状态和撤销历史
+- [x] 复制使用 Tauri Clipboard 插件，能力配置只允许写文本
+- [x] 默认窗口使用 1200×800，最小尺寸使用 900×640
+- [x] 工具页面减少四周 padding 并扩大内容占比
+- [x] `npm test`、`npm run build`、`cargo check`、`git diff --check` 和 `npm run tauri dev` 通过
+- [x] 在真实 debug `.app` 中点击复制按钮，确认显示成功提示
+
+### 已完成：M2-3 JSON 语法校验与错误位置
+
+- [x] 将解析错误转换为稳定、可展示的原因信息
+- [x] 提取错误字符位置，并显示行号与列号
+- [x] 使用 JSON 语法树作为不同运行时错误信息的定位兜底
+- [x] 在 CodeMirror 中实时显示 lint 标记
+- [x] 格式化或压缩失败时滚动并定位错误字符
+- [x] 修正内容后清除错误提示和标记
+- [x] 为合法 JSON、多行非法 JSON 和空输入补充校验测试
+- [x] `npm test` 13 个用例、`npm run build` 和 `git diff --check` 通过
+
+### 已完成：M2-4 示例 JSON 与文件导入导出
+
+- [x] 增加一键填充示例 JSON，并复用当前单编辑器和状态清理逻辑
+- [x] 通过 Tauri 文件选择能力读取本地 JSON 文件
+- [x] 将当前编辑器内容保存为 JSON 文件
+- [x] 导出前校验当前内容，避免将非法内容保存为 `.json`
+- [x] 保持所有内容在本机处理，并为取消选择、读取失败和保存失败提供提示
+- [x] 只授予 Dialog 打开/保存与 FS 文本读写权限，不开放目录遍历、删除或重命名能力
+- [x] 真实 Tauri 应用中验证导入、导出、取消操作和空内容阻止导出
+- [x] 验证导出文件与导入源逐字节一致，并清理临时测试文件
+- [x] `npm test`、`npm run build`、`cargo check --offline`、`git diff --check` 和 debug `.app` 构建通过
 
 ### 已完成：M1-1B-1 页面壳外层结构
 
@@ -235,6 +298,8 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 2026-08-30：应用唯一标识使用 `com.github.liuxiangyu2026.tangtool`。
 - 2026-08-30：当前脚手架保持 Vite 6，并固定 Vue Router 4；Vue Router 5 要求 Vite 7.3 或 8，不使用 `--force` 绕过 peer dependency 检查。
 - 2026-08-31：没有父组件、共享布局或共享守卫需求的工具路由使用扁平配置；URL 继续表达功能分组，显示分组由路由 meta 维护。
+- 2026-09-10：工具页面通过路由级 `KeepAlive` 保存会话期临时状态，并以路由名区分缓存实例；状态不写入磁盘，刷新或关闭应用后清空。
+- 2026-09-10：JSON 文件导入导出使用 Tauri Dialog 返回用户明确选择的路径，由 FS 插件读写；只开放文本读写命令，路径 scope 仅在当前应用会话中生效。
 
 ## 10. 待确认事项
 
@@ -277,12 +342,12 @@ npm run tauri dev
 
 如果仓库已经存在，则在工作区干净的前提下执行 `git pull --ff-only`。首次 Rust 编译下载和编译 crate 会比较慢。启动成功后先阅读本文档第 7、8 节，从路由和占位页清理继续，不要直接跳到侧栏开发。
 
-### 最新交接状态（2026-08-31）
+### 最新交接状态（2026-09-10）
 
 - macOS 已完成 Rust stable、Tauri 原生编译和本地开发页验证；当前项目代码可以通过 `npm run tauri dev` 启动桌面窗口，前端修改会由 Vite HMR 自动刷新。
-- 当前最新远端提交为 `89c5911 feat: complete tool page shell`；JSON 工具函数、测试和 Vitest 依赖尚未形成新提交，具体以 `git status --short --branch` 和 `git log -1 --oneline` 为准。
-- 当前 `npm test` 有 1 个测试通过，但测试覆盖仍不完整；下次先补齐测试，不要把单个通过用例视为 M2-1 完成。
-- 换到 Windows 前，必须在 macOS 完成 JSON 测试补强、构建验收、提交并执行 `git push`；否则 Windows 只能看到旧的 `origin/main`，无法获得本次交接进度。
+- 当前最新远端提交为 `605839b feat: add JSON formatting core`；JSON 测试补强、格式化页面和本文档更新尚未形成新提交，具体以 `git status --short --branch` 和 `git log -1 --oneline` 为准。
+- 当前 `npm test` 有 13 个测试通过；单编辑器格式化、压缩、语法高亮、折叠、实时校验、错误定位、示例填充、复制和 JSON 文件导入导出均已完成真实 Tauri 应用交互验收。
+- 换到 Windows 前，必须在 macOS 完成构建验收、提交并执行 `git push`；否则 Windows 只能看到旧的 `origin/main`，无法获得本次页面实现和交接进度。
 
 Windows 端接续命令：
 
@@ -295,4 +360,4 @@ npm run build
 npm run tauri dev
 ```
 
-下次继续时先阅读本文档第 7、8 节：补齐 JSON 测试覆盖并审查当前测试断言，再接入 JSON 格式化页面；完成后由开发者提交并推送。
+下次继续时先阅读本文档第 7、8 节：复查、提交并推送完整 M2 修改；之后进入 M3-1 JSON 结构化对比。

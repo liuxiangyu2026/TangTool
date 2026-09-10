@@ -11,7 +11,7 @@ const router = createRouter({
     {
       path: "/json/format",
       name: "json-format",
-      component: ToolPlaceholderView,
+      component: () => import("../views/JsonFormatView.vue"),
       meta: {
         title: "JSON 格式化",
         group: "JSON",

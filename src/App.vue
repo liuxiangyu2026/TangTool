@@ -17,7 +17,11 @@
       </nav>
     </aside>
     <main class="min-w-0 flex-1 overflow-auto">
-      <RouterView />
+      <RouterView v-slot="{ Component, route }">
+        <KeepAlive>
+          <component :is="Component" :key="route.name" />
+        </KeepAlive>
+      </RouterView>
     </main>
   </div>
 </template>

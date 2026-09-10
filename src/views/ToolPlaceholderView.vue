@@ -1,6 +1,6 @@
 <template>
-  <section class="min-h-full bg-neutral-100 p-6 sm:p-8">
-    <div class="mx-auto max-w-5xl">
+  <section class="min-h-full bg-neutral-100 p-4 sm:p-6">
+    <div class="w-full">
       <header>
         <p class="text-sm font-medium text-neutral-500">{{ route.meta.group }}</p>
         <h1 class="mt-1 text-2xl font-semibold text-neutral-900">{{ route.meta.title }}</h1>
