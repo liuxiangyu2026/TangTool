@@ -39,6 +39,14 @@ export function validateJson(input: string): ValidateJsonResult {
   return result.ok ? { ok: true } : result;
 }
 
+export function formatJsonErrorMessage(result: JsonErrorResult): string {
+  if (result.line === undefined || result.column === undefined) {
+    return result.error;
+  }
+
+  return `${result.error}（第 ${result.line} 行，第 ${result.column} 列）`;
+}
+
 function parseJson(input: string): ParseJsonResult {
   if (input.trim() === "") {
     return { ok: false, error: "JSON 内容不能为空" };

@@ -20,7 +20,7 @@ const router = createRouter({
     {
       path: "/json/diff",
       name: "json-diff",
-      component: ToolPlaceholderView,
+      component: () => import("../views/JsonDiffView.vue"),
       meta: {
         title: "JSON 对比",
         group: "JSON",

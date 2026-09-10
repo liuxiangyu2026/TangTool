@@ -60,7 +60,7 @@ import { BookOpen, Copy, FolderOpen, Minimize2, Save, Trash2, WandSparkles } fro
 import { onActivated, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 
-import { formatJson, minifyJson, validateJson, type FormatJsonResult, type JsonErrorResult } from "../utils/json";
+import { formatJson, formatJsonErrorMessage, minifyJson, validateJson, type FormatJsonResult, type JsonErrorResult } from "../utils/json";
 
 type JsonTransform = (input: string) => FormatJsonResult;
 type StatusTone = "success" | "neutral";
@@ -142,7 +142,7 @@ onMounted(() => {
         return [{
           from,
           to: Math.min(from + 1, view.state.doc.length),
-          message: getJsonErrorMessage(result),
+          message: formatJsonErrorMessage(result),
           severity: "error",
         }];
       }, { delay: 300 }),
@@ -267,7 +267,7 @@ function replaceEditorContent(content: string) {
 
 function showJsonError(result: JsonErrorResult) {
   const view = editorView;
-  errorMessage.value = getJsonErrorMessage(result);
+  errorMessage.value = formatJsonErrorMessage(result);
 
   if (!view || result.position === undefined) {
     return;
@@ -314,11 +314,4 @@ function clearJson() {
   statusMessage.value = "";
 }
 
-function getJsonErrorMessage(result: JsonErrorResult): string {
-  if (result.line === undefined || result.column === undefined) {
-    return result.error;
-  }
-
-  return `${result.error}（第 ${result.line} 行，第 ${result.column} 列）`;
-}
 </script>
