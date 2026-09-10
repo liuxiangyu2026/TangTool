@@ -29,7 +29,7 @@ const router = createRouter({
     {
       path: "/json/excel",
       name: "json-excel",
-      component: ToolPlaceholderView,
+      component: () => import("../views/JsonExcelView.vue"),
       meta: {
         title: "JSON 转 Excel",
         group: "JSON",

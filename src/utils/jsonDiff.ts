@@ -109,8 +109,8 @@ function alignJsonValues(leftValue: unknown, rightValue: unknown): [unknown, unk
   const commonKeys = leftKeys.filter((key) => rightKeySet.has(key));
   const leftOnlyKeys = leftKeys.filter((key) => !rightKeySet.has(key));
   const rightOnlyKeys = rightKeys.filter((key) => !leftKeySet.has(key));
-  const alignedLeft: Record<string, unknown> = {};
-  const alignedRight: Record<string, unknown> = {};
+  const alignedLeft = Object.create(null) as Record<string, unknown>;
+  const alignedRight = Object.create(null) as Record<string, unknown>;
 
   // Common keys follow the left input order. Side-only keys remain local and are appended last.
   for (const key of commonKeys) {
