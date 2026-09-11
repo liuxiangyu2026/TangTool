@@ -9,7 +9,9 @@ wrapper independent from MarkItDown's Python API details.
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -22,8 +24,18 @@ def main() -> int:
 
         from markitdown import MarkItDown
 
-        result = MarkItDown(enable_plugins=False).convert(str(input_path))
+        conversion_path = input_path
+        temporary_directory = None
+        if input_path.suffix.lower() == ".doc":
+            temporary_directory = tempfile.TemporaryDirectory()
+            converted = Path(temporary_directory.name) / f"{input_path.stem}.docx"
+            subprocess.run(["soffice", "--headless", "--convert-to", "docx", "--outdir", temporary_directory.name, str(input_path)], check=True, capture_output=True, text=True)
+            conversion_path = converted
+
+        result = MarkItDown(enable_plugins=False).convert(str(conversion_path))
         print(json.dumps({"ok": True, "markdown": result.markdown}, ensure_ascii=False))
+        if temporary_directory:
+            temporary_directory.cleanup()
         return 0
     except Exception as error:  # noqa: BLE001 - sidecar must return errors through its protocol.
         print(json.dumps({"ok": False, "error": str(error)}, ensure_ascii=False))

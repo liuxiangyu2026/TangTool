@@ -107,15 +107,15 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 
 - [x] 使用安全随机源实现密码生成器
 - [x] 实现文本和文件 MD5
-- [ ] 实现文本和文件 Base64 编解码
+- [x] 实现文本和文件 Base64 编解码
 - [x] 对大文件采用 Rust 流式读取和进度事件，避免前端一次性加载
 
 ### M5：Word/PDF 转 Markdown
 
-- [ ] 先在开发环境验证 MarkItDown 的转换效果
-- [ ] 理解并实现 Tauri sidecar 调用、进程通信和错误处理
+- [x] 先在开发环境验证 MarkItDown 的转换效果
+- [x] 理解并实现 Tauri sidecar 调用、进程通信和错误处理
 - [ ] 为 Windows 和 macOS 构建独立 sidecar
-- [ ] 完成拖放、预览、保存和转换限制提示
+- [x] 完成批量选择、Markdown 格式化预览、保存和转换限制提示
 
 ### M6：质量、跨平台构建和发布
 
@@ -128,7 +128,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 ## 7. 当前进度
 
 - 当前里程碑：M4 密码、哈希与 Base64
-- 当前任务：M5-1 MarkItDown 环境与转换入口验证
+- 当前任务：M5-2 文档批量转换与格式化预览真实桌面验收
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
 - 已完成：Git 仓库和 `main` 分支；首次提交 `d428427`；公开仓库 `https://github.com/liuxiangyu2026/TangTool`
@@ -227,13 +227,15 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已完成：M5 环境初步评估；Python 3.10.7 和 `uv` 已安装，系统存在 LibreOffice，但仓库当前没有 MarkItDown
 - 已完成：确认官方 MarkItDown 支持 PDF、Word 和命令行输入输出；PDF/DOCX 依赖可使用 `markitdown[pdf,docx]` 安装
 - 已完成：新增 `sidecar/markitdown_runner.py`，定义单次 JSON 请求/响应协议，输入本地文件路径并返回 Markdown 或结构化错误；禁用插件，保持本地处理边界
-- 已完成：文档转 Markdown 页面接入 DOCX/PDF 选择、sidecar 转换、Markdown 预览、复制和清除；页面提示扫描版 PDF、复杂排版和表格可能存在识别误差
+- 已完成：文档转 Markdown 页面支持 DOC、DOCX、PDF 选择；sidecar 逐个转换批量文件，并用文件名分隔合并 Markdown 结果
+- 已完成：右侧预览支持基础 Markdown 格式化渲染（标题、段落、换行和列表），并提供复制和保存 Markdown
+- 已完成：文档输入框与预览框之间增加 25%～75% 的竖向拖动分隔器
 - 已完成：文档页增加 Markdown 保存按钮；浏览器拖放当前提示使用原生选择按钮，Tauri 原生拖放事件留待 sidecar 打包阶段接入
 - 已修复：Tauri 进程当前目录位于 `src-tauri` 时无法找到项目根目录 sidecar；Rust 现在兼容当前目录和上一级项目目录，并从项目根目录查找 `.venv`
 - 已修复：项目虚拟环境不存在时不再回退到系统 Python；转换命令会提示在项目根目录创建 `.venv` 并安装 MarkItDown，避免出现模糊的 `No module named 'markitdown'`
 - 已完成：用户手动安装 MarkItDown PDF/DOCX 依赖；DOCX 临时样本转换成功，标题和正文结构保留；PDF 临时样本转换成功，但当前字体环境下中文出现乱码
 - 已完成：临时虚拟环境、DOCX/PDF 样本和转换结果已清理；sidecar 仍保持单次 JSON 请求/响应协议
-- 下一步：在真实 Tauri 窗口验证 DOCX/PDF 选择与转换，再处理 sidecar 打包和跨平台路径
+- 下一步：在真实 Tauri 窗口验证 DOC/DOCX/PDF 批量转换和格式化预览，再处理 sidecar 打包和跨平台路径
 
 ## 8. 当前任务验收标准
 
