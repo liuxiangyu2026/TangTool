@@ -3,7 +3,6 @@ use md5::{Digest, Md5};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{self, BufReader, BufWriter, Read};
-use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use tauri::{AppHandle, Emitter};
 
@@ -118,11 +117,12 @@ fn convert_document_to_markdown(path: String) -> Result<String, String> {
     } else {
         (working_directory.join(".venv/bin/python"), sidecar_path)
     };
-    let python = if python.is_file() {
-        python
-    } else {
-        PathBuf::from("python3")
-    };
+    if !python.is_file() {
+        return Err(format!(
+            "未找到项目虚拟环境 Python：{}。请先在项目根目录执行 uv venv --python 3.10 .venv 和 uv pip install --python .venv/bin/python \"markitdown[pdf,docx]\"",
+            python.display()
+        ));
+    }
     let request = serde_json::json!({ "inputPath": path });
     let output = Command::new(python)
         .arg(runner)
