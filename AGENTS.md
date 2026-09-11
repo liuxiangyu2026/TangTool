@@ -128,7 +128,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 ## 7. 当前进度
 
 - 当前里程碑：M4 密码、哈希与 Base64
-- 当前任务：M4-3 Base64 文件编解码收尾与提交
+- 当前任务：M4 收尾质量检查；完成后进入 M5 文档转 Markdown
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
 - 已完成：Git 仓库和 `main` 分支；首次提交 `d428427`；公开仓库 `https://github.com/liuxiangyu2026/TangTool`
@@ -213,6 +213,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已完成：Base64 页面合并文本和文件两种模式；文件模式支持选择文件、保存 Base64 编码结果和保存解码结果
 - 已完成：Rust 新增 Base64 文件编码/解码 Command，沿用 Tauri Dialog 的输入输出路径，不增加重复菜单
 - 已完成：Base64 文件编码/解码改为 Rust 缓冲流式处理，避免一次性读取整个文件；编码输出和解码输出均直接写入用户选择的目标路径
+- 已完成：M4 密码、MD5、URL 编码和 Base64 功能均已实现；最新流式 Base64 修改已通过提交 `88cbef9 BASE64大文件处理` 保存
 - 已验证：临时 Rust 测试覆盖长度、四类必选字符、易混淆字符排除、非法选项和连续生成不同，验证后测试代码已删除
 - 已验证：`cargo check --offline`、`cargo clippy --offline -- -D warnings`、`cargo fmt --check`、现有 13 个前端测试、`npm run build` 和 `git diff --check` 通过
 - 已验证：最新 debug `.app` 中默认自动生成 6 条 20 位密码；长度与数量联动、仅数字生成、易混淆字符开关、无字符类型错误、重新生成、逐条复制和复制全部均符合规则
@@ -222,7 +223,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已知状态：M0 尚待补充 ESLint、Prettier；Vue Router 5 与当前 Vite 6 存在 peer dependency 冲突
 - 已知状态：M3-1 当前按数组索引比较，不识别对象数组元素移动；如后续确认需要移动检测，再评估 `jsondiffpatch` 的 `objectHash` 规则
 - 交接基线：最新远程提交是 `c2fee6c 文本md5`；当前菜单拆分、Base64 文本页面和文件 MD5 页面接入状态应一起形成下一次提交并推送
-- 下一步：提交 Base64 文件编解码；随后进入 M4 收尾和发布质量检查
+- 下一步：完成 M4 最终回归和发布检查；随后进入 M5 文档转 Markdown
 
 ## 8. 当前任务验收标准
 
