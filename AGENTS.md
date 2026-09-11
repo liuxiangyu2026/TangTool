@@ -86,7 +86,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 ### M1：应用骨架和第一个前后端调用
 
 - [ ] 建立工具型布局、侧栏、路由和统一页面结构
-- [ ] 完成第一个 Vue 调用 Rust Command 的练习
+- [x] 完成第一个 Vue 调用 Rust Command 的练习
 - [ ] 学习 Tauri 权限、配置和错误返回
 - [ ] 建立通用复制、文件选择、保存和提示能力
 
@@ -105,7 +105,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 
 ### M4：密码、哈希与 Base64
 
-- [ ] 使用安全随机源实现密码生成器
+- [x] 使用安全随机源实现密码生成器
 - [ ] 实现文本和文件 MD5
 - [ ] 实现文本和文件 Base64 编解码
 - [ ] 对大文件采用流式处理，避免界面卡顿
@@ -127,8 +127,8 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 
 ## 7. 当前进度
 
-- 当前里程碑：M3 JSON 对比和 JSON 转 Excel
-- 当前任务：M3 收尾验收与提交；完成后进入 M4-1 安全密码生成器
+- 当前里程碑：M4 密码、哈希与 Base64
+- 当前任务：M4-1 安全密码生成器收尾与提交；完成后进入 M4-2 文本 MD5
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
 - 已完成：Git 仓库和 `main` 分支；首次提交 `d428427`；公开仓库 `https://github.com/liuxiangyu2026/TangTool`
@@ -192,11 +192,20 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已完成：平铺模式使用单个 `JSON Data` Sheet，不生成各层数组 Sheet；递归字段不再保存为 JSON 字符串，节点中的其他非递归数组仍按原规则保存
 - 已验证：用户提供的三层 `children` 示例生成 1 行 × 6 列；多根节点、不同分支深度、空子数组、包装数组中的递归结构、普通非递归数组和 XLSX 回读均通过
 - 已验证：递归平铺选项、输入和预览在菜单切换后保持不变；临时验证脚本已删除，未新增测试文件
-- 待提交前清理：当前 M3-3、M3-4、数组拆分及递归平铺增强、`__proto__` 安全修正和进度文档尚未提交
-- 已知状态：M0 尚待补充 ESLint、Prettier；M1 尚待实现正式的 Vue ↔ Rust Command 练习；Vue Router 5 与当前 Vite 6 存在 peer dependency 冲突
+- 已完成：M3 JSON 转 Excel 已通过提交 `43e4143 feat: add JSON to Excel conversion` 推送到 `origin/main`
+- 已完成：M4-1 密码规则确定；长度 4～128、默认 20；生成数量 1～20、默认 6；支持大写、小写、数字、特殊字符，并默认排除 `0 O o 1 I l |`
+- 已完成：Rust 新增 `generate_passwords` Tauri Command，使用操作系统安全随机源、无偏索引采样和 Fisher–Yates 打乱，独立生成指定数量，并保证每种已选字符类型至少出现一次
+- 已完成：密码生成器页面；提供长度滑块和数字输入、生成数量、字符类型、排除易混淆字符、自动/手动生成、逐条复制、复制全部、熵值强度和本地隐私说明；页面通过路由懒加载
+- 已完成：修复窗口放大时密码结果区与顶部按钮之间的多余空白；结果内容改为顶部对齐并独立滚动，避免使用垂直居中放大空白
+- 已验证：临时 Rust 测试覆盖长度、四类必选字符、易混淆字符排除、非法选项和连续生成不同，验证后测试代码已删除
+- 已验证：`cargo check --offline`、`cargo clippy --offline -- -D warnings`、`cargo fmt --check`、现有 13 个前端测试、`npm run build` 和 `git diff --check` 通过
+- 已验证：最新 debug `.app` 中默认自动生成 6 条 20 位密码；长度与数量联动、仅数字生成、易混淆字符开关、无字符类型错误、重新生成、逐条复制和复制全部均符合规则
+- 已验证：密码配置、生成结果和复制状态在菜单切换后保留；1200×800 窗口下双栏布局正常；验收结束后已恢复默认 20 位和全部字符类型配置
+- 待提交前清理：当前 M4-1 的 Rust 依赖、Tauri Command、密码页面、路由和进度文档尚未提交
+- 已知状态：M0 尚待补充 ESLint、Prettier；Vue Router 5 与当前 Vite 6 存在 peer dependency 冲突
 - 已知状态：M3-1 当前按数组索引比较，不识别对象数组元素移动；如后续确认需要移动检测，再评估 `jsondiffpatch` 的 `objectHash` 规则
-- 交接基线：最新远程提交是 `d230e73 feat: add structured JSON comparison`；当前 M3-3、M3-4、数组拆分与递归平铺增强应和本文档一起形成下一次提交并推送
-- 下一步：复查 M3 完整差异并由开发者提交、推送；随后进入 M4-1，先设计安全密码生成规则和 Rust/系统随机源边界
+- 交接基线：最新远程提交是 `43e4143 feat: add JSON to Excel conversion`；当前 M4-1 修改应和本文档一起形成下一次提交并推送
+- 下一步：复查并提交、推送 M4-1；随后进入 M4-2 文本 MD5
 
 ## 8. 当前任务验收标准
 
@@ -354,6 +363,22 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - [x] 真实 debug `.app` 保存 XLSX，并通过 SheetJS 回读验证工作表、数据和列宽
 - [x] 现有 13 个测试、`npm run build`、`cargo check --offline`、`git diff --check` 和 debug `.app` 构建通过
 
+### 当前任务：M4-1 安全密码生成器
+
+- [x] 密码长度限制为 4～128，默认 20
+- [x] 生成数量限制为 1～20，默认 6
+- [x] 支持大写字母、小写字母、数字和特殊字符，并保证每种已选类型至少出现一次
+- [x] 默认排除 `0 O o 1 I l |` 易混淆字符
+- [x] 使用 Rust 和操作系统安全随机源，不使用 `Math.random()`
+- [x] 使用无偏索引采样和安全打乱，避免取模偏差及固定字符类型位置
+- [x] 页面提供长度输入、滑块、字符类型、排除选项、生成、复制和密码强度
+- [x] 页面支持一次生成多条密码，提供生成数量、逐条复制和复制全部
+- [x] 结果内容区域顶部对齐并独立滚动，窗口放大时不产生额外大段空白
+- [x] 默认进入页面自动生成，设置变化后重新生成，菜单切换保留当前状态
+- [x] 临时 Rust 测试验证生成规则后删除，没有保留测试代码
+- [x] `cargo check`、Clippy、rustfmt、现有前端测试、生产构建和 `git diff --check` 通过
+- [x] 在真实 Tauri 窗口验证自动生成、设置联动、非法配置、复制和状态保留
+
 ### 已完成：M1-1B-1 页面壳外层结构
 
 - [x] 根容器使用 `flex h-screen overflow-hidden`
@@ -405,6 +430,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 2026-09-10：SheetJS 使用官方 CDN 发布的 0.20.3，不使用 npm 公共仓库中过时的 0.18.5；前端生成 XLSX `Uint8Array`，再通过 Tauri FS 写入用户选择的路径。
 - 2026-09-10：数组字段默认仍以紧凑 JSON 留在主 Sheet；用户选择拆分后才从主 Sheet 移除并生成子 Sheet。子 Sheet 可重复用户选择的非数组主要字段，空数组不创建工作表，Sheet 名按 Excel 规则自动清洗并保证唯一。
 - 2026-09-10：树形递归 JSON 以“数组元素中再次出现同名数组字段”为识别条件；用户启用平铺后，每条根到末级节点路径生成一行，以层级前缀保留全部祖先数据，并用单个 `JSON Data` Sheet 替代逐层子 Sheet。
+- 2026-09-11：密码生成由 Rust Tauri Command 负责，使用 `getrandom` 0.4.3 直接读取操作系统安全随机源；前端只传递生成配置和显示结果。字符选择使用拒绝采样消除取模偏差，必选字符加入后通过 Fisher–Yates 打乱位置；一次命令返回 1～20 条独立密码。
 
 ## 10. 待确认事项
 
@@ -447,11 +473,12 @@ npm run tauri dev
 
 如果仓库已经存在，则在工作区干净的前提下执行 `git pull --ff-only`。首次 Rust 编译下载和编译 crate 会比较慢。启动成功后先阅读本文档第 7、8 节，从路由和占位页清理继续，不要直接跳到侧栏开发。
 
-### 最新交接状态（2026-09-10）
+### 最新交接状态（2026-09-11）
 
 - macOS 已完成 Rust stable、Tauri 原生编译和本地开发页验证；当前项目代码可以通过 `npm run tauri dev` 启动桌面窗口，前端修改会由 Vite HMR 自动刷新。
-- 当前最新远端提交为 `d230e73 feat: add structured JSON comparison`；M3-3、M3-4 的展平函数、SheetJS、JSON 转 Excel 页面、数组拆分与递归平铺增强、权限和本文档更新尚未形成新提交，具体以 `git status --short --branch` 和 `git log -1 --oneline` 为准。
-- 当前 `npm test` 有 13 个测试通过；JSON 对比和 JSON 转 Excel 均已完成交互验收，XLSX 已回读确认主 Sheet、数组子 Sheet、递归叶子路径平铺、重复主要字段、表头、值类型和列宽。
+- 当前最新远端提交为 `43e4143 feat: add JSON to Excel conversion`；M4-1 的 Rust 安全随机命令、多密码生成器页面、路由和本文档更新尚未形成新提交，具体以 `git status --short --branch` 和 `git log -1 --oneline` 为准。
+- 当前 `npm test` 有 13 个测试通过；M4-1 已通过 Rust 临时规则测试、Clippy、rustfmt、Rust 检查、前端生产构建和 debug `.app` 构建，临时测试已删除。
+- 最新 debug `.app` 已完成默认生成 6 条、数量改为 3 条、长度与选项联动、无字符类型错误、易混淆字符开关、逐条复制、复制全部、菜单切换状态保留和窗口布局验收；结束后已恢复默认配置。
 - 换到 Windows 前，必须在 macOS 完成构建验收、提交并执行 `git push`；否则 Windows 只能看到旧的 `origin/main`，无法获得本次页面实现和交接进度。
 
 Windows 端接续命令：
@@ -465,4 +492,4 @@ npm run build
 npm run tauri dev
 ```
 
-下次继续时先阅读本文档第 7、8 节：复查、提交并推送完整 M3 修改；随后进入 M4-1 安全密码生成器。
+下次继续时先阅读本文档第 7、8 节：复查、提交并推送完整 M4-1 修改；随后进入 M4-2 文本 MD5。

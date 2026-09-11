@@ -47,7 +47,7 @@ const router = createRouter({
     {
       path: "/password",
       name: "password",
-      component: ToolPlaceholderView,
+      component: () => import("../views/PasswordGeneratorView.vue"),
       meta: {
         title: "密码生成器",
         group: "安全",
