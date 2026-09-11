@@ -56,12 +56,14 @@ const router = createRouter({
     {
       path: "/hash-codec",
       name: "hash-codec",
-      component: () => import("../views/HashCodecView.vue"),
+      component: () => import("../views/UrlCodecView.vue"),
       meta: {
-        title: "编码工具",
+        title: "URL 编码",
         group: "编码",
       },
     },
+    { path: "/md5", name: "md5", component: () => import("../views/Md5View.vue"), meta: { title: "MD5", group: "编码" } },
+    { path: "/base64", name: "base64", component: () => import("../views/Base64View.vue"), meta: { title: "Base64", group: "编码" } },
   ],
 });
 
