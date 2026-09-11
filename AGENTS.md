@@ -227,15 +227,15 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已完成：M5 环境初步评估；Python 3.10.7 和 `uv` 已安装，系统存在 LibreOffice，但仓库当前没有 MarkItDown
 - 已完成：确认官方 MarkItDown 支持 PDF、Word 和命令行输入输出；PDF/DOCX 依赖可使用 `markitdown[pdf,docx]` 安装
 - 已完成：新增 `sidecar/markitdown_runner.py`，定义单次 JSON 请求/响应协议，输入本地文件路径并返回 Markdown 或结构化错误；禁用插件，保持本地处理边界
-- 已完成：文档转 Markdown 页面支持 DOC、DOCX、PDF 选择；sidecar 逐个转换批量文件，并用文件名分隔合并 Markdown 结果
-- 已完成：右侧预览支持基础 Markdown 格式化渲染（标题、段落、换行和列表），并提供复制和保存 Markdown
-- 已完成：文档输入框与预览框之间增加 25%～75% 的竖向拖动分隔器
+- 已完成：文档转 Markdown 页面支持 DOCX、PDF 选择；sidecar 逐个转换批量文件，并用文件名分隔合并 Markdown 结果
+- 已完成：右侧预览支持格式化预览和原始 Markdown 预览；格式化模式支持标题、段落、换行、列表、引用、代码、粗体、斜体和 Markdown 表格
+- 已完成：文档输入框与预览框之间增加 25%～75% 的竖向拖动分隔器，并使用统一的 `GripVertical` 图标
 - 已完成：文档页增加 Markdown 保存按钮；浏览器拖放当前提示使用原生选择按钮，Tauri 原生拖放事件留待 sidecar 打包阶段接入
 - 已修复：Tauri 进程当前目录位于 `src-tauri` 时无法找到项目根目录 sidecar；Rust 现在兼容当前目录和上一级项目目录，并从项目根目录查找 `.venv`
 - 已修复：项目虚拟环境不存在时不再回退到系统 Python；转换命令会提示在项目根目录创建 `.venv` 并安装 MarkItDown，避免出现模糊的 `No module named 'markitdown'`
-- 已完成：用户手动安装 MarkItDown PDF/DOCX 依赖；DOCX 临时样本转换成功，标题和正文结构保留；PDF 临时样本转换成功，但当前字体环境下中文出现乱码
+- 已完成：用户手动安装 MarkItDown PDF/DOCX 依赖；DOCX 临时样本转换成功，标题和正文结构保留；PDF 临时样本转换成功，但当前字体环境下中文出现乱码；不支持旧式 `.doc`
 - 已完成：临时虚拟环境、DOCX/PDF 样本和转换结果已清理；sidecar 仍保持单次 JSON 请求/响应协议
-- 下一步：在真实 Tauri 窗口验证 DOC/DOCX/PDF 批量转换和格式化预览，再处理 sidecar 打包和跨平台路径
+- 下一步：在真实 Tauri 窗口验证 DOCX/PDF 批量转换和格式化预览，再处理 sidecar 打包和跨平台路径
 
 ## 8. 当前任务验收标准
 
