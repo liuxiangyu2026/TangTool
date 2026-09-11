@@ -128,7 +128,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 ## 7. 当前进度
 
 - 当前里程碑：M4 密码、哈希与 Base64
-- 当前任务：M4-3 Base64 文件编解码；文本 Base64 和编码菜单拆分已完成
+- 当前任务：M4-3 Base64 文件编解码收尾与提交
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
 - 已完成：Git 仓库和 `main` 分支；首次提交 `d428427`；公开仓库 `https://github.com/liuxiangyu2026/TangTool`
@@ -209,16 +209,19 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已完成：编码菜单拆分为 URL 编码、MD5、Base64 三个独立入口和路由；URL 与 MD5 页面不再共用模式切换页
 - 已完成：Base64 文本页面；支持 UTF-8 文本编码、解码、示例、复制、清除和非法内容提示，并明确 Base64 不是加密
 - 已验证：三个侧栏入口、Base64 中文往返、非法 Base64 错误、现有 13 个测试、生产构建和格式检查通过
+- 已完成：MD5 页面合并文本和文件两种模式，文件模式支持选择文件、计算、复制和清除
+- 已完成：Base64 页面合并文本和文件两种模式；文件模式支持选择文件、保存 Base64 编码结果和保存解码结果
+- 已完成：Rust 新增 Base64 文件编码/解码 Command，沿用 Tauri Dialog 的输入输出路径，不增加重复菜单
 - 已验证：临时 Rust 测试覆盖长度、四类必选字符、易混淆字符排除、非法选项和连续生成不同，验证后测试代码已删除
 - 已验证：`cargo check --offline`、`cargo clippy --offline -- -D warnings`、`cargo fmt --check`、现有 13 个前端测试、`npm run build` 和 `git diff --check` 通过
 - 已验证：最新 debug `.app` 中默认自动生成 6 条 20 位密码；长度与数量联动、仅数字生成、易混淆字符开关、无字符类型错误、重新生成、逐条复制和复制全部均符合规则
 - 已验证：密码配置、生成结果和复制状态在菜单切换后保留；1200×800 窗口下双栏布局正常；验收结束后已恢复默认 20 位和全部字符类型配置
 - 已完成：M4-1 密码生成器已通过提交 `69ef33a feat: add secure password generator` 推送到 `origin/main`
-- 待提交前清理：当前菜单拆分、URL/MD5 独立页面、Base64 文本页面和进度文档尚未提交
+- 待提交前清理：当前菜单拆分、MD5/Base64 双模式页面、Base64 文件 Command 和进度文档尚未提交
 - 已知状态：M0 尚待补充 ESLint、Prettier；Vue Router 5 与当前 Vite 6 存在 peer dependency 冲突
 - 已知状态：M3-1 当前按数组索引比较，不识别对象数组元素移动；如后续确认需要移动检测，再评估 `jsondiffpatch` 的 `objectHash` 规则
 - 交接基线：最新远程提交是 `c2fee6c 文本md5`；当前菜单拆分、Base64 文本页面和文件 MD5 页面接入状态应一起形成下一次提交并推送
-- 下一步：完成 Base64 文件编码与解码，重点处理文件选择、流式读取和结果保存
+- 下一步：复查并提交 Base64 文件编解码；随后进入 M4 收尾和发布质量检查
 
 ## 8. 当前任务验收标准
 
@@ -413,7 +416,9 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - [x] 提供示例、编码、解码、复制、清除和错误提示
 - [x] 明确说明 Base64 是编码方式，不是加密
 - [x] Base64 文本中文往返和非法输入验证通过
-- [ ] Base64 文件编码和解码
+- [x] MD5 页面包含文本和文件两个模式
+- [x] Base64 页面包含文本和文件两个模式
+- [x] 文件 Base64 支持选择输入文件、保存编码结果和保存解码结果
 - [x] 文件 MD5 使用 Tauri Dialog 选择文件，并由 Rust 流式读取计算
 - [x] 文件计算通过事件显示进度，并展示文件大小
 - [x] 文件 MD5 提供复制、清除、取消选择和读取失败提示
@@ -521,7 +526,7 @@ npm run tauri dev
 ### 最新交接状态（2026-09-11）
 
 - macOS 已完成 Rust stable、Tauri 原生编译和本地开发页验证；当前项目代码可以通过 `npm run tauri dev` 启动桌面窗口，前端修改会由 Vite HMR 自动刷新。
-- 当前最新远端提交为 `35f9f51 feat:url_encode`；文本 MD5 Command、编码工具双模式页面、依赖、路由和本文档更新尚未形成新提交，具体以 `git status --short --branch` 和 `git log -1 --oneline` 为准。
+- 当前最新远端提交为 `44db08b base64文本编码`；菜单拆分、MD5/Base64 双模式页面、Base64 文件 Command 和本文档更新尚未形成新提交，具体以 `git status --short --branch` 和 `git log -1 --oneline` 为准。
 - 当前 `npm test` 有 13 个测试通过；M4-1 已通过 Rust 临时规则测试、Clippy、rustfmt、Rust 检查、前端生产构建和 debug `.app` 构建，临时测试已删除。
 - 最新 debug `.app` 已完成默认生成 6 条、数量改为 3 条、长度与选项联动、无字符类型错误、易混淆字符开关、逐条复制、复制全部、菜单切换状态保留和窗口布局验收；URL 编码和文本 MD5 已完成浏览器/桌面交互验收；结束后已恢复默认配置。
 - 换到 Windows 前，必须在 macOS 完成构建验收、提交并执行 `git push`；否则 Windows 只能看到旧的 `origin/main`，无法获得本次页面实现和交接进度。

@@ -1,3 +1,4 @@
+use base64::{engine::general_purpose::STANDARD, Engine};
 use md5::{Digest, Md5};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -150,6 +151,32 @@ fn calculate_file_md5_sync(app: AppHandle, path: String) -> Result<FileMd5Result
     })
 }
 
+#[tauri::command]
+async fn encode_file_base64(path: String, output_path: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let bytes = std::fs::read(&path).map_err(|error| format!("读取文件失败：{error}"))?;
+        let encoded = STANDARD.encode(bytes);
+        std::fs::write(&output_path, encoded)
+            .map_err(|error| format!("保存 Base64 文件失败：{error}"))
+    })
+    .await
+    .map_err(|error| format!("Base64 编码任务失败：{error}"))?
+}
+
+#[tauri::command]
+async fn decode_file_base64(path: String, output_path: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let encoded = std::fs::read_to_string(&path)
+            .map_err(|error| format!("读取 Base64 文件失败：{error}"))?;
+        let decoded = STANDARD
+            .decode(encoded.trim())
+            .map_err(|error| format!("Base64 文件内容无效：{error}"))?;
+        std::fs::write(&output_path, decoded).map_err(|error| format!("保存解码文件失败：{error}"))
+    })
+    .await
+    .map_err(|error| format!("Base64 解码任务失败：{error}"))?
+}
+
 fn format_md5(digest: impl AsRef<[u8]>) -> String {
     digest
         .as_ref()
@@ -207,6 +234,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             calculate_file_md5,
+            encode_file_base64,
+            decode_file_base64,
             calculate_text_md5,
             generate_passwords
         ])

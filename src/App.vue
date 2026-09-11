@@ -26,7 +26,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { Braces, GitCompareArrows, FileSpreadsheet, FileText, Hash, KeyRound, Link2 } from "lucide-vue-next";
+import { Binary, Braces, Fingerprint, GitCompareArrows, FileSpreadsheet, FileText, KeyRound, Link2 } from "lucide-vue-next";
 const menuGroups = [
   {
     label: "JSON",
@@ -52,8 +52,8 @@ const menuGroups = [
     label: "编码",
     items: [
       { label: "URL 编码", icon: Link2, path: "/hash-codec" },
-      { label: "MD5", icon: Hash, path: "/md5" },
-      { label: "Base64", icon: Hash, path: "/base64" },
+      { label: "MD5", icon: Fingerprint, path: "/md5" },
+      { label: "Base64", icon: Binary, path: "/base64" },
     ]
   },
 ];
