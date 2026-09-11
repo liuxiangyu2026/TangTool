@@ -127,8 +127,8 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 
 ## 7. 当前进度
 
-- 当前里程碑：M4 密码、哈希与 Base64
-- 当前任务：M5-2 文档批量转换与格式化预览真实桌面验收
+- 当前里程碑：M5 Word/PDF 转 Markdown
+- 当前任务：M5-3 sidecar 正式打包与跨平台适配
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
 - 已完成：Git 仓库和 `main` 分支；首次提交 `d428427`；公开仓库 `https://github.com/liuxiangyu2026/TangTool`
@@ -219,11 +219,12 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已验证：最新 debug `.app` 中默认自动生成 6 条 20 位密码；长度与数量联动、仅数字生成、易混淆字符开关、无字符类型错误、重新生成、逐条复制和复制全部均符合规则
 - 已验证：密码配置、生成结果和复制状态在菜单切换后保留；1200×800 窗口下双栏布局正常；验收结束后已恢复默认 20 位和全部字符类型配置
 - 已完成：M4-1 密码生成器已通过提交 `69ef33a feat: add secure password generator` 推送到 `origin/main`
-- 待提交前清理：当前菜单拆分、MD5/Base64 双模式页面、Base64 文件 Command 和进度文档尚未提交
+- 已完成：M4 密码、MD5、URL 编码和 Base64 功能已通过提交 `88cbef9 BASE64大文件处理`、`76065c6 feat: complete codec tools` 保存
+- 待提交前清理：当前仅需继续维护 M5 文档转换和 sidecar 打包状态
 - 已知状态：M0 尚待补充 ESLint、Prettier；Vue Router 5 与当前 Vite 6 存在 peer dependency 冲突
 - 已知状态：M3-1 当前按数组索引比较，不识别对象数组元素移动；如后续确认需要移动检测，再评估 `jsondiffpatch` 的 `objectHash` 规则
-- 交接基线：最新远程提交是 `c2fee6c 文本md5`；当前菜单拆分、Base64 文本页面和文件 MD5 页面接入状态应一起形成下一次提交并推送
-- 下一步：完成 M4 最终回归和发布检查；随后进入 M5 文档转 Markdown
+- 交接基线：最新本地提交是 `a4f0e3c feat:switch-md`，远程同步状态以 `git status --short --branch` 为准
+- 下一步：完成 M5 sidecar 正式打包与跨平台路径适配；随后进入 M6 质量和发布
 - 已完成：M5 环境初步评估；Python 3.10.7 和 `uv` 已安装，系统存在 LibreOffice，但仓库当前没有 MarkItDown
 - 已完成：确认官方 MarkItDown 支持 PDF、Word 和命令行输入输出；PDF/DOCX 依赖可使用 `markitdown[pdf,docx]` 安装
 - 已完成：新增 `sidecar/markitdown_runner.py`，定义单次 JSON 请求/响应协议，输入本地文件路径并返回 Markdown 或结构化错误；禁用插件，保持本地处理边界
@@ -238,7 +239,8 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已修复：项目虚拟环境不存在时不再回退到系统 Python；转换命令会提示在项目根目录创建 `.venv` 并安装 MarkItDown，避免出现模糊的 `No module named 'markitdown'`
 - 已完成：用户手动安装 MarkItDown PDF/DOCX 依赖；DOCX 临时样本转换成功，标题和正文结构保留；PDF 临时样本转换成功，但当前字体环境下中文出现乱码；不支持旧式 `.doc`
 - 已完成：临时虚拟环境、DOCX/PDF 样本和转换结果已清理；sidecar 仍保持单次 JSON 请求/响应协议
-- 下一步：在真实 Tauri 窗口验证 DOCX/PDF 批量转换和格式化预览，再处理 sidecar 打包和跨平台路径
+- 已验证：真实 Tauri 窗口完成 DOCX/PDF 批量转换、左侧文档列表、格式化/原始预览、删除和清除确认；当前页面修改已提交
+- 下一步：制作 Windows/macOS 可交付 sidecar，解决最终用户手动安装依赖的问题
 
 ## 8. 当前任务验收标准
 
@@ -544,9 +546,9 @@ npm run tauri dev
 ### 最新交接状态（2026-09-11）
 
 - macOS 已完成 Rust stable、Tauri 原生编译和本地开发页验证；当前项目代码可以通过 `npm run tauri dev` 启动桌面窗口，前端修改会由 Vite HMR 自动刷新。
-- 当前最新远端提交为 `44db08b base64文本编码`；菜单拆分、MD5/Base64 双模式页面、Base64 文件 Command 和本文档更新尚未形成新提交，具体以 `git status --short --branch` 和 `git log -1 --oneline` 为准。
-- 当前 `npm test` 有 13 个测试通过；M4-1 已通过 Rust 临时规则测试、Clippy、rustfmt、Rust 检查、前端生产构建和 debug `.app` 构建，临时测试已删除。
-- 最新 debug `.app` 已完成默认生成 6 条、数量改为 3 条、长度与选项联动、无字符类型错误、易混淆字符开关、逐条复制、复制全部、菜单切换状态保留和窗口布局验收；URL 编码和文本 MD5 已完成浏览器/桌面交互验收；结束后已恢复默认配置。
+- 当前最新本地提交为 `a4f0e3c feat:switch-md`；当前分支领先 `origin/main` 的提交和远程同步状态以 `git status --short --branch`、`git log -1 --oneline` 为准。
+- 当前 `npm test` 有 13 个测试通过；M4 全部功能和 M5 页面基础闭环已通过前端构建、Rust 检查、Clippy 和格式检查。
+- 最新验证已覆盖 DOCX/PDF 批量转换、最多 10 个文档、追加选择、单项删除、清除全部确认、Markdown 表格格式化预览、原始预览和左右分隔条；`.doc` 已明确移除。
 - 换到 Windows 前，必须在 macOS 完成构建验收、提交并执行 `git push`；否则 Windows 只能看到旧的 `origin/main`，无法获得本次页面实现和交接进度。
 
 Windows 端接续命令：
@@ -560,4 +562,4 @@ npm run build
 npm run tauri dev
 ```
 
-下次继续时先阅读本文档第 7、8 节：复查、提交并推送文件 MD5 修改；随后进入 Base64 编解码。
+下次继续时先阅读本文档第 7、8 节：从 M5-3 sidecar 正式打包与跨平台路径适配继续；随后进入 M6 质量和发布。
