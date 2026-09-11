@@ -1,8 +1,8 @@
-use base64::{engine::general_purpose::STANDARD, Engine};
+use base64::engine::general_purpose::STANDARD;
 use md5::{Digest, Md5};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
-use std::io::Read;
+use std::io::{self, BufReader, BufWriter, Read};
 use tauri::{AppHandle, Emitter};
 
 const UPPERCASE: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -154,10 +154,16 @@ fn calculate_file_md5_sync(app: AppHandle, path: String) -> Result<FileMd5Result
 #[tauri::command]
 async fn encode_file_base64(path: String, output_path: String) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || {
-        let bytes = std::fs::read(&path).map_err(|error| format!("读取文件失败：{error}"))?;
-        let encoded = STANDARD.encode(bytes);
-        std::fs::write(&output_path, encoded)
-            .map_err(|error| format!("保存 Base64 文件失败：{error}"))
+        let input = File::open(&path).map_err(|error| format!("读取文件失败：{error}"))?;
+        let output =
+            File::create(&output_path).map_err(|error| format!("创建 Base64 文件失败：{error}"))?;
+        let mut encoder = base64::write::EncoderWriter::new(BufWriter::new(output), &STANDARD);
+        io::copy(&mut BufReader::new(input), &mut encoder)
+            .map_err(|error| format!("Base64 编码失败：{error}"))?;
+        encoder
+            .finish()
+            .map_err(|error| format!("保存 Base64 文件失败：{error}"))?;
+        Ok::<(), String>(())
     })
     .await
     .map_err(|error| format!("Base64 编码任务失败：{error}"))?
@@ -166,12 +172,13 @@ async fn encode_file_base64(path: String, output_path: String) -> Result<(), Str
 #[tauri::command]
 async fn decode_file_base64(path: String, output_path: String) -> Result<(), String> {
     tauri::async_runtime::spawn_blocking(move || {
-        let encoded = std::fs::read_to_string(&path)
-            .map_err(|error| format!("读取 Base64 文件失败：{error}"))?;
-        let decoded = STANDARD
-            .decode(encoded.trim())
-            .map_err(|error| format!("Base64 文件内容无效：{error}"))?;
-        std::fs::write(&output_path, decoded).map_err(|error| format!("保存解码文件失败：{error}"))
+        let input = File::open(&path).map_err(|error| format!("读取 Base64 文件失败：{error}"))?;
+        let output =
+            File::create(&output_path).map_err(|error| format!("创建解码文件失败：{error}"))?;
+        let mut decoder = base64::read::DecoderReader::new(BufReader::new(input), &STANDARD);
+        io::copy(&mut decoder, &mut BufWriter::new(output))
+            .map_err(|error| format!("Base64 解码失败：{error}"))?;
+        Ok::<(), String>(())
     })
     .await
     .map_err(|error| format!("Base64 解码任务失败：{error}"))?
