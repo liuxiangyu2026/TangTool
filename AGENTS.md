@@ -128,7 +128,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 ## 7. 当前进度
 
 - 当前里程碑：M4 密码、哈希与 Base64
-- 当前任务：M4-2 URL 编码与解码收尾；完成后进入文本 MD5
+- 当前任务：M4-2 文本 MD5 收尾与提交；完成后进入文件 MD5
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
 - 已完成：Git 仓库和 `main` 分支；首次提交 `d428427`；公开仓库 `https://github.com/liuxiangyu2026/TangTool`
@@ -200,6 +200,9 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已完成：新增 URL 编码工具页；使用 `encodeURIComponent` 和 `decodeURIComponent` 处理 URL 参数组件，支持示例、编码、解码、复制和清除
 - 已完成：URL 解码失败时显示明确的百分号编码错误；不发起网络请求，输入、结果和操作状态通过路由 `KeepAlive` 保留
 - 已验证：URL 示例编码、中文和特殊字符解码还原、非法编码提示、菜单切换状态保留、生产构建和现有 13 个测试通过
+- 已完成：编码工具页增加文本 MD5 模式；Rust 新增 `calculate_text_md5` Command，按 UTF-8 字节计算 32 位小写十六进制摘要
+- 已完成：MD5 模式提供示例、计算、复制和清除，明确提示 MD5 不是加密；空输入由 Rust 返回可展示错误
+- 已验证：标准 `abc` 摘要、中文文本、空输入错误、复制提示、URL/MD5 模式切换和 debug `.app` 交互均通过
 - 已验证：临时 Rust 测试覆盖长度、四类必选字符、易混淆字符排除、非法选项和连续生成不同，验证后测试代码已删除
 - 已验证：`cargo check --offline`、`cargo clippy --offline -- -D warnings`、`cargo fmt --check`、现有 13 个前端测试、`npm run build` 和 `git diff --check` 通过
 - 已验证：最新 debug `.app` 中默认自动生成 6 条 20 位密码；长度与数量联动、仅数字生成、易混淆字符开关、无字符类型错误、重新生成、逐条复制和复制全部均符合规则
@@ -208,8 +211,8 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 待提交前清理：当前 URL 编码页面、纯函数、路由、菜单和进度文档尚未提交
 - 已知状态：M0 尚待补充 ESLint、Prettier；Vue Router 5 与当前 Vite 6 存在 peer dependency 冲突
 - 已知状态：M3-1 当前按数组索引比较，不识别对象数组元素移动；如后续确认需要移动检测，再评估 `jsondiffpatch` 的 `objectHash` 规则
-- 交接基线：最新远程提交是 `69ef33a feat: add secure password generator`；当前 URL 编码页面、纯函数、路由、菜单和本文档更新应一起形成下一次提交并推送
-- 下一步：复查并提交、推送 URL 编码功能；随后进入文本 MD5
+- 交接基线：最新远程提交是 `35f9f51 feat:url_encode`；当前文本 MD5 Command、编码工具双模式页面、依赖、路由和本文档更新应一起形成下一次提交并推送
+- 下一步：复查并提交、推送 M4-2；随后进入文件 MD5，重点学习 Rust 流式读取和大文件进度边界
 
 ## 8. 当前任务验收标准
 
@@ -383,7 +386,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - [x] `cargo check`、Clippy、rustfmt、现有前端测试、生产构建和 `git diff --check` 通过
 - [x] 在真实 Tauri 窗口验证自动生成、设置联动、非法配置、复制和状态保留
 
-### 当前任务：M4-2 URL 编码与解码
+### 已完成：M4-2 URL 编码、解码与文本 MD5
 
 - [x] 使用 `encodeURIComponent` 实现 URL 参数组件编码
 - [x] 使用 `decodeURIComponent` 实现 URL 参数组件解码
@@ -392,6 +395,10 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - [x] 页面提供示例、编码、解码、复制和清除操作
 - [x] 页面切换后保留输入、结果和操作状态
 - [x] 浏览器交互、`npm test`、`npm run build` 和 `git diff --check` 通过
+- [x] 文本 MD5 模式使用 Rust Command 计算 UTF-8 字节摘要
+- [x] MD5 提供示例、计算、复制、清除和空输入错误
+- [x] 明确说明 MD5 不是加密，不能用于存储密码
+- [x] 标准摘要、中文文本和真实 Tauri IPC 交互验收通过
 
 ### 已完成：M1-1B-1 页面壳外层结构
 
@@ -446,6 +453,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 2026-09-10：树形递归 JSON 以“数组元素中再次出现同名数组字段”为识别条件；用户启用平铺后，每条根到末级节点路径生成一行，以层级前缀保留全部祖先数据，并用单个 `JSON Data` Sheet 替代逐层子 Sheet。
 - 2026-09-11：密码生成由 Rust Tauri Command 负责，使用 `getrandom` 0.4.3 直接读取操作系统安全随机源；前端只传递生成配置和显示结果。字符选择使用拒绝采样消除取模偏差，必选字符加入后通过 Fisher–Yates 打乱位置；一次命令返回 1～20 条独立密码。
 - 2026-09-11：URL 编码使用 `encodeURIComponent` / `decodeURIComponent` 处理参数组件，不使用 `encodeURI`，也不发起网络请求；解码错误在前端转换为可展示提示。
+- 2026-09-11：文本 MD5 使用 RustCrypto `md-5` 0.11.0 的 `Md5::digest` 计算 UTF-8 字节摘要；前端通过 Tauri Command 调用，页面明确标注 MD5 仅用于兼容性摘要，不是加密。
 
 ## 10. 待确认事项
 
@@ -491,9 +499,9 @@ npm run tauri dev
 ### 最新交接状态（2026-09-11）
 
 - macOS 已完成 Rust stable、Tauri 原生编译和本地开发页验证；当前项目代码可以通过 `npm run tauri dev` 启动桌面窗口，前端修改会由 Vite HMR 自动刷新。
-- 当前最新远端提交为 `69ef33a feat: add secure password generator`；URL 编码页面、纯函数、路由、菜单和本文档更新尚未形成新提交，具体以 `git status --short --branch` 和 `git log -1 --oneline` 为准。
+- 当前最新远端提交为 `35f9f51 feat:url_encode`；文本 MD5 Command、编码工具双模式页面、依赖、路由和本文档更新尚未形成新提交，具体以 `git status --short --branch` 和 `git log -1 --oneline` 为准。
 - 当前 `npm test` 有 13 个测试通过；M4-1 已通过 Rust 临时规则测试、Clippy、rustfmt、Rust 检查、前端生产构建和 debug `.app` 构建，临时测试已删除。
-- 最新 debug `.app` 已完成默认生成 6 条、数量改为 3 条、长度与选项联动、无字符类型错误、易混淆字符开关、逐条复制、复制全部、菜单切换状态保留和窗口布局验收；URL 编码页已完成浏览器交互验收；结束后已恢复默认配置。
+- 最新 debug `.app` 已完成默认生成 6 条、数量改为 3 条、长度与选项联动、无字符类型错误、易混淆字符开关、逐条复制、复制全部、菜单切换状态保留和窗口布局验收；URL 编码和文本 MD5 已完成浏览器/桌面交互验收；结束后已恢复默认配置。
 - 换到 Windows 前，必须在 macOS 完成构建验收、提交并执行 `git push`；否则 Windows 只能看到旧的 `origin/main`，无法获得本次页面实现和交接进度。
 
 Windows 端接续命令：
@@ -507,4 +515,4 @@ npm run build
 npm run tauri dev
 ```
 
-下次继续时先阅读本文档第 7、8 节：复查、提交并推送 URL 编码修改；随后进入 M4-2 文本 MD5。
+下次继续时先阅读本文档第 7、8 节：复查、提交并推送 M4-2 修改；随后进入文件 MD5。

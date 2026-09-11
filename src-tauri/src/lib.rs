@@ -1,4 +1,6 @@
+use md5::{Digest, Md5};
 use serde::Deserialize;
+use std::fmt::Write;
 
 const UPPERCASE: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const LOWERCASE: &[u8] = b"abcdefghijklmnopqrstuvwxyz";
@@ -73,6 +75,21 @@ fn generate_passwords(options: PasswordOptions) -> Result<Vec<String>, String> {
         .collect()
 }
 
+#[tauri::command]
+fn calculate_text_md5(input: String) -> Result<String, String> {
+    if input.is_empty() {
+        return Err("请输入需要计算 MD5 的文本".to_string());
+    }
+
+    let digest = Md5::digest(input.as_bytes());
+    let mut result = String::with_capacity(32);
+    for byte in digest {
+        write!(&mut result, "{byte:02x}").map_err(|_| "生成 MD5 摘要失败".to_string())?;
+    }
+
+    Ok(result)
+}
+
 fn generate_one_password(
     length: usize,
     selected_groups: &[Vec<u8>],
@@ -120,7 +137,10 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![generate_passwords])
+        .invoke_handler(tauri::generate_handler![
+            calculate_text_md5,
+            generate_passwords
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
