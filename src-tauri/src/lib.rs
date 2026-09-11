@@ -91,8 +91,24 @@ fn calculate_text_md5(input: String) -> Result<String, String> {
 
 #[tauri::command]
 fn convert_document_to_markdown(path: String) -> Result<String, String> {
-    let working_directory =
+    let current_directory =
         std::env::current_dir().map_err(|error| format!("无法确定应用目录：{error}"))?;
+    let working_directory = if current_directory
+        .join("sidecar/markitdown_runner.py")
+        .is_file()
+    {
+        current_directory.clone()
+    } else if current_directory
+        .join("../sidecar/markitdown_runner.py")
+        .is_file()
+    {
+        current_directory.join("..")
+    } else {
+        return Err(
+            "找不到 MarkItDown sidecar，请确认项目根目录存在 sidecar/markitdown_runner.py"
+                .to_string(),
+        );
+    };
     let sidecar_path = working_directory.join("sidecar/markitdown_runner.py");
     let (python, runner) = if cfg!(target_os = "windows") {
         (
