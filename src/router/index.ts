@@ -56,9 +56,9 @@ const router = createRouter({
     {
       path: "/hash-codec",
       name: "hash-codec",
-      component: ToolPlaceholderView,
+      component: () => import("../views/UrlCodecView.vue"),
       meta: {
-        title: "MD5 / Base64",
+        title: "URL 编码",
         group: "编码",
       },
     },
