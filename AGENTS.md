@@ -228,8 +228,9 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已完成：确认官方 MarkItDown 支持 PDF、Word 和命令行输入输出；PDF/DOCX 依赖可使用 `markitdown[pdf,docx]` 安装
 - 已完成：新增 `sidecar/markitdown_runner.py`，定义单次 JSON 请求/响应协议，输入本地文件路径并返回 Markdown 或结构化错误；禁用插件，保持本地处理边界
 - 已完成：文档转 Markdown 页面支持 DOCX、PDF 选择；sidecar 逐个转换批量文件，并用文件名分隔合并 Markdown 结果
-- 已完成：右侧预览支持格式化预览和原始 Markdown 预览；格式化模式支持标题、段落、换行、列表、引用、代码、粗体、斜体和 Markdown 表格
-- 已完成：文档输入框与预览框之间增加 25%～75% 的竖向拖动分隔器，并使用统一的 `GripVertical` 图标
+- 已完成：文档选择最多 10 个，左侧按选择顺序纵向排列；点击文档后右侧显示对应 Markdown 内容，转换结果按文档独立保存
+- 已完成：引入 `marked` 解析 Markdown；右侧支持格式化预览和原始 Markdown 预览，表格、标题、列表、引用、代码、粗体和斜体会渲染为对应 HTML
+- 已完成：文档列表与预览之间增加 25%～55% 的竖向拖动分隔器，并使用统一的 `GripVertical` 图标
 - 已完成：文档页增加 Markdown 保存按钮；浏览器拖放当前提示使用原生选择按钮，Tauri 原生拖放事件留待 sidecar 打包阶段接入
 - 已修复：Tauri 进程当前目录位于 `src-tauri` 时无法找到项目根目录 sidecar；Rust 现在兼容当前目录和上一级项目目录，并从项目根目录查找 `.venv`
 - 已修复：项目虚拟环境不存在时不再回退到系统 Python；转换命令会提示在项目根目录创建 `.venv` 并安装 MarkItDown，避免出现模糊的 `No module named 'markitdown'`
