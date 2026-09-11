@@ -3,6 +3,8 @@ use md5::{Digest, Md5};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{self, BufReader, BufWriter, Read};
+use std::path::PathBuf;
+use std::process::{Command, Stdio};
 use tauri::{AppHandle, Emitter};
 
 const UPPERCASE: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -85,6 +87,62 @@ fn calculate_text_md5(input: String) -> Result<String, String> {
     }
 
     Ok(format_md5(Md5::digest(input.as_bytes())))
+}
+
+#[tauri::command]
+fn convert_document_to_markdown(path: String) -> Result<String, String> {
+    let working_directory =
+        std::env::current_dir().map_err(|error| format!("无法确定应用目录：{error}"))?;
+    let sidecar_path = working_directory.join("sidecar/markitdown_runner.py");
+    let (python, runner) = if cfg!(target_os = "windows") {
+        (
+            working_directory.join(".venv/Scripts/python.exe"),
+            sidecar_path,
+        )
+    } else {
+        (working_directory.join(".venv/bin/python"), sidecar_path)
+    };
+    let python = if python.is_file() {
+        python
+    } else {
+        PathBuf::from("python3")
+    };
+    let request = serde_json::json!({ "inputPath": path });
+    let output = Command::new(python)
+        .arg(runner)
+        .current_dir(working_directory)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .and_then(|mut child| {
+            std::io::Write::write_all(
+                child.stdin.as_mut().expect("stdin is piped"),
+                request.to_string().as_bytes(),
+            )?;
+            child.wait_with_output()
+        })
+        .map_err(|error| format!("启动文档转换进程失败：{error}"))?;
+
+    let response: serde_json::Value = serde_json::from_slice(&output.stdout).map_err(|_| {
+        format!(
+            "文档转换进程返回了无效结果：{}",
+            String::from_utf8_lossy(&output.stderr)
+        )
+    })?;
+    if response.get("ok").and_then(serde_json::Value::as_bool) != Some(true) {
+        return Err(response
+            .get("error")
+            .and_then(serde_json::Value::as_str)
+            .unwrap_or("文档转换失败")
+            .to_string());
+    }
+
+    response
+        .get("markdown")
+        .and_then(serde_json::Value::as_str)
+        .map(str::to_owned)
+        .ok_or_else(|| "文档转换结果为空".to_string())
 }
 
 #[derive(Serialize)]
@@ -241,6 +299,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             calculate_file_md5,
+            convert_document_to_markdown,
             encode_file_base64,
             decode_file_base64,
             calculate_text_md5,

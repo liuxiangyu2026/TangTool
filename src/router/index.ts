@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import ToolPlaceholderView from "../views/ToolPlaceholderView.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -38,7 +37,7 @@ const router = createRouter({
     {
       path: "/document/markdown",
       name: "document-markdown",
-      component: ToolPlaceholderView,
+      component: () => import("../views/DocumentMarkdownView.vue"),
       meta: {
         title: "文档转 Markdown",
         group: "文档",
