@@ -128,7 +128,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 ## 7. 当前进度
 
 - 当前里程碑：M4 密码、哈希与 Base64
-- 当前任务：M4 收尾质量检查；完成后进入 M5 文档转 Markdown
+- 当前任务：M5-1 MarkItDown 环境与转换入口验证
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
 - 已完成：Git 仓库和 `main` 分支；首次提交 `d428427`；公开仓库 `https://github.com/liuxiangyu2026/TangTool`
@@ -224,6 +224,10 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已知状态：M3-1 当前按数组索引比较，不识别对象数组元素移动；如后续确认需要移动检测，再评估 `jsondiffpatch` 的 `objectHash` 规则
 - 交接基线：最新远程提交是 `c2fee6c 文本md5`；当前菜单拆分、Base64 文本页面和文件 MD5 页面接入状态应一起形成下一次提交并推送
 - 下一步：完成 M4 最终回归和发布检查；随后进入 M5 文档转 Markdown
+- 已完成：M5 环境初步评估；Python 3.10.7 和 `uv` 已安装，系统存在 LibreOffice，但仓库当前没有 MarkItDown
+- 已完成：确认官方 MarkItDown 支持 PDF、Word 和命令行输入输出；PDF/DOCX 依赖可使用 `markitdown[pdf,docx]` 安装
+- 阻塞项：隔离安装 MarkItDown 依赖时下载大型 Python 包耗时过长，本次已中止并删除临时 `.venv`；尚未进行真实 DOCX/PDF 转换验证
+- 下一步：重新安装可用的 MarkItDown 依赖并验证 DOCX/PDF 转换，再设计 Tauri sidecar
 
 ## 8. 当前任务验收标准
 
