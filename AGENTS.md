@@ -226,8 +226,9 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 下一步：完成 M4 最终回归和发布检查；随后进入 M5 文档转 Markdown
 - 已完成：M5 环境初步评估；Python 3.10.7 和 `uv` 已安装，系统存在 LibreOffice，但仓库当前没有 MarkItDown
 - 已完成：确认官方 MarkItDown 支持 PDF、Word 和命令行输入输出；PDF/DOCX 依赖可使用 `markitdown[pdf,docx]` 安装
+- 已完成：新增 `sidecar/markitdown_runner.py`，定义单次 JSON 请求/响应协议，输入本地文件路径并返回 Markdown 或结构化错误；禁用插件，保持本地处理边界
 - 阻塞项：隔离安装 MarkItDown 依赖时下载大型 Python 包耗时过长，本次已中止并删除临时 `.venv`；尚未进行真实 DOCX/PDF 转换验证
-- 下一步：重新安装可用的 MarkItDown 依赖并验证 DOCX/PDF 转换，再设计 Tauri sidecar
+- 下一步：解决 MarkItDown 依赖安装后验证 DOCX/PDF 转换，再接入 Tauri sidecar 和页面预览
 
 ## 8. 当前任务验收标准
 
