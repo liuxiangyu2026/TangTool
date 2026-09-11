@@ -1,6 +1,8 @@
 use md5::{Digest, Md5};
-use serde::Deserialize;
-use std::fmt::Write;
+use serde::{Deserialize, Serialize};
+use std::fs::File;
+use std::io::Read;
+use tauri::{AppHandle, Emitter};
 
 const UPPERCASE: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const LOWERCASE: &[u8] = b"abcdefghijklmnopqrstuvwxyz";
@@ -81,13 +83,79 @@ fn calculate_text_md5(input: String) -> Result<String, String> {
         return Err("请输入需要计算 MD5 的文本".to_string());
     }
 
-    let digest = Md5::digest(input.as_bytes());
-    let mut result = String::with_capacity(32);
-    for byte in digest {
-        write!(&mut result, "{byte:02x}").map_err(|_| "生成 MD5 摘要失败".to_string())?;
+    Ok(format_md5(Md5::digest(input.as_bytes())))
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct FileMd5Result {
+    digest: String,
+    byte_length: u64,
+}
+
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct FileMd5Progress {
+    processed_bytes: u64,
+    total_bytes: u64,
+}
+
+#[tauri::command]
+async fn calculate_file_md5(app: AppHandle, path: String) -> Result<FileMd5Result, String> {
+    tauri::async_runtime::spawn_blocking(move || calculate_file_md5_sync(app, path))
+        .await
+        .map_err(|error| format!("文件 MD5 任务执行失败：{error}"))?
+}
+
+fn calculate_file_md5_sync(app: AppHandle, path: String) -> Result<FileMd5Result, String> {
+    let mut file = File::open(&path).map_err(|error| format!("无法读取文件：{error}"))?;
+    let total_bytes = file
+        .metadata()
+        .map_err(|error| format!("无法读取文件信息：{error}"))?
+        .len();
+    let mut hasher = Md5::new();
+    let mut buffer = [0_u8; 1024 * 1024];
+    let mut processed_bytes = 0_u64;
+
+    let _ = app.emit(
+        "md5-file-progress",
+        FileMd5Progress {
+            processed_bytes,
+            total_bytes,
+        },
+    );
+
+    loop {
+        let bytes_read = file
+            .read(&mut buffer)
+            .map_err(|error| format!("读取文件失败：{error}"))?;
+        if bytes_read == 0 {
+            break;
+        }
+
+        hasher.update(&buffer[..bytes_read]);
+        processed_bytes += bytes_read as u64;
+        let _ = app.emit(
+            "md5-file-progress",
+            FileMd5Progress {
+                processed_bytes,
+                total_bytes,
+            },
+        );
     }
 
-    Ok(result)
+    Ok(FileMd5Result {
+        digest: format_md5(hasher.finalize()),
+        byte_length: processed_bytes,
+    })
+}
+
+fn format_md5(digest: impl AsRef<[u8]>) -> String {
+    digest
+        .as_ref()
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
 }
 
 fn generate_one_password(
@@ -138,6 +206,7 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
+            calculate_file_md5,
             calculate_text_md5,
             generate_passwords
         ])

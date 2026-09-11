@@ -106,9 +106,9 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 ### M4：密码、哈希与 Base64
 
 - [x] 使用安全随机源实现密码生成器
-- [ ] 实现文本和文件 MD5
+- [x] 实现文本和文件 MD5
 - [ ] 实现文本和文件 Base64 编解码
-- [ ] 对大文件采用流式处理，避免界面卡顿
+- [x] 对大文件采用 Rust 流式读取和进度事件，避免前端一次性加载
 
 ### M5：Word/PDF 转 Markdown
 
@@ -128,7 +128,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 ## 7. 当前进度
 
 - 当前里程碑：M4 密码、哈希与 Base64
-- 当前任务：M4-2 文本 MD5 收尾与提交；完成后进入文件 MD5
+- 当前任务：M4-2 文件 MD5 收尾与提交；完成后进入 Base64 编解码
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
 - 已完成：Git 仓库和 `main` 分支；首次提交 `d428427`；公开仓库 `https://github.com/liuxiangyu2026/TangTool`
@@ -203,6 +203,9 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已完成：编码工具页增加文本 MD5 模式；Rust 新增 `calculate_text_md5` Command，按 UTF-8 字节计算 32 位小写十六进制摘要
 - 已完成：MD5 模式提供示例、计算、复制和清除，明确提示 MD5 不是加密；空输入由 Rust 返回可展示错误
 - 已验证：标准 `abc` 摘要、中文文本、空输入错误、复制提示、URL/MD5 模式切换和 debug `.app` 交互均通过
+- 已完成：文件 MD5 使用 Rust `spawn_blocking` 和 1 MiB 缓冲区流式读取；通过 `md5-file-progress` 事件向前端报告进度，并返回摘要和文件大小
+- 已完成：文件 MD5 模式提供文件选择、计算、进度、文件大小、复制和清除；文件只在本机读取，不上传
+- 已验证：18 字节临时文件回读结果 `942a7d28876abb20171e3699acab5b65`、100% 进度、文件大小、复制和清理状态均通过真实 debug `.app`
 - 已验证：临时 Rust 测试覆盖长度、四类必选字符、易混淆字符排除、非法选项和连续生成不同，验证后测试代码已删除
 - 已验证：`cargo check --offline`、`cargo clippy --offline -- -D warnings`、`cargo fmt --check`、现有 13 个前端测试、`npm run build` 和 `git diff --check` 通过
 - 已验证：最新 debug `.app` 中默认自动生成 6 条 20 位密码；长度与数量联动、仅数字生成、易混淆字符开关、无字符类型错误、重新生成、逐条复制和复制全部均符合规则
@@ -211,8 +214,8 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 待提交前清理：当前 URL 编码页面、纯函数、路由、菜单和进度文档尚未提交
 - 已知状态：M0 尚待补充 ESLint、Prettier；Vue Router 5 与当前 Vite 6 存在 peer dependency 冲突
 - 已知状态：M3-1 当前按数组索引比较，不识别对象数组元素移动；如后续确认需要移动检测，再评估 `jsondiffpatch` 的 `objectHash` 规则
-- 交接基线：最新远程提交是 `35f9f51 feat:url_encode`；当前文本 MD5 Command、编码工具双模式页面、依赖、路由和本文档更新应一起形成下一次提交并推送
-- 下一步：复查并提交、推送 M4-2；随后进入文件 MD5，重点学习 Rust 流式读取和大文件进度边界
+- 交接基线：最新远程提交是 `aaa7eb7 md5编码`；当前文件 MD5 Command、流式进度、编码工具页面和本文档更新应一起形成下一次提交并推送
+- 下一步：复查并提交、推送文件 MD5；随后进入 Base64 文本与文件编解码
 
 ## 8. 当前任务验收标准
 
@@ -399,6 +402,11 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - [x] MD5 提供示例、计算、复制、清除和空输入错误
 - [x] 明确说明 MD5 不是加密，不能用于存储密码
 - [x] 标准摘要、中文文本和真实 Tauri IPC 交互验收通过
+- [x] 文件 MD5 使用 Tauri Dialog 选择文件，并由 Rust 流式读取计算
+- [x] 文件计算通过事件显示进度，并展示文件大小
+- [x] 文件 MD5 提供复制、清除、取消选择和读取失败提示
+- [x] 空文件和大文件边界继续由流式实现覆盖
+- [x] 真实 debug `.app` 文件选择、摘要回读、进度和复制验收通过
 
 ### 已完成：M1-1B-1 页面壳外层结构
 
@@ -454,6 +462,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 2026-09-11：密码生成由 Rust Tauri Command 负责，使用 `getrandom` 0.4.3 直接读取操作系统安全随机源；前端只传递生成配置和显示结果。字符选择使用拒绝采样消除取模偏差，必选字符加入后通过 Fisher–Yates 打乱位置；一次命令返回 1～20 条独立密码。
 - 2026-09-11：URL 编码使用 `encodeURIComponent` / `decodeURIComponent` 处理参数组件，不使用 `encodeURI`，也不发起网络请求；解码错误在前端转换为可展示提示。
 - 2026-09-11：文本 MD5 使用 RustCrypto `md-5` 0.11.0 的 `Md5::digest` 计算 UTF-8 字节摘要；前端通过 Tauri Command 调用，页面明确标注 MD5 仅用于兼容性摘要，不是加密。
+- 2026-09-11：文件 MD5 由 Rust `spawn_blocking` 执行，使用 1 MiB 缓冲区流式读取，并通过 Tauri 事件发送已处理字节数；前端不读取文件内容，只传递用户通过 Dialog 选择的路径。
 
 ## 10. 待确认事项
 
@@ -515,4 +524,4 @@ npm run build
 npm run tauri dev
 ```
 
-下次继续时先阅读本文档第 7、8 节：复查、提交并推送 M4-2 修改；随后进入文件 MD5。
+下次继续时先阅读本文档第 7、8 节：复查、提交并推送文件 MD5 修改；随后进入 Base64 编解码。
