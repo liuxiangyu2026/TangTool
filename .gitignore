@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local Python environments and generated sidecars (never remove a user's .venv).
+.venv/
+.venv-sidecar/
+__pycache__/
+sidecar/build/
+src-tauri/binaries/tangtool-markitdown-*

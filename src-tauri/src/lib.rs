@@ -3,7 +3,8 @@ use md5::{Digest, Md5};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{self, BufReader, BufWriter, Read};
-use std::process::{Command, Stdio};
+mod document;
+use document::convert_document_to_markdown;
 use tauri::{AppHandle, Emitter};
 
 const UPPERCASE: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -86,79 +87,6 @@ fn calculate_text_md5(input: String) -> Result<String, String> {
     }
 
     Ok(format_md5(Md5::digest(input.as_bytes())))
-}
-
-#[tauri::command]
-fn convert_document_to_markdown(path: String) -> Result<String, String> {
-    let current_directory =
-        std::env::current_dir().map_err(|error| format!("无法确定应用目录：{error}"))?;
-    let working_directory = if current_directory
-        .join("sidecar/markitdown_runner.py")
-        .is_file()
-    {
-        current_directory.clone()
-    } else if current_directory
-        .join("../sidecar/markitdown_runner.py")
-        .is_file()
-    {
-        current_directory.join("..")
-    } else {
-        return Err(
-            "找不到 MarkItDown sidecar，请确认项目根目录存在 sidecar/markitdown_runner.py"
-                .to_string(),
-        );
-    };
-    let sidecar_path = working_directory.join("sidecar/markitdown_runner.py");
-    let (python, runner) = if cfg!(target_os = "windows") {
-        (
-            working_directory.join(".venv/Scripts/python.exe"),
-            sidecar_path,
-        )
-    } else {
-        (working_directory.join(".venv/bin/python"), sidecar_path)
-    };
-    if !python.is_file() {
-        return Err(format!(
-            "未找到项目虚拟环境 Python：{}。请先在项目根目录执行 uv venv --python 3.10 .venv 和 uv pip install --python .venv/bin/python \"markitdown[pdf,docx]\"",
-            python.display()
-        ));
-    }
-    let request = serde_json::json!({ "inputPath": path });
-    let output = Command::new(python)
-        .arg(runner)
-        .current_dir(working_directory)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .and_then(|mut child| {
-            std::io::Write::write_all(
-                child.stdin.as_mut().expect("stdin is piped"),
-                request.to_string().as_bytes(),
-            )?;
-            child.wait_with_output()
-        })
-        .map_err(|error| format!("启动文档转换进程失败：{error}"))?;
-
-    let response: serde_json::Value = serde_json::from_slice(&output.stdout).map_err(|_| {
-        format!(
-            "文档转换进程返回了无效结果：{}",
-            String::from_utf8_lossy(&output.stderr)
-        )
-    })?;
-    if response.get("ok").and_then(serde_json::Value::as_bool) != Some(true) {
-        return Err(response
-            .get("error")
-            .and_then(serde_json::Value::as_str)
-            .unwrap_or("文档转换失败")
-            .to_string());
-    }
-
-    response
-        .get("markdown")
-        .and_then(serde_json::Value::as_str)
-        .map(str::to_owned)
-        .ok_or_else(|| "文档转换结果为空".to_string())
 }
 
 #[derive(Serialize)]

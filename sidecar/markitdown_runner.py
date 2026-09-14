@@ -9,33 +9,42 @@ wrapper independent from MarkItDown's Python API details.
 from __future__ import annotations
 
 import json
-import subprocess
+from contextlib import redirect_stdout
 import sys
-import tempfile
 from pathlib import Path
 
 
 def main() -> int:
+    # Windows pipes may default to a legacy code page; the IPC contract is UTF-8.
+    sys.stdin.reconfigure(encoding="utf-8")
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     try:
+        if sys.argv[1:] == ["--health"]:
+            from markitdown import __version__
+            print(json.dumps({"ok": True, "version": __version__, "formats": ["docx", "pdf"]}))
+            return 0
+
         request = json.loads(sys.stdin.read())
-        input_path = Path(request["inputPath"])
+        if not isinstance(request, dict) or not isinstance(request.get("inputPath"), str):
+            raise ValueError("请求必须包含字符串 inputPath")
+        input_path = Path(request["inputPath"]).resolve()
+        if input_path.suffix.lower() not in (".docx", ".pdf"):
+            raise ValueError("仅支持 DOCX 和 PDF 文档，不支持旧式 .doc")
         if not input_path.is_file():
             raise ValueError("输入文件不存在或不可读取")
 
         from markitdown import MarkItDown
+        from markitdown.converters import DocxConverter, PdfConverter
 
-        conversion_path = input_path
-        temporary_directory = None
-        if input_path.suffix.lower() == ".doc":
-            temporary_directory = tempfile.TemporaryDirectory()
-            converted = Path(temporary_directory.name) / f"{input_path.stem}.docx"
-            subprocess.run(["soffice", "--headless", "--convert-to", "docx", "--outdir", temporary_directory.name, str(input_path)], check=True, capture_output=True, text=True)
-            conversion_path = converted
-
-        result = MarkItDown(enable_plugins=False).convert(str(conversion_path))
+        # stdout is reserved for the single JSON response, including in frozen builds.
+        with redirect_stdout(sys.stderr):
+            # Restrict builtins: a corrupt DOCX must not fall back to plain-text conversion.
+            converter = MarkItDown(enable_builtins=False, enable_plugins=False)
+            converter.register_converter(DocxConverter())
+            converter.register_converter(PdfConverter())
+            result = converter.convert_local(str(input_path))
         print(json.dumps({"ok": True, "markdown": result.markdown}, ensure_ascii=False))
-        if temporary_directory:
-            temporary_directory.cleanup()
         return 0
     except Exception as error:  # noqa: BLE001 - sidecar must return errors through its protocol.
         print(json.dumps({"ok": False, "error": str(error)}, ensure_ascii=False))

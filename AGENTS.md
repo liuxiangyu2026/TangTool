@@ -128,7 +128,17 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 ## 7. 当前进度
 
 - 当前里程碑：M5 Word/PDF 转 Markdown
-- 当前任务：M5-3 sidecar 正式打包与跨平台适配
+- 当前任务：M5-3 macOS ARM sidecar 已构建验证；下一步 Windows x64 / macOS Intel 构建与干净机器验收
+- 最新接续记录（2026-09-14）：本节最新记录及 `sidecar/README.md` 优先于下方历史验收日志。当前代码基线为 `1e71616 docs: update M5 handoff status`；本轮打包实现尚未提交，实际状态以 Git 为准。
+- 已完成：`scripts/build-sidecar.mjs` 使用 PyInstaller 6.22.3，将 MarkItDown 0.1.7、Python 和依赖生成单文件程序；`sidecar/requirements.lock` 固定跨平台依赖与哈希。
+- 已完成：新增 `npm run sidecar:build` / `npm run desktop:build`；完整打包使用 `src-tauri/tauri.sidecar.conf.json` 的 `externalBin`，普通前端构建与开发命令不要求先生成二进制。
+- 已完成：转换逻辑迁入 `src-tauri/src/document.rs`；开发模式通过编译时项目路径使用 `.venv`，打包模式（包括 debug .app）只启动主程序同目录的 `tangtool-markitdown[.exe]`，不再依赖当前目录或系统 Python。
+- 已完成：转换 Command 改为后台任务，使用 UTF-8 JSON 通信、180 秒超时和输出大小限制；runner 仅注册 DOCX/PDF 转换器，移除 `.doc` 与 LibreOffice 路径，损坏文档不再回退为纯文本成功结果。
+- 已验证：macOS ARM 独立程序及 Rust 发布模式调用，在临时工作目录、无有效 Python 搜索路径条件下，通过中文/空格路径 DOCX（标题、正文、表格）、PDF 文本、缺失文件、损坏文档、拒绝 .doc、非法请求验证；临时测试源文件已删除。
+- 已验证：包含 sidecar 的 macOS debug `.app` 构建成功，其 `Contents/MacOS/tangtool-markitdown` 校验值与独立验证产物相同。此结论不等同于无开发环境的新电脑真机验收。
+- 已验证：本轮前端生产构建、现有 13 个测试、Rust 开发/发布路径编译、Clippy、rustfmt 和 `git diff --check` 通过；最终 macOS ARM sidecar 约 56 MiB。临时验证脚本和 Rust example 已删除，不保留单元测试文件。
+- 已配置但未执行：`.github/workflows/desktop-build.yml` 为手动触发的 Windows x64、macOS ARM、macOS Intel 构建与产物上传；本轮未触发远程 Actions，未发布 Release，Windows/Intel 和签名、公证仍待验收。
+- 环境保护：保留用户 `.venv`；新增独立 `.venv-sidecar` 用于锁定依赖构建。两者及生成的二进制已加入 Git 忽略。不得以“清理临时测试”为由删除这些环境。
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
 - 已完成：Git 仓库和 `main` 分支；首次提交 `d428427`；公开仓库 `https://github.com/liuxiangyu2026/TangTool`
@@ -225,24 +235,36 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已知状态：M3-1 当前按数组索引比较，不识别对象数组元素移动；如后续确认需要移动检测，再评估 `jsondiffpatch` 的 `objectHash` 规则
 - 交接基线：最新本地提交是 `a4f0e3c feat:switch-md`，远程同步状态以 `git status --short --branch` 为准
 - 下一步：完成 M5 sidecar 正式打包与跨平台路径适配；随后进入 M6 质量和发布
-- 已完成：M5 环境初步评估；Python 3.10.7 和 `uv` 已安装，系统存在 LibreOffice，但仓库当前没有 MarkItDown
+- 历史记录：M5 初次环境评估时尚未安装 MarkItDown；当前开发环境由用户安装，正式打包步骤见 `sidecar/README.md`，不需要 LibreOffice。
 - 已完成：确认官方 MarkItDown 支持 PDF、Word 和命令行输入输出；PDF/DOCX 依赖可使用 `markitdown[pdf,docx]` 安装
 - 已完成：新增 `sidecar/markitdown_runner.py`，定义单次 JSON 请求/响应协议，输入本地文件路径并返回 Markdown 或结构化错误；禁用插件，保持本地处理边界
-- 已完成：文档转 Markdown 页面支持 DOCX、PDF 选择；sidecar 逐个转换批量文件，并用文件名分隔合并 Markdown 结果
+- 已完成：文档转 Markdown 页面支持 DOCX、PDF 选择；逐个转换批量文件，各文档独立保存 Markdown 结果，不再合并为单一结果。
 - 已完成：文档选择最多 10 个，左侧按选择顺序纵向排列；点击文档后右侧显示对应 Markdown 内容，转换结果按文档独立保存
 - 已完成：重复选择文档时采用追加策略，保留已有文档并按路径去重，总数限制为 10 个；每个列表项提供独立删除图标
 - 已完成：点击顶部“清除”会确认是否清除全部文档和转换结果，确认后只清理应用列表，不删除本地文件
 - 已完成：引入 `marked` 解析 Markdown；右侧支持格式化预览和原始 Markdown 预览，表格、标题、列表、引用、代码、粗体和斜体会渲染为对应 HTML
 - 已完成：文档列表与预览之间增加 25%～55% 的竖向拖动分隔器，并使用统一的 `GripVertical` 图标
 - 已完成：文档页增加 Markdown 保存按钮；浏览器拖放当前提示使用原生选择按钮，Tauri 原生拖放事件留待 sidecar 打包阶段接入
-- 已修复：Tauri 进程当前目录位于 `src-tauri` 时无法找到项目根目录 sidecar；Rust 现在兼容当前目录和上一级项目目录，并从项目根目录查找 `.venv`
+- 历史修复：曾兼容当前目录和上一级查找 `.venv`；2026-09-14 已替换为开发模式编译路径与安装包同目录 sidecar 两种明确路径。
 - 已修复：项目虚拟环境不存在时不再回退到系统 Python；转换命令会提示在项目根目录创建 `.venv` 并安装 MarkItDown，避免出现模糊的 `No module named 'markitdown'`
 - 已完成：用户手动安装 MarkItDown PDF/DOCX 依赖；DOCX 临时样本转换成功，标题和正文结构保留；PDF 临时样本转换成功，但当前字体环境下中文出现乱码；不支持旧式 `.doc`
-- 已完成：临时虚拟环境、DOCX/PDF 样本和转换结果已清理；sidecar 仍保持单次 JSON 请求/响应协议
+- 环境纠正：此前误将用户安装的 `.venv` 作为临时文件清理，导致缺少 MarkItDown；后续必须保留 `.venv`，只清理明确自建的测试样本。sidecar 保持单次 JSON 请求/响应协议。
 - 已验证：真实 Tauri 窗口完成 DOCX/PDF 批量转换、左侧文档列表、格式化/原始预览、删除和清除确认；当前页面修改已提交
-- 下一步：制作 Windows/macOS 可交付 sidecar，解决最终用户手动安装依赖的问题
+- 下一步：用已加入的手动构建工作流或对应平台本机完成 Windows x64 / macOS Intel 构建；验证没有 Python、MarkItDown 和项目目录时，安装包仍可转换文档。
 
 ## 8. 当前任务验收标准
+
+### 当前任务：M5-3 独立 sidecar 与完整安装包
+
+- [x] 固定 MarkItDown/PyInstaller 及跨平台依赖、哈希；保留现有开发环境
+- [x] 清理 .doc/LibreOffice 依赖，只支持 DOCX/PDF
+- [x] 构建 macOS ARM 单文件程序并通过隔离环境转换验证
+- [x] Tauri externalBin 打包配置、开发/安装目录区分及后台转换
+- [x] macOS debug .app 包含与验证结果一致的 sidecar
+- [x] Windows x64 / macOS ARM / macOS Intel 手动构建配置
+- [ ] Windows x64 和 macOS Intel 实际构建、安装运行验收
+- [ ] 无 Python / 无仓库 / 离线条件的干净机器验收
+- [ ] macOS 签名公证、Windows WebView2 离线安装策略（M6）
 
 ### 已完成：M1-1A 路由和占位页清理
 
@@ -541,12 +563,12 @@ npm run build
 npm run tauri dev
 ```
 
-如果仓库已经存在，则在工作区干净的前提下执行 `git pull --ff-only`。首次 Rust 编译下载和编译 crate 会比较慢。启动成功后先阅读本文档第 7、8 节，从路由和占位页清理继续，不要直接跳到侧栏开发。
+如果仓库已经存在，则在工作区干净的前提下执行 `git pull --ff-only`。首次 Rust 编译下载和编译 crate 会比较慢。接续时阅读第 7、8 节最新 M5-3 记录，不再从早期占位页任务重新开始。
 
-### 最新交接状态（2026-09-11）
+### 最新交接状态（2026-09-14）
 
 - macOS 已完成 Rust stable、Tauri 原生编译和本地开发页验证；当前项目代码可以通过 `npm run tauri dev` 启动桌面窗口，前端修改会由 Vite HMR 自动刷新。
-- 当前最新本地提交为 `a4f0e3c feat:switch-md`；当前分支领先 `origin/main` 的提交和远程同步状态以 `git status --short --branch`、`git log -1 --oneline` 为准。
+- 本轮起点为 `1e71616 docs: update M5 handoff status`；本轮新增打包脚本、锁文件、Rust 文档模块、sidecar 配置、手动 Actions 和文档尚未提交。换机前需将这些源码提交并推送，生成的二进制和 Python 环境不进 Git。
 - 当前 `npm test` 有 13 个测试通过；M4 全部功能和 M5 页面基础闭环已通过前端构建、Rust 检查、Clippy 和格式检查。
 - 最新验证已覆盖 DOCX/PDF 批量转换、最多 10 个文档、追加选择、单项删除、清除全部确认、Markdown 表格格式化预览、原始预览和左右分隔条；`.doc` 已明确移除。
 - 换到 Windows 前，必须在 macOS 完成构建验收、提交并执行 `git push`；否则 Windows 只能看到旧的 `origin/main`，无法获得本次页面实现和交接进度。
@@ -562,4 +584,6 @@ npm run build
 npm run tauri dev
 ```
 
-下次继续时先阅读本文档第 7、8 节：从 M5-3 sidecar 正式打包与跨平台路径适配继续；随后进入 M6 质量和发布。
+新电脑还需参照 `sidecar/README.md` 建立 `.venv`（开发转换）和 `.venv-sidecar`（打包），按 `sidecar/requirements.lock` 安装；不要从其他机器复制虚拟环境。普通启动仍为 `npm run tauri dev`，完整打包使用 `npm run desktop:build`。
+
+下次继续：M5-3 Windows x64 / macOS Intel 构建与干净机器验收。macOS ARM 独立程序、发布路径的 Rust 调用和 debug .app 构建已验证，不重复安装或删除用户环境。当前产品尚未完成签名公证、全部平台验收和正式发布。

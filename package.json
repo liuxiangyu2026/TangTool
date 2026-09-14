@@ -8,6 +8,8 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
+    "sidecar:build": "node scripts/build-sidecar.mjs",
+    "desktop:build": "npm run sidecar:build && tauri build --config src-tauri/tauri.sidecar.conf.json",
     "test": "vitest run",
     "test:watch": "vitest"
   },

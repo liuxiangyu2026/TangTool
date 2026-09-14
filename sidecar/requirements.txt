@@ -1,0 +1,4 @@
+# Build with Python 3.10 on the same OS/architecture as the Tauri target.
+markitdown[pdf,docx]==0.1.7
+pyinstaller==6.22.3
+pyinstaller-hooks-contrib==2026.7

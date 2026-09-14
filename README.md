@@ -35,6 +35,17 @@ npm run tauri dev
 npm run build
 ```
 
+## 文档转换与完整安装包
+
+开发模式的 DOCX/PDF 转换需要项目根目录 `.venv`，请保留已有环境。完整安装包使用独立 sidecar，构建步骤及 Windows/macOS 命令见 [sidecar/README.md](sidecar/README.md)。
+
+```bash
+npm run sidecar:build
+npm run desktop:build
+```
+
+完整包随应用携带 Python、MarkItDown 和格式依赖；最终用户无需手动安装它们。当前只支持 DOCX/PDF，不支持 `.doc`，无需 LibreOffice。Windows/Intel macOS 真机验收及签名、公证仍在后续发布任务中。
+
 ## 隐私原则
 
 TangTool 默认在本机处理输入内容和文件。第一期不设计云端账户，也不上传用户文件。
