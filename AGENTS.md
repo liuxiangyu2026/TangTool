@@ -114,7 +114,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 
 - [x] 先在开发环境验证 MarkItDown 的转换效果
 - [x] 理解并实现 Tauri sidecar 调用、进程通信和错误处理
-- [ ] 为 Windows 和 macOS 构建独立 sidecar
+- [x] 为 Windows x64、macOS ARM/Intel 构建独立 sidecar（运行 34800140359 三平台通过；目标机安装运行另行验收）
 - [x] 完成批量选择、Markdown 格式化预览、保存和转换限制提示
 
 ### M6：质量、跨平台构建和发布
@@ -128,8 +128,11 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 ## 7. 当前进度
 
 - 当前里程碑：M5 Word/PDF 转 Markdown
-- 当前任务：M5-3 macOS ARM sidecar 已构建验证；下一步 Windows x64 / macOS Intel 构建与干净机器验收
-- 最新接续记录（2026-09-14）：本节最新记录及 `sidecar/README.md` 优先于下方历史验收日志。当前代码基线为 `1e71616 docs: update M5 handoff status`；本轮打包实现尚未提交，实际状态以 Git 为准。
+- 当前任务：M5-3 三平台安装包构建通过；下一步下载产物，在目标系统进行安装与离线文档转换验收
+- 最新接续记录（2026-09-14）：本节最新记录及 `sidecar/README.md` 优先于下方历史验收日志。sidecar 打包实现已由 `107b4be feat:本机打包代码和说明` 提交并推送；本轮开始时工作区干净，已通过远程 refs 核对 main 指向同一提交。
+- 已完成：用户启动 GitHub Actions 运行 https://github.com/liuxiangyu2026/TangTool/actions/runs/34800140359 ，构建提交 `107b4bedaaf9832aec29ebe11d3af76c64a64744`；Windows x64、macOS ARM、macOS Intel 三个任务均 success，且上传了对应产物。三平台 sidecar 构建及 `--health` 均通过。
+- 安装包产物：`TangTool-x86_64-pc-windows-msvc`（约 64.5 MiB，artifact 内含 NSIS .exe）；`TangTool-aarch64-apple-darwin`（约 59.9 MiB）；`TangTool-x86_64-apple-darwin`（约 63.6 MiB）。macOS artifact 内是保留权限的 .app 压缩包；下载后解压使用。入口及操作见 `sidecar/README.md`。
+- 真机验收仍未完成：本机曾从项目外临时目录启动 debug .app，但锁屏及屏幕捕获/文件选择自动化问题使窗口转换与保存未能验收；本轮临时文档和验收窗口已清理，现有 Python 环境保留。不得把 CI 构建通过等同于干净机器运行通过。
 - 已完成：`scripts/build-sidecar.mjs` 使用 PyInstaller 6.22.3，将 MarkItDown 0.1.7、Python 和依赖生成单文件程序；`sidecar/requirements.lock` 固定跨平台依赖与哈希。
 - 已完成：新增 `npm run sidecar:build` / `npm run desktop:build`；完整打包使用 `src-tauri/tauri.sidecar.conf.json` 的 `externalBin`，普通前端构建与开发命令不要求先生成二进制。
 - 已完成：转换逻辑迁入 `src-tauri/src/document.rs`；开发模式通过编译时项目路径使用 `.venv`，打包模式（包括 debug .app）只启动主程序同目录的 `tangtool-markitdown[.exe]`，不再依赖当前目录或系统 Python。
@@ -137,7 +140,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - 已验证：macOS ARM 独立程序及 Rust 发布模式调用，在临时工作目录、无有效 Python 搜索路径条件下，通过中文/空格路径 DOCX（标题、正文、表格）、PDF 文本、缺失文件、损坏文档、拒绝 .doc、非法请求验证；临时测试源文件已删除。
 - 已验证：包含 sidecar 的 macOS debug `.app` 构建成功，其 `Contents/MacOS/tangtool-markitdown` 校验值与独立验证产物相同。此结论不等同于无开发环境的新电脑真机验收。
 - 已验证：本轮前端生产构建、现有 13 个测试、Rust 开发/发布路径编译、Clippy、rustfmt 和 `git diff --check` 通过；最终 macOS ARM sidecar 约 56 MiB。临时验证脚本和 Rust example 已删除，不保留单元测试文件。
-- 已配置但未执行：`.github/workflows/desktop-build.yml` 为手动触发的 Windows x64、macOS ARM、macOS Intel 构建与产物上传；本轮未触发远程 Actions，未发布 Release，Windows/Intel 和签名、公证仍待验收。
+- 已执行：`.github/workflows/desktop-build.yml` 首次三平台构建与产物上传全部通过；未发布 Release，签名、公证、离线安装以及干净机器文档转换仍待验收。
 - 环境保护：保留用户 `.venv`；新增独立 `.venv-sidecar` 用于锁定依赖构建。两者及生成的二进制已加入 Git 忽略。不得以“清理临时测试”为由删除这些环境。
 - 已完成：M0-1 开发环境；GitHub CLI 登录；Node.js 24.19.0；npm 11.17.0；Rust/Cargo 1.98.0；Git 2.55.0；MSVC Build Tools；Windows SDK 10.0.26100.0；WebView2 152.0.4191.53
 - 已完成：官方脚手架、命名统一、依赖安装、Windows 启动、Vue 到 Rust 的调用链、生产构建；npm 报告 0 个漏洞；已精确许可 `esbuild@0.25.12` 安装脚本
@@ -262,7 +265,8 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱。第一期�
 - [x] Tauri externalBin 打包配置、开发/安装目录区分及后台转换
 - [x] macOS debug .app 包含与验证结果一致的 sidecar
 - [x] Windows x64 / macOS ARM / macOS Intel 手动构建配置
-- [ ] Windows x64 和 macOS Intel 实际构建、安装运行验收
+- [x] Windows x64 和 macOS Intel 实际 CI 构建与产物上传
+- [ ] Windows x64 和 macOS Intel 安装运行验收
 - [ ] 无 Python / 无仓库 / 离线条件的干净机器验收
 - [ ] macOS 签名公证、Windows WebView2 离线安装策略（M6）
 
@@ -568,7 +572,7 @@ npm run tauri dev
 ### 最新交接状态（2026-09-14）
 
 - macOS 已完成 Rust stable、Tauri 原生编译和本地开发页验证；当前项目代码可以通过 `npm run tauri dev` 启动桌面窗口，前端修改会由 Vite HMR 自动刷新。
-- 本轮起点为 `1e71616 docs: update M5 handoff status`；本轮新增打包脚本、锁文件、Rust 文档模块、sidecar 配置、手动 Actions 和文档尚未提交。换机前需将这些源码提交并推送，生成的二进制和 Python 环境不进 Git。
+- 当前已同步提交为 `107b4be feat:本机打包代码和说明`。打包脚本、锁文件、Rust 文档模块、sidecar 配置与手动 Actions 已在远程 main；生成的二进制和 Python 环境不进 Git。本轮只补充构建操作与未完成验收记录。
 - 当前 `npm test` 有 13 个测试通过；M4 全部功能和 M5 页面基础闭环已通过前端构建、Rust 检查、Clippy 和格式检查。
 - 最新验证已覆盖 DOCX/PDF 批量转换、最多 10 个文档、追加选择、单项删除、清除全部确认、Markdown 表格格式化预览、原始预览和左右分隔条；`.doc` 已明确移除。
 - 换到 Windows 前，必须在 macOS 完成构建验收、提交并执行 `git push`；否则 Windows 只能看到旧的 `origin/main`，无法获得本次页面实现和交接进度。
@@ -586,4 +590,4 @@ npm run tauri dev
 
 新电脑还需参照 `sidecar/README.md` 建立 `.venv`（开发转换）和 `.venv-sidecar`（打包），按 `sidecar/requirements.lock` 安装；不要从其他机器复制虚拟环境。普通启动仍为 `npm run tauri dev`，完整打包使用 `npm run desktop:build`。
 
-下次继续：M5-3 Windows x64 / macOS Intel 构建与干净机器验收。macOS ARM 独立程序、发布路径的 Rust 调用和 debug .app 构建已验证，不重复安装或删除用户环境。当前产品尚未完成签名公证、全部平台验收和正式发布。
+下次继续：下载运行 `34800140359` 的三平台产物进行目标机验收；三平台构建已通过。优先 Windows NSIS 安装，以及 macOS 解压 .app 后从非项目目录转换 DOCX/PDF，确认不需要 Python/MarkItDown。无需重复安装或删除开发环境。当前产品尚未完成签名公证、干净机器验收和正式发布。

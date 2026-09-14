@@ -59,7 +59,36 @@ npm run tauri build -- --debug --config src-tauri/tauri.sidecar.conf.json
 
 必须在目标系统/架构分别构建；不能只改文件名来跨平台使用。打包后 Tauri 去掉 target 后缀，macOS 将 sidecar 放在 `.app/Contents/MacOS`，Windows 放在主程序同目录。二进制不提交 Git。
 
-`.github/workflows/desktop-build.yml` 提供手动运行的三个平台构建任务，仅上传 Actions 产物，不发布 Release、不签名。首次 Windows/Intel 构建及干净电脑运行仍需要实际验收。
+`.github/workflows/desktop-build.yml` 提供手动运行的三个平台构建任务，仅上传 Actions 产物，不发布 Release、不签名。
+
+2026-09-14，[首次三平台构建](https://github.com/liuxiangyu2026/TangTool/actions/runs/34800140359) 已全部成功，构建提交为 `107b4be`。产物名称如下：
+
+| 平台 | Artifact | 大小（约） |
+| --- | --- | --- |
+| Windows x64 | `TangTool-x86_64-pc-windows-msvc` | 64.5 MiB |
+| macOS Apple Silicon | `TangTool-aarch64-apple-darwin` | 59.9 MiB |
+| macOS Intel | `TangTool-x86_64-apple-darwin` | 63.6 MiB |
+
+这些结果确认完整包构建、sidecar `--health` 与产物上传通过；尚未确认目标电脑安装、离线文档转换、签名或公证。下一步使用这些产物做下面的交付验收，不必为同一提交重复运行构建。
+
+### 启动三平台构建
+
+1. 先确认工作流代码已经提交并推送到 GitHub。
+2. 登录 GitHub，打开仓库 Actions → **Build desktop with document sidecar**。
+3. 点击 **Run workflow**，选择 `main`，启动构建。
+4. 等待三个任务分别结束；若某个平台失败，打开失败步骤日志定位，不把其他平台通过等同于全平台通过。
+5. 在运行详情页 Artifacts 下载对应架构产物。macOS 下载 zip 并解压 `.app`，Windows 下载 artifact zip 后取出其中 NSIS `.exe` 安装包。
+
+如果已安装并登录 GitHub CLI，也可以在项目根目录执行：
+
+```bash
+gh workflow run desktop-build.yml --ref main
+gh run list --workflow desktop-build.yml --limit 5
+```
+
+工作流仅有 `workflow_dispatch` 触发器，因此提交或推送代码不会自动开始构建。页面没有 **Run workflow** 时，先检查是否登录、有仓库写权限，以及工作流是否已在默认分支。无需把访问令牌写进仓库或发到聊天中。
+
+构建成功后仍需下载产物，在目标系统上完成下方交付验收；Actions 构建成功本身不代表安装与文档转换已经通过。
 
 ## 协议与行为
 
