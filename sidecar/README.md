@@ -109,7 +109,8 @@ Rust 在后台线程启动进程，独立读取 stdout/stderr，单次转换最�
 - 验证损坏文件、缺失文件、拒绝 `.doc`、批量转换后窗口可操作。
 - Windows 配置 `offlineInstaller`，构建时下载并内置 WebView2 安装程序；仍需在无 WebView2 的离线 Windows 上验证。
 - macOS 完整包声明最低 14.0：本机锁定的 NumPy 原生库实际要求 macOS 14，不能沿用 Tauri 默认 10.13。Intel 构建也需核对打包库要求。
-- macOS 候选包使用 ad-hoc 签名保持包结构完整；它不提供开发者身份或 Apple 公证，不能代替正式分发签名。正式签名可通过 Tauri 的签名环境变量配置，私钥不入库。
+- macOS 候选包使用 ad-hoc 签名保持包结构完整，当前关闭 hardened runtime：无 Team ID 的外壳若开启库验证，会拒绝加载 PyInstaller 内置的 Python 动态库。这不提供开发者身份或 Apple 公证，不能代替正式分发签名。
+- TODO（正式签名前）：确认 Developer ID 证书后，给 PyInstaller 内置原生库和 Tauri 外壳使用同一身份，重新开启 hardened runtime，再进行公证和隔离转换验收；不能只替换外壳的签名。私钥不得入库。
 
 更新依赖时重新生成并审查锁文件：
 

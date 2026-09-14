@@ -122,6 +122,7 @@
 - Windows 平台配置内置 WebView2 `offlineInstaller`，实际无 WebView2 的离线安装仍待 Windows 验收。
 - 本机 macOS ARM 完整 release `.app` 已生成。安装包中的 sidecar 复制到中文空格临时目录，PATH 仅系统目录、PYTHONHOME/PYTHONPATH 为不存在路径，DOCX/PDF 内容转换及错误 JSON 通过。这不是干净机器完整验收，也未据此声称原生 UI 通过。
 - 本机 NumPy 原生库的 Mach-O 最低系统要求实际为 14.0，因此 macOS 配置与官网改为 14 或更新版本，不再沿用 10.13。候选包配置 ad-hoc 签名，`codesign --verify --deep --strict` 通过；不具备开发者身份、公证或免 Gatekeeper 提示的承诺。
+- 新签名复验发现：Tauri 默认 hardened runtime 会使无 Team ID 的 sidecar 无法加载解包后的 Python（different Team IDs）。候选配置显式关闭 hardened runtime 后，重新封装的 sidecar 在隔离目录通过 DOCX/PDF 实际转换；正式签名必须给 PyInstaller 内部库与外壳使用同一 Developer ID 后重新开启，再公证和实测。资源封印通过并不足以证明 sidecar 能运行。
 - `npm run release:collect` 在完整构建后收集 ZIP/NSIS、SHA-256 和版本/提交/dirty 标记；输出目录 `release-artifacts/` 被 Git 忽略，CI 上传同一套文件。工作区 dirty 的包不得作为正式发布包。
 - 桌面控制报告 Mac 已锁定，已请求用户解锁；尚未完成当前包的原生窗口、文件对话框、复制导出、偏好恢复或 Dock 验收。
 

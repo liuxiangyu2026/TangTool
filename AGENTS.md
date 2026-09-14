@@ -86,7 +86,7 @@ TangTool 是 Windows / macOS 本地桌面工具箱，强调离线处理、隐私
 - Vitest 4.1.11 / mocker 4.1.11，保留 Vite 6.4.3；现有 13 测试、前端/官网构建、Clippy/rustfmt 通过；npm 全量审计 0。Python 本地公告初筛无命中；Rust 初筛有上游未维护和仅 Linux/BSD 链的 glib 公告，详见报告，不能声称整体无漏洞。
 - 新增 `.github/workflows/quality.yml`；完整打包前检查，Cargo 锁定。未新增永久测试文件。
 - Windows `tauri.windows.conf.json` 配置内置离线 WebView2；需无运行时离线真机验收。
-- macOS `tauri.macos.conf.json` 最低 14.0（当前 NumPy 二进制要求），候选包 ad-hoc 签名；不是开发者签名或公证。本机完整 ARM 包及资源封印检查通过，包内 sidecar 在隔离中文目录完成 DOCX/PDF 转换。
+- macOS `tauri.macos.conf.json` 最低 14.0（当前 NumPy 二进制要求），候选包 ad-hoc 签名并关闭 hardened runtime，避免无 Team ID 的内置 Python 被库验证拒绝；不是开发者签名或公证。正式签名前须按 `sidecar/README.md` 的 TODO 统一内外签名身份、重新开启强化运行时并复验。
 - `npm run release:collect` 紧随完整构建，生成版本化 ZIP/NSIS、SHA-256、提交及 dirty 标记，放入被忽略的 `release-artifacts/`；不要提交二进制。只有干净提交对应的包可进入正式验收。
 - 当前桌面控制报告 Mac 锁定，已请求解锁。浏览器/隔离测试不能替代原生窗口、文件选择、复制导出、窗口/目录偏好及 Dock/任务栏验收。
 
