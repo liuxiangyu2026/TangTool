@@ -79,6 +79,8 @@ TangTool 是 Windows / macOS 本地桌面工具箱，强调离线处理、隐私
 
 当前 M6：初审发现的 R1～R7 已修复并通过本机隔离复验；详细证据、边界和打包结果见 `docs/release-checks.md`。
 
+已提交推送 `codex/release-hardening`。应用修复基线 `7c1d928`；三平台构建 [34840425160](https://github.com/liuxiangyu2026/TangTool/actions/runs/34840425160) 已启动，结果需查询，不预先标记成功。正式交付验收表与版本说明草稿在 `docs/delivery-checklist.md`、`docs/release-notes-0.1.0.md`。
+
 - Base64 文件：同文件身份检查、拒绝末级符号链接、同目录临时写入、检查 finish/flush/sync 后提交；错误保留旧文件。前端固定输入快照并防重复操作。
 - 文档：DOMPurify 净化预览，仅保留排版，不加载图片/打开链接；复制保存仍保留原 Markdown。保存固定名称/内容快照；转换固定队列并禁止增删，删除前项保持当前选择。
 - MD5：输入变化清空旧摘要，防迟到请求回写，文件进度按 requestId 匹配并清理监听。Base64 文本上限 2 MiB，分块编码及严格 UTF-8 解码。
