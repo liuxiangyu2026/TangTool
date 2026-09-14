@@ -79,7 +79,7 @@ TangTool 是 Windows / macOS 本地桌面工具箱，强调离线处理、隐私
 
 当前 M6：初审发现的 R1～R7 已修复并通过本机隔离复验；详细证据、边界和打包结果见 `docs/release-checks.md`。
 
-已提交推送 `codex/release-hardening`。应用修复基线 `7c1d928`；三平台构建 [34840425160](https://github.com/liuxiangyu2026/TangTool/actions/runs/34840425160) 已启动，结果需查询，不预先标记成功。正式交付验收表与版本说明草稿在 `docs/delivery-checklist.md`、`docs/release-notes-0.1.0.md`。
+已提交推送 `codex/release-hardening`。应用修复基线 `7c1d928`；三平台构建 [34840425160](https://github.com/liuxiangyu2026/TangTool/actions/runs/34840425160) 全部成功。三份产物已下载到 `release-artifacts/ci-34840425160/` 并核对外层/内层 SHA-256、版本及干净提交。ARM 云端包完成隔离 DOCX/PDF 转换；Intel 只检查架构、包封印与图标，Windows 只检查安装器结构和摘要，均不算目标机运行验收。正式交付验收表与版本说明草稿在 `docs/delivery-checklist.md`、`docs/release-notes-0.1.0.md`。
 
 - Base64 文件：同文件身份检查、拒绝末级符号链接、同目录临时写入、检查 finish/flush/sync 后提交；错误保留旧文件。前端固定输入快照并防重复操作。
 - 文档：DOMPurify 净化预览，仅保留排版，不加载图片/打开链接；复制保存仍保留原 Markdown。保存固定名称/内容快照；转换固定队列并禁止增删，删除前项保持当前选择。
@@ -94,10 +94,12 @@ TangTool 是 Windows / macOS 本地桌面工具箱，强调离线处理、隐私
 
 接下来按顺序继续：
 
-1. 提交修复分支，触发新三平台完整构建并跟进失败，历史 `107b4be` 的通过不替代本轮结果。
-2. Windows x64、macOS ARM/Intel 干净机器验收：无 Python/无仓库、离线转换、文件工具、复制导出、偏好恢复、B 图标、升级卸载。
+1. 新三平台构建已通过，无需重跑已完成检查；若修改应用代码/依赖/打包配置则对新提交重新构建。历史 `107b4be` 仅作历史参考。
+2. 等待 Mac 解锁后继续原生验收；配合 Windows x64、macOS Intel 干净机器验收：无 Python/无仓库、离线转换、文件工具、复制导出、偏好恢复、B 图标、升级卸载。
 3. 确认首发签名/公证方案、平台和版本，上传已验收产物及校验清单到 Release；启用 Pages 发布官网（`website/README.md`）。
 4. 发布完成后再考虑文档原生拖放、ESLint/Prettier 和新工具；不在交付修复中扩充功能范围。
+
+当前必须由用户补充：解锁 Mac；确认首发接受未签名/未公证版本，还是准备正式证书后公开发布（两个问题已发出，尚未收到答复）。已只读核对 GitHub 仓库有维护权限、无 Release、Pages 未启用；不是账号权限阻塞。尚未合并 main、公开 Release 或部署 Pages。临时验证程序和样本已清理，用户环境保留。
 
 现有体验约定：`ToolNotice` 中上方固定浮层 2 秒；首页搜索约60%；菜单滚动条4px，折叠时 B Logo 在展开按钮上方；色卡3:2、216安全色独立滚动；透明色按明确黑/白底合成并计算对比度。工具内容仅会话保留，偏好与布局才落盘。细节以第3节、代码和 Git 记录为准。
 
