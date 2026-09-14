@@ -1,1 +1,198 @@
 @import "tailwindcss";
+
+@theme {
+  --color-surface: var(--app-surface);
+}
+
+/* 新工具复用紧凑控件，颜色继续由页面按操作含义指定。 */
+@layer components {
+  .tool-button {
+    @apply inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .tool-field {
+    @apply rounded-md border border-neutral-300 bg-surface px-3 py-2 text-sm;
+  }
+  .tool-panel {
+    @apply rounded-lg border border-neutral-200 bg-surface p-4;
+  }
+  .tool-editor {
+    @apply min-h-40 w-full flex-1 resize-none rounded-lg border border-neutral-200 bg-surface p-3 font-mono text-sm;
+  }
+}
+
+:root {
+  color-scheme: light;
+  --app-surface: #fff;
+  --syntax-key: #2563eb;
+  --syntax-string: #15803d;
+  --syntax-number: #b45309;
+  --syntax-literal: #7c3aed;
+  --diff-added: #dcfce7;
+  --diff-removed: #fee2e2;
+  --diff-changed: #fef3c7;
+}
+
+/* 中性色作为全应用的明暗阶梯；surface 与 text-white 分开，避免反转按钮白字。 */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --app-surface: #202328;
+  --color-neutral-50: #25282e;
+  --color-neutral-100: #191c21;
+  --color-neutral-200: #353940;
+  --color-neutral-300: #4c525b;
+  --color-neutral-400: #9299a4;
+  --color-neutral-500: #a0a7b1;
+  --color-neutral-600: #b9c0ca;
+  --color-neutral-700: #d0d5de;
+  --color-neutral-800: #e0e5ec;
+  --color-neutral-900: #f1f4f8;
+  --color-neutral-950: #fafcff;
+  --color-blue-50: #1c3046;
+  --color-blue-100: #243e59;
+  --color-blue-200: #335979;
+  --color-green-50: #172f28;
+  --color-green-100: #1c3d2f;
+  --color-green-200: #2b6148;
+  --color-emerald-50: #172f28;
+  --color-emerald-100: #1c3d2f;
+  --color-emerald-200: #2b6148;
+  --color-orange-50: #392a1d;
+  --color-orange-100: #4b3420;
+  --color-orange-200: #725138;
+  --color-red-50: #382226;
+  --color-red-100: #49282d;
+  --color-red-200: #713a43;
+  --color-amber-50: #342d1a;
+  --color-amber-100: #443920;
+  --syntax-key: #8bbcff;
+  --syntax-string: #83d9a1;
+  --syntax-number: #f5c078;
+  --syntax-literal: #c4a4ff;
+  --diff-added: #234332;
+  --diff-removed: #4b2a30;
+  --diff-changed: #4b4025;
+}
+
+/* 状态文字变亮，但保留按钮背景色及白色按钮文字。 */
+[data-theme="dark"] :is(.text-blue-600, .text-blue-700, .text-blue-800, .text-blue-900) {
+  color: #8bbcff;
+}
+[data-theme="dark"] :is(.text-green-600, .text-green-700, .text-green-800, .text-emerald-600, .text-emerald-700) {
+  color: #83d9a1;
+}
+[data-theme="dark"] :is(.text-orange-600, .text-orange-700, .text-orange-800, .text-amber-700, .text-amber-900) {
+  color: #f5c078;
+}
+[data-theme="dark"] :is(.text-red-600, .text-red-700, .text-red-800) {
+  color: #ff9da7;
+}
+[data-theme="dark"] .bg-neutral-900.text-white {
+  color: #191c21;
+}
+
+body {
+  margin: 0;
+  background: var(--app-surface);
+}
+
+/* 仅收窄侧栏的菜单滚动条，不改变编辑器和工具结果区的滚动体验。 */
+#tool-navigation::-webkit-scrollbar {
+  width: 4px;
+}
+
+#tool-navigation::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#tool-navigation::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-300);
+  border-radius: 4px;
+}
+
+#tool-navigation::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  #tool-navigation {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-neutral-300) transparent;
+  }
+}
+
+#app .cm-scroller, #app textarea {
+  font-family: var(--editor-font, ui-monospace, monospace);
+  tab-size: var(--editor-tab-size, 2);
+}
+#app textarea {
+  white-space: var(--editor-wrap, pre);
+  overflow-wrap: normal;
+  overflow-x: auto;
+}
+button:not(:disabled),
+select {
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 2px solid var(--color-blue-500);
+  outline-offset: 2px;
+}
+
+/* 文字输入沿用已有边框，不叠加浏览器 outline 和 Tailwind ring；按钮等保留键盘焦点轮廓。 */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus,
+textarea:focus,
+select:focus,
+[contenteditable="true"]:focus {
+  outline: none;
+  box-shadow: none;
+}
+#app .cm-content:focus {
+  outline: none;
+  box-shadow: none;
+}
+.tool-field:focus, .tool-editor:focus {
+  border-color: var(--color-blue-500);
+}
+#app .cm-editor.cm-focused {
+  outline: none;
+}
+.json-result-editor:focus-within {
+  border-color: var(--color-blue-500);
+}
+
+/* CodeMirror 的基础 light theme 还定义了光标、选区和弹窗，统一跟随外观变量。 */
+.cm-editor {
+  color: var(--color-neutral-900);
+  background: var(--app-surface);
+}
+.cm-editor .cm-cursor,
+.cm-editor .cm-dropCursor {
+  border-left-color: var(--color-neutral-900);
+}
+.cm-editor .cm-selectionBackground,
+.cm-editor.cm-focused .cm-selectionBackground {
+  background: var(--color-blue-200);
+}
+.cm-editor .cm-panels,
+.cm-editor .cm-tooltip {
+  color: var(--color-neutral-900);
+  background: var(--color-neutral-50);
+  border-color: var(--color-neutral-300);
+}
+.cm-editor .cm-foldPlaceholder {
+  color: var(--color-neutral-600);
+  background: var(--color-neutral-200);
+  border-color: var(--color-neutral-300);
+}
+.cm-editor .cm-searchMatch {
+  background: var(--diff-changed);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+  }
+}

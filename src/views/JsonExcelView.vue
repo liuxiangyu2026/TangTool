@@ -1,12 +1,18 @@
 <template>
   <section class="flex h-full min-h-0 flex-col bg-neutral-100 p-4 sm:p-6">
+    <ToolNotice :status="statusMessage" :error="errorMessage" :tone="statusTone" />
     <header class="shrink-0">
       <p class="text-sm font-medium text-neutral-500">{{ route.meta.group }}</p>
       <h1 class="mt-1 text-2xl font-semibold text-neutral-900">{{ route.meta.title }}</h1>
+      <p class="mt-2 text-xs leading-5 text-neutral-600">
+        <span class="font-medium text-blue-700">多 Sheet：</span>数组字段可生成独立工作表，并在每行重复所选主要字段。
+        <span class="ml-2 font-medium text-blue-700">递归平铺：</span>树形数据按末级节点生成行，依次保留全部父级数据。
+      </p>
+      <p class="text-xs leading-5 text-neutral-500">点击“生成预览”后，右侧会显示适用选项；启用递归平铺时输出单个 Sheet，不与数组分表同时使用。</p>
     </header>
 
     <div class="mt-4 flex min-h-0 flex-1 flex-col gap-4">
-      <div class="flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2">
+      <div class="flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-surface px-3 py-2">
         <button class="flex items-center gap-1.5 rounded-md bg-violet-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2" type="button" @click="loadExample">
           <BookOpen :size="14" aria-hidden="true" />
           <span>示例</span>
@@ -27,23 +33,21 @@
           <Trash2 :size="14" aria-hidden="true" />
           <span>清除</span>
         </button>
-        <p v-if="statusMessage" class="ml-auto text-sm" :class="statusTone === 'success' ? 'text-emerald-700' : 'text-neutral-500'" role="status">{{ statusMessage }}</p>
       </div>
 
       <div ref="panelSplitContainer" class="flex min-h-0 flex-1">
-        <section class="flex min-h-0 min-w-0 shrink-0 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white" :style="{ flexBasis: `${leftPanelPercent}%` }">
+        <section class="flex min-h-0 min-w-0 shrink-0 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface" :style="{ flexBasis: `${leftPanelPercent}%` }">
           <h2 class="shrink-0 border-b border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-700">JSON 数据</h2>
           <div ref="editorHost" class="min-h-0 flex-1 overflow-hidden"></div>
-          <p v-if="errorMessage" class="shrink-0 border-t border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{{ errorMessage }}</p>
         </section>
 
         <div class="group flex w-4 shrink-0 cursor-col-resize touch-none items-center justify-center" role="separator" aria-label="调整 JSON 编辑器和 Excel 预览宽度" aria-orientation="vertical" aria-valuemin="25" aria-valuemax="75" :aria-valuenow="Math.round(leftPanelPercent)" tabindex="0" @keydown="handleSeparatorKeydown" @pointerdown="startResize" @pointermove="resizePanels" @pointerup="stopResize" @pointercancel="stopResize">
-          <span class="flex h-12 w-3 items-center justify-center rounded-full border border-neutral-300 bg-white text-neutral-400 shadow-sm transition group-hover:border-blue-400 group-hover:text-blue-600">
+          <span class="flex h-12 w-3 items-center justify-center rounded-full border border-neutral-300 bg-surface text-neutral-400 shadow-sm transition group-hover:border-blue-400 group-hover:text-blue-600">
             <GripVertical :size="14" aria-hidden="true" />
           </span>
         </div>
 
-        <section class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white" aria-label="Excel 数据预览">
+        <section class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface" aria-label="Excel 数据预览">
           <header class="flex shrink-0 items-center justify-between border-b border-neutral-200 px-3 py-2">
             <h2 class="text-sm font-medium text-neutral-700">Excel 预览</h2>
             <span v-if="activeSheet" class="text-xs text-neutral-500">{{ activeSheet.rows.length }} 行 × {{ activeSheet.columns.length }} 列</span>
@@ -80,7 +84,7 @@
           <p v-if="!hasPreview" class="p-4 text-sm text-neutral-500">输入 JSON 后点击“生成预览”。</p>
           <div v-else-if="activeSheet" class="flex min-h-0 flex-1 flex-col">
             <nav v-if="sheets.length > 1" class="flex shrink-0 gap-1 overflow-x-auto border-b border-neutral-200 bg-neutral-50 px-2 pt-2" aria-label="工作表预览">
-              <button v-for="(worksheetName, index) in worksheetNames" :key="`${worksheetName}:${index}`" class="whitespace-nowrap rounded-t-md border border-b-0 px-3 py-1.5 text-xs font-medium transition" :class="activeSheetIndex === index ? 'border-neutral-300 bg-white text-blue-700' : 'border-transparent text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700'" type="button" @click="activeSheetIndex = index">
+              <button v-for="(worksheetName, index) in worksheetNames" :key="`${worksheetName}:${index}`" class="whitespace-nowrap rounded-t-md border border-b-0 px-3 py-1.5 text-xs font-medium transition" :class="activeSheetIndex === index ? 'border-neutral-300 bg-surface text-blue-700' : 'border-transparent text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700'" type="button" @click="activeSheetIndex = index">
                 {{ worksheetName }}
               </button>
             </nav>
@@ -92,7 +96,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(row, rowIndex) in visibleRows" :key="rowIndex" class="odd:bg-white even:bg-neutral-50">
+                  <tr v-for="(row, rowIndex) in visibleRows" :key="rowIndex" class="odd:bg-surface even:bg-neutral-50">
                     <td v-for="column in activeSheet.columns" :key="column" class="max-w-80 whitespace-nowrap border-b border-r border-neutral-100 px-3 py-2 font-mono text-neutral-700" :title="formatPreviewCell(row[column])">{{ formatPreviewCell(row[column]) }}</td>
                   </tr>
                 </tbody>
@@ -107,6 +111,10 @@
 </template>
 
 <script setup lang="ts">
+import { editorPreferences } from "../utils/editorPreferences";
+import { usePanelRatio } from "../composables/usePanelRatio";
+import { exportDefaults } from "../utils/exportDefaults";
+import ToolNotice from "../components/ToolNotice.vue";
 import { json } from "@codemirror/lang-json";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { forceLinting, linter, lintGutter } from "@codemirror/lint";
@@ -167,7 +175,7 @@ const activeSheetIndex = ref(0);
 const errorMessage = ref("");
 const statusMessage = ref("");
 const statusTone = ref<StatusTone>("success");
-const leftPanelPercent = ref(45);
+const leftPanelPercent = usePanelRatio("json-excel:left", 45, 25, 75);
 const hasPreview = computed(() => sheets.value.length > 0);
 const activeSheet = computed(() => sheets.value[activeSheetIndex.value]);
 const visibleRows = computed(() => activeSheet.value?.rows.slice(0, PREVIEW_ROW_LIMIT) ?? []);
@@ -178,23 +186,23 @@ let activeResizeHandle: HTMLElement | null = null;
 let previousUserSelect = "";
 
 const jsonHighlightStyle = HighlightStyle.define([
-  { tag: tags.propertyName, color: "#2563eb" },
-  { tag: tags.string, color: "#15803d" },
-  { tag: tags.number, color: "#b45309" },
-  { tag: [tags.bool, tags.null], color: "#7c3aed" },
+  { tag: tags.propertyName, color: "var(--syntax-key)" },
+  { tag: tags.string, color: "var(--syntax-string)" },
+  { tag: tags.number, color: "var(--syntax-number)" },
+  { tag: [tags.bool, tags.null], color: "var(--syntax-literal)" },
 ]);
 
 const editorTheme = EditorView.theme({
-  "&": { height: "100%", fontSize: "14px" },
+  "&": { height: "100%", fontSize: "0.875rem" },
   ".cm-scroller": {
     fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
     lineHeight: "1.5",
     overflow: "auto",
   },
   ".cm-content": { minHeight: "100%", padding: "12px 0" },
-  ".cm-gutters": { backgroundColor: "#fafafa", borderRight: "1px solid #e5e5e5", color: "#737373" },
-  ".cm-activeLine": { backgroundColor: "#fafafa" },
-  ".cm-activeLineGutter": { backgroundColor: "#e5e5e5" },
+  ".cm-gutters": { backgroundColor: "var(--color-neutral-50)", borderRight: "1px solid var(--color-neutral-200)", color: "var(--color-neutral-500)" },
+  ".cm-activeLine": { backgroundColor: "var(--color-neutral-50)" },
+  ".cm-activeLineGutter": { backgroundColor: "var(--color-neutral-200)" },
 }, { dark: false });
 
 onMounted(() => {
@@ -205,8 +213,7 @@ onMounted(() => {
   editorView = new EditorView({
     parent: editorHost.value,
     extensions: [
-      basicSetup,
-      json(),
+      basicSetup, editorPreferences(), json(),
       linter((view) => {
         const result = validateJson(view.state.doc.toString());
         if (result.ok || result.position === undefined) {
@@ -360,7 +367,7 @@ async function saveXlsxFile() {
   try {
     const selected = await save({
       title: "保存 Excel 工作簿",
-      defaultPath: "tangtool-data.xlsx",
+      defaultPath: exportDefaults("tangtool-data.xlsx").path,
       filters: XLSX_FILE_FILTERS,
     });
 

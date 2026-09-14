@@ -1,0 +1,201 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="720" viewBox="0 0 1440 720">
+  <rect width="1440" height="720" fill="#F5F5F2" />
+  <g font-family="Arial, sans-serif" fill="#252B32">
+    <text x="48" y="62" font-size="28" font-weight="700">TangTool / Logo candidates</text>
+    <text x="48" y="92" font-size="14" fill="#747B84">Four editable SVG directions — choose A, B, C or D</text>
+  </g>
+  <g fill="#FFFFFF" stroke="#DEE0DF">
+    <rect x="32" y="124" width="332" height="548" rx="20" />
+    <rect x="380" y="124" width="332" height="548" rx="20" />
+    <rect x="728" y="124" width="332" height="548" rx="20" />
+    <rect x="1076" y="124" width="332" height="548" rx="20" />
+  </g>
+  <g id="candidate-images">
+<g transform="translate(62 190) scale(0.53125)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#183F36" /></g>
+  <g fill="#EDF4DA">
+    <path d="M124 142H388V211H291V370H221V211H124Z" />
+  </g>
+  <g><path d="M319 142H388V211Z" fill="#80D5B4" /><path d="M319 142V211H388Z" fill="#B8E8CD" /></g>
+  <g><rect x="321" y="322" width="49" height="49" rx="15" fill="#80D5B4" /></g>
+</g><g transform="translate(62 558) scale(0.09375)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#183F36" /></g>
+  <g fill="#EDF4DA">
+    <path d="M124 142H388V211H291V370H221V211H124Z" />
+  </g>
+  <g><path d="M319 142H388V211Z" fill="#80D5B4" /><path d="M319 142V211H388Z" fill="#B8E8CD" /></g>
+  <g><rect x="321" y="322" width="49" height="49" rx="15" fill="#80D5B4" /></g>
+</g><g transform="translate(132 558) scale(0.0625)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#183F36" /></g>
+  <g fill="#EDF4DA">
+    <path d="M124 142H388V211H291V370H221V211H124Z" />
+  </g>
+  <g><path d="M319 142H388V211Z" fill="#80D5B4" /><path d="M319 142V211H388Z" fill="#B8E8CD" /></g>
+  <g><rect x="321" y="322" width="49" height="49" rx="15" fill="#80D5B4" /></g>
+</g><g transform="translate(202 558) scale(0.03125)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#183F36" /></g>
+  <g fill="#EDF4DA">
+    <path d="M124 142H388V211H291V370H221V211H124Z" />
+  </g>
+  <g><path d="M319 142H388V211Z" fill="#80D5B4" /><path d="M319 142V211H388Z" fill="#B8E8CD" /></g>
+  <g><rect x="321" y="322" width="49" height="49" rx="15" fill="#80D5B4" /></g>
+</g>
+<g transform="translate(410 190) scale(0.53125)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#182A58" /></g>
+  <g>
+    <rect x="118" y="132" width="76" height="76" rx="22" fill="#70B9FF" />
+    <rect x="218" y="132" width="76" height="76" rx="22" fill="#F0F6FF" />
+    <rect x="318" y="132" width="76" height="76" rx="22" fill="#B5D6FF" />
+    <rect x="218" y="232" width="76" height="148" rx="25" fill="#F0F6FF" />
+    <path d="M356 150V190M336 170H376" fill="none" stroke="#345C9B" stroke-width="10" stroke-linecap="round" />
+  </g>
+</g><g transform="translate(410 558) scale(0.09375)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#182A58" /></g>
+  <g>
+    <rect x="118" y="132" width="76" height="76" rx="22" fill="#70B9FF" />
+    <rect x="218" y="132" width="76" height="76" rx="22" fill="#F0F6FF" />
+    <rect x="318" y="132" width="76" height="76" rx="22" fill="#B5D6FF" />
+    <rect x="218" y="232" width="76" height="148" rx="25" fill="#F0F6FF" />
+    <path d="M356 150V190M336 170H376" fill="none" stroke="#345C9B" stroke-width="10" stroke-linecap="round" />
+  </g>
+</g><g transform="translate(480 558) scale(0.0625)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#182A58" /></g>
+  <g>
+    <rect x="118" y="132" width="76" height="76" rx="22" fill="#70B9FF" />
+    <rect x="218" y="132" width="76" height="76" rx="22" fill="#F0F6FF" />
+    <rect x="318" y="132" width="76" height="76" rx="22" fill="#B5D6FF" />
+    <rect x="218" y="232" width="76" height="148" rx="25" fill="#F0F6FF" />
+    <path d="M356 150V190M336 170H376" fill="none" stroke="#345C9B" stroke-width="10" stroke-linecap="round" />
+  </g>
+</g><g transform="translate(550 558) scale(0.03125)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#182A58" /></g>
+  <g>
+    <rect x="118" y="132" width="76" height="76" rx="22" fill="#70B9FF" />
+    <rect x="218" y="132" width="76" height="76" rx="22" fill="#F0F6FF" />
+    <rect x="318" y="132" width="76" height="76" rx="22" fill="#B5D6FF" />
+    <rect x="218" y="232" width="76" height="148" rx="25" fill="#F0F6FF" />
+    <path d="M356 150V190M336 170H376" fill="none" stroke="#345C9B" stroke-width="10" stroke-linecap="round" />
+  </g>
+</g>
+<g transform="translate(758 190) scale(0.53125)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#C45B35" /></g>
+  <g><path d="M204 175V148C204 137 213 128 224 128H288C299 128 308 137 308 148V175" fill="none" stroke="#FFF2DF" stroke-width="25" stroke-linejoin="round" /></g>
+  <g>
+    <rect x="111" y="178" width="290" height="203" rx="35" fill="#FFF2DF" />
+    <path d="M111 248H401" fill="none" stroke="#C45B35" stroke-width="12" />
+    <path d="M213 228H299V257H272V307H240V257H213Z" fill="#703C29" />
+    <path d="M144 342H188" fill="none" stroke="#E7BA90" stroke-width="12" stroke-linecap="round" />
+  </g>
+</g><g transform="translate(758 558) scale(0.09375)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#C45B35" /></g>
+  <g><path d="M204 175V148C204 137 213 128 224 128H288C299 128 308 137 308 148V175" fill="none" stroke="#FFF2DF" stroke-width="25" stroke-linejoin="round" /></g>
+  <g>
+    <rect x="111" y="178" width="290" height="203" rx="35" fill="#FFF2DF" />
+    <path d="M111 248H401" fill="none" stroke="#C45B35" stroke-width="12" />
+    <path d="M213 228H299V257H272V307H240V257H213Z" fill="#703C29" />
+    <path d="M144 342H188" fill="none" stroke="#E7BA90" stroke-width="12" stroke-linecap="round" />
+  </g>
+</g><g transform="translate(828 558) scale(0.0625)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#C45B35" /></g>
+  <g><path d="M204 175V148C204 137 213 128 224 128H288C299 128 308 137 308 148V175" fill="none" stroke="#FFF2DF" stroke-width="25" stroke-linejoin="round" /></g>
+  <g>
+    <rect x="111" y="178" width="290" height="203" rx="35" fill="#FFF2DF" />
+    <path d="M111 248H401" fill="none" stroke="#C45B35" stroke-width="12" />
+    <path d="M213 228H299V257H272V307H240V257H213Z" fill="#703C29" />
+    <path d="M144 342H188" fill="none" stroke="#E7BA90" stroke-width="12" stroke-linecap="round" />
+  </g>
+</g><g transform="translate(898 558) scale(0.03125)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#C45B35" /></g>
+  <g><path d="M204 175V148C204 137 213 128 224 128H288C299 128 308 137 308 148V175" fill="none" stroke="#FFF2DF" stroke-width="25" stroke-linejoin="round" /></g>
+  <g>
+    <rect x="111" y="178" width="290" height="203" rx="35" fill="#FFF2DF" />
+    <path d="M111 248H401" fill="none" stroke="#C45B35" stroke-width="12" />
+    <path d="M213 228H299V257H272V307H240V257H213Z" fill="#703C29" />
+    <path d="M144 342H188" fill="none" stroke="#E7BA90" stroke-width="12" stroke-linecap="round" />
+  </g>
+</g>
+<g transform="translate(1106 190) scale(0.53125)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#463378" /></g>
+  <g fill="#EEE9FF">
+    <path d="M113 147H302V209H241V365H174V209H113Z" />
+  </g>
+  <g fill="#A6E3C6">
+    <path d="M269 221H403V283H367V365H303V283H269Z" />
+  </g>
+  <g><path d="M241 221H269V283H241Z" fill="#BAA7E8" /></g>
+</g><g transform="translate(1106 558) scale(0.09375)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#463378" /></g>
+  <g fill="#EEE9FF">
+    <path d="M113 147H302V209H241V365H174V209H113Z" />
+  </g>
+  <g fill="#A6E3C6">
+    <path d="M269 221H403V283H367V365H303V283H269Z" />
+  </g>
+  <g><path d="M241 221H269V283H241Z" fill="#BAA7E8" /></g>
+</g><g transform="translate(1176 558) scale(0.0625)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#463378" /></g>
+  <g fill="#EEE9FF">
+    <path d="M113 147H302V209H241V365H174V209H113Z" />
+  </g>
+  <g fill="#A6E3C6">
+    <path d="M269 221H403V283H367V365H303V283H269Z" />
+  </g>
+  <g><path d="M241 221H269V283H241Z" fill="#BAA7E8" /></g>
+</g><g transform="translate(1246 558) scale(0.03125)">
+  
+  
+  <g><rect x="32" y="32" width="448" height="448" rx="104" fill="#463378" /></g>
+  <g fill="#EEE9FF">
+    <path d="M113 147H302V209H241V365H174V209H113Z" />
+  </g>
+  <g fill="#A6E3C6">
+    <path d="M269 221H403V283H367V365H303V283H269Z" />
+  </g>
+  <g><path d="M241 221H269V283H241Z" fill="#BAA7E8" /></g>
+</g>
+  </g>
+  <g font-family="Arial, sans-serif" fill="#252B32" font-size="21" font-weight="700">
+    <text x="62" y="169">A / Folded T</text><text x="410" y="169">B / Modular T</text>
+    <text x="758" y="169">C / Toolbox</text><text x="1106" y="169">D / Linked TT</text>
+  </g>
+  <g font-family="Arial, sans-serif" fill="#252B32" font-size="24" font-weight="700">
+    <text x="62" y="476">TangTool</text><text x="410" y="476">TangTool</text>
+    <text x="758" y="476">TangTool</text><text x="1106" y="476">TangTool</text>
+  </g>
+  <g font-family="Arial, sans-serif" fill="#747B84" font-size="14">
+    <text x="62" y="506">Quiet / precise / familiar</text><text x="410" y="506">Modular / open / expandable</text>
+    <text x="758" y="506">Useful / friendly / direct</text><text x="1106" y="506">Connected / distinct / balanced</text>
+    <text x="62" y="641">48 / 32 / 16 px</text><text x="410" y="641">48 / 32 / 16 px</text>
+    <text x="758" y="641">48 / 32 / 16 px</text><text x="1106" y="641">48 / 32 / 16 px</text>
+  </g>
+</svg>

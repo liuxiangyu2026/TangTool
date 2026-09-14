@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">TangTool C · 随身工具箱</title>
+  <desc id="description">暖橙色底，奶白色工具箱，深色搭扣构成字母 T。</desc>
+  <g id="background"><rect x="32" y="32" width="448" height="448" rx="104" fill="#C45B35" /></g>
+  <g id="handle"><path d="M204 175V148C204 137 213 128 224 128H288C299 128 308 137 308 148V175" fill="none" stroke="#FFF2DF" stroke-width="25" stroke-linejoin="round" /></g>
+  <g id="case">
+    <rect x="111" y="178" width="290" height="203" rx="35" fill="#FFF2DF" />
+    <path d="M111 248H401" fill="none" stroke="#C45B35" stroke-width="12" />
+    <path d="M213 228H299V257H272V307H240V257H213Z" fill="#703C29" />
+    <path d="M144 342H188" fill="none" stroke="#E7BA90" stroke-width="12" stroke-linecap="round" />
+  </g>
+</svg>

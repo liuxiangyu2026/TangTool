@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">TangTool B · 模块 T</title>
+  <desc id="description">深蓝色底，以浅蓝及白色模块拼成 T，右上角为独立工具模块。</desc>
+  <g id="background"><rect x="32" y="32" width="448" height="448" rx="104" fill="#182A58" /></g>
+  <g id="modules">
+    <rect x="118" y="132" width="76" height="76" rx="22" fill="#70B9FF" />
+    <rect x="218" y="132" width="76" height="76" rx="22" fill="#F0F6FF" />
+    <rect x="318" y="132" width="76" height="76" rx="22" fill="#B5D6FF" />
+    <rect x="218" y="232" width="76" height="148" rx="25" fill="#F0F6FF" />
+    <path d="M356 150V190M336 170H376" fill="none" stroke="#345C9B" stroke-width="10" stroke-linecap="round" />
+  </g>
+</svg>

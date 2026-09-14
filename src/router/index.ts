@@ -3,9 +3,24 @@ import { createRouter, createWebHashHistory } from "vue-router";
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
+    { path: "/color", name: "color", component: () => import("../views/ColorPickerView.vue"), meta: { title: "颜色选择器", group: "图像" } },
+    { path: "/excel/json", name: "excel-json", component: () => import("../views/ExcelJsonView.vue"), meta: { title: "Excel / CSV 转 JSON", group: "JSON / 表格" } },
+    { path: "/cron", name: "cron", component: () => import("../views/CronView.vue"), meta: { title: "Cron 解析", group: "开发辅助" } },
+    { path: "/qrcode", name: "qrcode", component: () => import("../views/QrCodeView.vue"), meta: { title: "二维码生成", group: "图像" } },
+    { path: "/text/diff", name: "text-diff", component: () => import("../views/TextDiffView.vue"), meta: { title: "文本对比", group: "开发辅助" } },
+    { path: "/image/compress", name: "image-compress", component: () => import("../views/ImageCompressView.vue"), meta: { title: "图片压缩", group: "图像" } },
+    { path: "/timestamp", name: "timestamp", component: () => import("../views/TimestampView.vue"), meta: { title: "时间戳 / 时区", group: "开发辅助" } },
+    { path: "/uuid", name: "uuid", component: () => import("../views/UuidView.vue"), meta: { title: "UUID 生成", group: "开发辅助" } },
+    { path: "/regex", name: "regex", component: () => import("../views/RegexView.vue"), meta: { title: "正则调试", group: "开发辅助" } },
+    { path: "/text", name: "text", component: () => import("../views/TextToolsView.vue"), meta: { title: "文本整理", group: "开发辅助" } },
+    { path: "/sha", name: "sha", component: () => import("../views/ShaView.vue"), meta: { title: "SHA 摘要", group: "安全" } },
+    { path: "/settings", name: "settings", component: () => import("../views/SettingsView.vue"), meta: { title: "用户设置", group: "应用" } },
+    { path: "/releases", name: "releases", component: () => import("../views/ReleasesView.vue"), meta: { title: "版本与升级说明", group: "应用" } },
     {
       path: "/",
-      redirect: "/json/format",
+      name: "home",
+      component: () => import("../views/HomeView.vue"),
+      meta: { title: "首页", group: "应用" },
     },
     {
       path: "/json/format",

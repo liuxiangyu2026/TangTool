@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">TangTool A · 折角 T</title>
+  <desc id="description">深松绿底，米白色 T 与青绿色折角，简洁而沉稳。</desc>
+  <g id="background"><rect x="32" y="32" width="448" height="448" rx="104" fill="#183F36" /></g>
+  <g id="letter-t" fill="#EDF4DA">
+    <path d="M124 142H388V211H291V370H221V211H124Z" />
+  </g>
+  <g id="fold"><path d="M319 142H388V211Z" fill="#80D5B4" /><path d="M319 142V211H388Z" fill="#B8E8CD" /></g>
+  <g id="accent"><rect x="321" y="322" width="49" height="49" rx="15" fill="#80D5B4" /></g>
+</svg>

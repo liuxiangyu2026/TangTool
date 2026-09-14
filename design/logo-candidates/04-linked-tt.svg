@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">TangTool D · 双 T 协作</title>
+  <desc id="description">紫色底，以一高一低两个相连字母 T 表达工具协作，使用淡紫和薄荷色。</desc>
+  <g id="background"><rect x="32" y="32" width="448" height="448" rx="104" fill="#463378" /></g>
+  <g id="first-t" fill="#EEE9FF">
+    <path d="M113 147H302V209H241V365H174V209H113Z" />
+  </g>
+  <g id="second-t" fill="#A6E3C6">
+    <path d="M269 221H403V283H367V365H303V283H269Z" />
+  </g>
+  <g id="joint"><path d="M241 221H269V283H241Z" fill="#BAA7E8" /></g>
+</svg>

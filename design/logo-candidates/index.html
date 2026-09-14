@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TangTool · Logo 候选</title>
+    <style>
+      :root {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+        color: #252b32;
+        background: #f5f5f2;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        max-width: 1160px;
+        margin: auto;
+        padding: 48px 32px;
+      }
+      header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 32px;
+      }
+      .eyebrow {
+        font-size: 11px;
+        letter-spacing: 3px;
+        color: #747b84;
+      }
+      h1 {
+        margin: 10px 0;
+        font-size: 30px;
+        letter-spacing: -1px;
+      }
+      p {
+        font-size: 13px;
+        line-height: 1.8;
+        color: #747b84;
+        margin: 0;
+      }
+      button {
+        padding: 10px 16px;
+        border: 1px solid #cdd1d6;
+        border-radius: 8px;
+        color: inherit;
+        background: transparent;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+      }
+      article {
+        border: 1px solid #dee0df;
+        border-radius: 18px;
+        background: #ffffff;
+        padding: 20px;
+      }
+      .letter {
+        font:
+          12px ui-monospace,
+          monospace;
+        color: #848b93;
+      }
+      .mark {
+        width: 100%;
+        margin: 12px 0;
+        display: block;
+      }
+      h2 {
+        font-size: 17px;
+        margin: 8px 0;
+      }
+      .wordmark {
+        margin: 0 0 20px;
+        font-weight: 650;
+        font-size: 20px;
+        letter-spacing: -0.7px;
+      }
+      .sizes {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        height: 74px;
+        border-block: 1px solid #e8e9e7;
+        margin-top: 22px;
+      }
+      .sizes img {
+        display: block;
+      }
+      a {
+        display: inline-block;
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px solid #a9b2ba;
+        margin-top: 18px;
+        font-size: 12px;
+        padding-bottom: 3px;
+      }
+      footer {
+        margin-top: 28px;
+        font-size: 12px;
+        color: #818994;
+        line-height: 1.9;
+      }
+      body.dark {
+        color: #edf0f5;
+        background: #171b22;
+      }
+      body.dark article {
+        background: #222831;
+        border-color: #39414b;
+      }
+      body.dark p,
+      body.dark footer {
+        color: #b1bac5;
+      }
+      body.dark .sizes {
+        border-color: #39414b;
+      }
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 520px) {
+        body {
+          padding: 24px 16px;
+        }
+        header {
+          display: block;
+        }
+        button {
+          margin-top: 16px;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <div class="eyebrow">TANGTOOL / IDENTITY EXPLORATION</div>
+        <h1>四个方向，一套自己的标识。</h1>
+        <p>可编辑 SVG 候选 · 非最终应用图标 · 点击下方链接查看或保存源文件</p>
+      </div>
+      <button type="button" id="theme" aria-pressed="false">切换深色背景</button>
+    </header>
+    <main class="grid">
+      <article>
+        <span class="letter">A / QUIET & PRECISE</span>
+        <img class="mark" src="01-folded-t.svg" alt="A 折角 T" />
+        <div class="wordmark">TangTool</div>
+        <h2>折角 T</h2>
+        <p>
+          松绿、米白与薄荷折角。
+          <br />
+          克制、易识别，与当前官网协调。
+        </p>
+        <div class="sizes">
+          <img src="01-folded-t.svg" width="48" height="48" alt="48px" />
+          <img src="01-folded-t.svg" width="32" height="32" alt="32px" />
+          <img src="01-folded-t.svg" width="16" height="16" alt="16px" />
+        </div>
+        <a href="01-folded-t.svg" download>查看 / 保存 SVG ↗</a>
+      </article>
+      <article>
+        <span class="letter">B / MODULAR & OPEN</span>
+        <img class="mark" src="02-modular-t.svg" alt="B 模块 T" />
+        <div class="wordmark">TangTool</div>
+        <h2>模块 T</h2>
+        <p>
+          不同工具拼成统一字母。
+          <br />
+          更突出开发工具箱与持续扩展。
+        </p>
+        <div class="sizes">
+          <img src="02-modular-t.svg" width="48" height="48" alt="48px" />
+          <img src="02-modular-t.svg" width="32" height="32" alt="32px" />
+          <img src="02-modular-t.svg" width="16" height="16" alt="16px" />
+        </div>
+        <a href="02-modular-t.svg" download>查看 / 保存 SVG ↗</a>
+      </article>
+      <article>
+        <span class="letter">C / USEFUL & FRIENDLY</span>
+        <img class="mark" src="03-toolbox.svg" alt="C 随身工具箱" />
+        <div class="wordmark">TangTool</div>
+        <h2>随身工具箱</h2>
+        <p>
+          暖橙色与实体工具箱。
+          <br />
+          功能一眼可懂，亲切、直接。
+        </p>
+        <div class="sizes">
+          <img src="03-toolbox.svg" width="48" height="48" alt="48px" />
+          <img src="03-toolbox.svg" width="32" height="32" alt="32px" />
+          <img src="03-toolbox.svg" width="16" height="16" alt="16px" />
+        </div>
+        <a href="03-toolbox.svg" download>查看 / 保存 SVG ↗</a>
+      </article>
+      <article>
+        <span class="letter">D / CONNECTED & DISTINCT</span>
+        <img class="mark" src="04-linked-tt.svg" alt="D 双 T 协作" />
+        <div class="wordmark">TangTool</div>
+        <h2>双 T 协作</h2>
+        <p>
+          Tang 与 Tool，相连而独立。
+          <br />
+          紫色与薄荷色，更有品牌辨识度。
+        </p>
+        <div class="sizes">
+          <img src="04-linked-tt.svg" width="48" height="48" alt="48px" />
+          <img src="04-linked-tt.svg" width="32" height="32" alt="32px" />
+          <img src="04-linked-tt.svg" width="16" height="16" alt="16px" />
+        </div>
+        <a href="04-linked-tt.svg" download>查看 / 保存 SVG ↗</a>
+      </article>
+    </main>
+    <footer>
+      全部使用独立路径 / 矩形分组，无位图、无外部字体、无联网请求。标识主体均可编辑，预览中的 TangTool 字样不包含在图标里。
+      <br />
+      选定后再制作 ICO / ICNS、单色版和小尺寸微调；当前未替换任何应用资产。
+    </footer>
+    <script>
+      const button = document.querySelector("#theme");
+      button.addEventListener("click", () => {
+        const dark = document.body.classList.toggle("dark");
+        button.setAttribute("aria-pressed", String(dark));
+        button.textContent = dark ? "切换浅色背景" : "切换深色背景";
+      });
+    </script>
+  </body>
+</html>

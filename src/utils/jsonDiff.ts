@@ -53,7 +53,7 @@ export function compareJson(leftInput: string, rightInput: string): CompareJsonR
   return { ok: true, changes };
 }
 
-export function alignJsonKeys(leftInput: string, rightInput: string): AlignJsonKeysResult {
+export function alignJsonKeys(leftInput: string, rightInput: string, indent = 2): AlignJsonKeysResult {
   const parsedResult = parseJsonPair(leftInput, rightInput);
   if (!parsedResult.ok) {
     return parsedResult;
@@ -62,8 +62,8 @@ export function alignJsonKeys(leftInput: string, rightInput: string): AlignJsonK
   const [leftValue, rightValue] = alignJsonValues(parsedResult.leftValue, parsedResult.rightValue);
   return {
     ok: true,
-    leftValue: JSON.stringify(leftValue, null, 2),
-    rightValue: JSON.stringify(rightValue, null, 2),
+    leftValue: JSON.stringify(leftValue, null, indent),
+    rightValue: JSON.stringify(rightValue, null, indent),
   };
 }
 

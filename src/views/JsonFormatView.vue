@@ -1,11 +1,12 @@
 <template>
   <section class="flex h-full min-h-0 flex-col bg-neutral-100 p-4 sm:p-6">
+    <ToolNotice :status="statusMessage" :error="errorMessage" :tone="statusTone" />
     <header class="shrink-0">
       <p class="text-sm font-medium text-neutral-500">{{ route.meta.group }}</p>
       <h1 class="mt-1 text-2xl font-semibold text-neutral-900">{{ route.meta.title }}</h1>
     </header>
 
-    <div class="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white">
+    <div class="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface">
       <div class="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-neutral-200 px-4 py-3">
         <div class="flex flex-wrap items-center gap-2">
           <button class="flex items-center gap-1.5 rounded-md bg-violet-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2" type="button" @click="loadExample">
@@ -37,24 +38,25 @@
             <span>导出</span>
           </button>
         </div>
-        <p v-if="statusMessage" class="text-sm" :class="statusTone === 'success' ? 'text-emerald-700' : 'text-neutral-500'" role="status">{{ statusMessage }}</p>
       </div>
 
       <div ref="editorHost" class="min-h-0 flex-1 overflow-hidden"></div>
-
-      <p v-if="errorMessage" class="shrink-0 border-t border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">{{ errorMessage }}</p>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
+import { editorPreferences } from "../utils/editorPreferences";
+import { usePreferencesStore } from "../stores/preferences";
+import { exportDefaults } from "../utils/exportDefaults";
+import ToolNotice from "../components/ToolNotice.vue";
+import { jsonHighlightStyle, jsonEditorTheme } from "../utils/jsonEditorAppearance";
 import { json } from "@codemirror/lang-json";
-import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { syntaxHighlighting } from "@codemirror/language";
 import { forceLinting, linter, lintGutter } from "@codemirror/lint";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
-import { tags } from "@lezer/highlight";
 import { basicSetup, EditorView } from "codemirror";
 import { BookOpen, Copy, FolderOpen, Minimize2, Save, Trash2, WandSparkles } from "lucide-vue-next";
 import { onActivated, onBeforeUnmount, onMounted, ref } from "vue";
@@ -82,45 +84,12 @@ const EXAMPLE_JSON = JSON.stringify({
 const JSON_FILE_FILTERS = [{ name: "JSON 文件", extensions: ["json"] }];
 
 const route = useRoute();
+const preferences = usePreferencesStore();
 const editorHost = ref<HTMLDivElement | null>(null);
 const errorMessage = ref("");
 const statusMessage = ref("");
 const statusTone = ref<StatusTone>("success");
 let editorView: EditorView | null = null;
-
-const jsonHighlightStyle = HighlightStyle.define([
-  { tag: tags.propertyName, color: "#2563eb" },
-  { tag: tags.string, color: "#15803d" },
-  { tag: tags.number, color: "#b45309" },
-  { tag: [tags.bool, tags.null], color: "#7c3aed" },
-]);
-
-const editorTheme = EditorView.theme({
-  "&": {
-    height: "100%",
-    fontSize: "14px",
-  },
-  ".cm-scroller": {
-    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-    lineHeight: "1.5",
-    overflow: "auto",
-  },
-  ".cm-content": {
-    minHeight: "100%",
-    padding: "12px 0",
-  },
-  ".cm-gutters": {
-    backgroundColor: "#fafafa",
-    borderRight: "1px solid #e5e5e5",
-    color: "#737373",
-  },
-  ".cm-activeLine": {
-    backgroundColor: "#fafafa",
-  },
-  ".cm-activeLineGutter": {
-    backgroundColor: "#e5e5e5",
-  },
-}, { dark: false });
 
 onMounted(() => {
   if (!editorHost.value) {
@@ -130,8 +99,7 @@ onMounted(() => {
   editorView = new EditorView({
     parent: editorHost.value,
     extensions: [
-      basicSetup,
-      json(),
+      basicSetup, editorPreferences(), json(),
       linter((view) => {
         const result = validateJson(view.state.doc.toString());
         if (result.ok || result.position === undefined) {
@@ -148,7 +116,7 @@ onMounted(() => {
       }, { delay: 300 }),
       lintGutter(),
       syntaxHighlighting(jsonHighlightStyle),
-      editorTheme,
+      jsonEditorTheme,
       EditorView.contentAttributes.of({ "aria-label": "JSON 编辑器" }),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
@@ -169,7 +137,8 @@ onActivated(() => {
 });
 
 function transformJson(transform: JsonTransform) {
-  const result = transform(editorView?.state.doc.toString() ?? "");
+  const input = editorView?.state.doc.toString() ?? "";
+  const result = transform === formatJson ? formatJson(input, preferences.indentWidth) : transform(input);
   statusMessage.value = "";
 
   if (!result.ok) {
@@ -232,7 +201,7 @@ async function exportJsonFile() {
   try {
     const selected = await save({
       title: "导出 JSON 文件",
-      defaultPath: "tangtool.json",
+      defaultPath: exportDefaults("tangtool.json").path,
       filters: JSON_FILE_FILTERS,
     });
 

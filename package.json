@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "site:dev": "vite --config website/vite.config.mjs",
+    "site:build": "vite build --config website/vite.config.mjs",
+    "site:preview": "vite preview --config website/vite.config.mjs --port 4173",
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
@@ -27,10 +30,14 @@
     "@tauri-apps/plugin-fs": "^2.5.2",
     "@tauri-apps/plugin-opener": "^2",
     "codemirror": "^6.0.2",
+    "cron-parser": "^5.10.1",
+    "cronstrue": "^3.26.0",
+    "diff": "^9.0.0",
     "lucide-vue-next": "^1.0.0",
     "marked": "^18.0.12",
     "microdiff": "^1.6.0",
     "pinia": "^4.0.3",
+    "qrcode": "^1.5.4",
     "vue": "^3.5.13",
     "vue-router": "^4.6.4",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
@@ -38,6 +45,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/cli": "^2",
+    "@types/qrcode": "^1.5.6",
     "@vitejs/plugin-vue": "^5.2.1",
     "tailwindcss": "^4.3.3",
     "typescript": "~5.6.2",
