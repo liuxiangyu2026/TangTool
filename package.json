@@ -13,8 +13,9 @@
     "tauri": "tauri",
     "sidecar:build": "node scripts/build-sidecar.mjs",
     "desktop:build": "npm run sidecar:build && tauri build --config src-tauri/tauri.sidecar.conf.json",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "release:collect": "node scripts/collect-release.mjs",
+    "test": "vitest run --dir src",
+    "test:watch": "vitest --dir src"
   },
   "dependencies": {
     "@codemirror/lang-json": "^6.0.2",
@@ -33,6 +34,7 @@
     "cron-parser": "^5.10.1",
     "cronstrue": "^3.26.0",
     "diff": "^9.0.0",
+    "dompurify": "^3.4.15",
     "lucide-vue-next": "^1.0.0",
     "marked": "^18.0.12",
     "microdiff": "^1.6.0",
@@ -50,7 +52,7 @@
     "tailwindcss": "^4.3.3",
     "typescript": "~5.6.2",
     "vite": "^6.0.3",
-    "vitest": "^3.2.7",
+    "vitest": "4.1.11",
     "vue-tsc": "^2.1.10"
   },
   "allowScripts": {

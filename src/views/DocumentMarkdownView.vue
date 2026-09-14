@@ -1,14 +1,14 @@
 <template>
   <section class="flex h-full min-h-0 flex-col bg-neutral-100 p-4 sm:p-6">
-    <ToolNotice :status="status" :error="activeDocument?.error" />
+    <ToolNotice :status="status" :error="operationError || activeDocument?.error" />
     <header class="shrink-0">
       <p class="text-sm font-medium text-neutral-500">{{ route.meta.group }}</p>
       <h1 class="mt-1 text-2xl font-semibold text-neutral-900">{{ route.meta.title }}</h1>
     </header>
     <div class="mt-4 flex min-h-0 flex-1 flex-col gap-4">
       <div class="flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-surface px-3 py-2">
-        <button class="rounded-md bg-violet-600 px-3 py-1.5 text-sm text-white" type="button" @click="selectDocuments">选择文档</button>
-        <button class="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" type="button" :disabled="documents.length === 0 || converting"
+        <button class="rounded-md bg-violet-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" type="button" :disabled="queueBusy" @click="selectDocuments">选择文档</button>
+        <button class="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" type="button" :disabled="documents.length === 0 || queueBusy"
           @click="convertDocuments">
           {{ converting ? "转换中" : "转换 Markdown" }}
         </button>
@@ -16,10 +16,10 @@
           @click="copyMarkdown">
           复制
         </button>
-        <button class="rounded-md bg-sky-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" type="button" :disabled="!activeDocument?.markdown" @click="saveMarkdown">
+        <button class="rounded-md bg-sky-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" type="button" :disabled="!activeDocument?.markdown || saving" @click="saveMarkdown">
           保存 Markdown
         </button>
-        <button class="rounded-md bg-red-600 px-3 py-1.5 text-sm text-white" type="button" @click="clearAll">清除</button>
+        <button class="rounded-md bg-red-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" type="button" :disabled="queueBusy" @click="clearAll">清除</button>
       </div>
       <div ref="splitRoot" class="flex min-h-0 flex-1">
         <section class="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface" :style="{ flexBasis: `${leftPercent}%` }">
@@ -36,7 +36,7 @@
                 <span v-if="document.error" class="ml-2 text-xs text-red-600">失败</span>
                 <span v-else-if="document.markdown" class="ml-2 text-xs text-emerald-600">完成</span>
               </button>
-              <button class="shrink-0 px-2 py-2 text-neutral-400 hover:text-red-600" type="button" :aria-label="`删除 ${document.name}`" @click="removeDocument(index)">
+              <button class="shrink-0 px-2 py-2 text-neutral-400 hover:text-red-600 disabled:opacity-50" type="button" :disabled="queueBusy" :aria-label="`删除 ${document.name}`" @click="removeDocument(index)">
                 <Trash2 :size="14" />
               </button>
             </div>
@@ -68,6 +68,7 @@
           <div v-if="previewMode === 'rendered'" class="markdown-preview min-h-0 flex-1 overflow-auto p-5" v-html="renderedMarkdown"></div>
           <textarea v-else class="min-h-0 flex-1 resize-none bg-neutral-50 p-5 font-mono text-sm leading-6" aria-label="原始 Markdown"
             :value="activeDocument?.markdown || ''" readonly placeholder="转换结果会显示在这里"></textarea>
+          <p class="shrink-0 border-t border-neutral-100 px-3 py-2 text-xs text-neutral-500">预览仅展示排版，不加载图片或打开链接；复制与保存保留原始 Markdown。</p>
         </section>
       </div>
     </div>
@@ -81,7 +82,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
-import { marked } from "marked";
+import { renderMarkdownPreview } from "../utils/markdownPreview";
 import { computed, onBeforeUnmount, ref } from "vue";
 import { useRoute } from "vue-router";
 import { GripVertical, Trash2 } from "lucide-vue-next";
@@ -93,7 +94,11 @@ const documents = ref<DocumentItem[]>([]);
 const activeIndex = ref(0);
 const previewMode = ref<"rendered" | "raw">("rendered");
 const status = ref("");
+const operationError = ref("");
 const converting = ref(false);
+const selecting = ref(false);
+const saving = ref(false);
+const queueBusy = computed(() => converting.value || selecting.value);
 const leftPercent = usePanelRatio("document:left", 35, 25, 55);
 const splitRoot = ref<HTMLDivElement | null>(null);
 let pointerId: number | null = null;
@@ -101,73 +106,122 @@ let handle: HTMLElement | null = null;
 const activeDocument = computed(() => documents.value[activeIndex.value]);
 const renderedMarkdown = computed(() =>
   activeDocument.value?.markdown
-    ? marked.parse(activeDocument.value.markdown, { async: false })
+    ? renderMarkdownPreview(activeDocument.value.markdown)
     : '<p class="text-sm text-neutral-400">转换结果会显示在这里</p>',
 );
 
 async function selectDocuments() {
-  const selected = await open({
-    title: "选择 DOCX/PDF 文档（最多 10 个）",
-    multiple: true,
-    directory: false,
-    filters: [{ name: "文档", extensions: ["docx", "pdf"] }],
-  });
-  if (!selected) return;
-  const existing = new Set(documents.value.map((document) => document.path));
-  const candidates = (Array.isArray(selected) ? selected : [selected]).filter((path) => !existing.has(path));
-  const available = Math.max(10 - documents.value.length, 0);
-  const added = candidates.slice(0, available).map((path) => ({ path, name: path.split(/[\\/]/).pop() || path, markdown: "", error: "" }));
-  documents.value.push(...added);
-  if (added.length) activeIndex.value = documents.value.length - added.length;
-  status.value = candidates.length > available ? `已追加 ${added.length} 个文档，最多支持 10 个` : `已追加 ${added.length} 个文档`;
+  if (queueBusy.value) return;
+  selecting.value = true;
+  operationError.value = "";
+  status.value = "";
+  try {
+    const selected = await open({
+      title: "选择 DOCX/PDF 文档（最多 10 个）",
+      multiple: true,
+      directory: false,
+      filters: [{ name: "文档", extensions: ["docx", "pdf"] }],
+    });
+    if (!selected) return;
+    const existing = new Set(documents.value.map((document) => document.path));
+    const uniquePaths = new Set(Array.isArray(selected) ? selected : [selected]);
+    const candidates = [...uniquePaths].filter((path) => !existing.has(path));
+    const available = Math.max(10 - documents.value.length, 0);
+    const added = candidates.slice(0, available).map((path) => ({
+      path,
+      name: path.split(/[\\/]/).pop() || path,
+      markdown: "",
+      error: "",
+    }));
+    documents.value.push(...added);
+    if (added.length) activeIndex.value = documents.value.length - added.length;
+    status.value = candidates.length > available ? `已追加 ${added.length} 个文档，最多支持 10 个` : `已追加 ${added.length} 个文档`;
+  } catch {
+    operationError.value = "选择文档失败，请重试。";
+  } finally {
+    selecting.value = false;
+  }
 }
 
 async function convertDocuments() {
+  if (queueBusy.value || documents.value.length === 0) return;
   converting.value = true;
   status.value = "";
-  for (const document of documents.value) {
-    document.markdown = "";
-    document.error = "";
-    try {
-      document.markdown = await invoke<string>("convert_document_to_markdown", { path: document.path });
-    } catch (error) {
-      document.error = typeof error === "string" ? error : "转换失败，请检查 MarkItDown 环境";
+  operationError.value = "";
+  // 本次任务固定队列；转换期间禁止增删，仍可切换查看已经完成的文档。
+  const queue = [...documents.value];
+  let failed = 0;
+  try {
+    for (const document of queue) {
+      document.markdown = "";
+      document.error = "";
+      try {
+        document.markdown = await invoke<string>("convert_document_to_markdown", { path: document.path });
+      } catch (error) {
+        failed += 1;
+        document.error = typeof error === "string" ? error : "转换失败，请检查文档或重新安装完整应用。";
+      }
     }
+    status.value = failed ? `完成 ${queue.length - failed} 个，失败 ${failed} 个` : `已转换 ${queue.length} 个文档`;
+  } finally {
+    converting.value = false;
   }
-  const failed = documents.value.filter((document) => document.error).length;
-  status.value = failed ? `完成 ${documents.value.length - failed} 个，失败 ${failed} 个` : `已转换 ${documents.value.length} 个文档`;
-  converting.value = false;
 }
 
 async function copyMarkdown() {
-  if (!activeDocument.value?.markdown) return;
-  await writeText(activeDocument.value.markdown);
-  status.value = "已复制到剪贴板";
+  const markdown = activeDocument.value?.markdown;
+  if (!markdown) return;
+  operationError.value = "";
+  status.value = "";
+  try {
+    await writeText(markdown);
+    status.value = "已复制到剪贴板";
+  } catch {
+    operationError.value = "复制失败，请检查剪贴板权限。";
+  }
 }
 
 async function saveMarkdown() {
-  if (!activeDocument.value?.markdown) return;
-  const output = await save({
-    title: "保存 Markdown",
-    defaultPath: exportDefaults(`${activeDocument.value.name.replace(/\.[^.]+$/, "")}.md`).path,
-    filters: [{ name: "Markdown 文件", extensions: ["md"] }],
-  });
-  if (!output) return;
-  await writeTextFile(output, activeDocument.value.markdown);
-  status.value = "Markdown 已保存";
+  if (saving.value || !activeDocument.value?.markdown) return;
+  // 名称与内容来自同一个快照，保存对话框期间切页、删除或重新转换都不影响本次保存。
+  const { name, markdown } = activeDocument.value;
+  saving.value = true;
+  operationError.value = "";
+  status.value = "";
+  try {
+    const output = await save({
+      title: "保存 Markdown",
+      defaultPath: exportDefaults(`${name.replace(/\.[^.]+$/, "")}.md`).path,
+      filters: [{ name: "Markdown 文件", extensions: ["md"] }],
+    });
+    if (!output) {
+      status.value = "已取消保存";
+      return;
+    }
+    await writeTextFile(output, markdown);
+    status.value = `${name} 的 Markdown 已保存`;
+  } catch {
+    operationError.value = `${name} 保存失败，请检查保存位置和可用空间。`;
+  } finally {
+    saving.value = false;
+  }
 }
 
 function removeDocument(index: number) {
+  if (queueBusy.value || index < 0 || index >= documents.value.length) return;
   documents.value.splice(index, 1);
   if (documents.value.length === 0) activeIndex.value = 0;
+  else if (index < activeIndex.value) activeIndex.value -= 1;
   else if (activeIndex.value >= documents.value.length) activeIndex.value = documents.value.length - 1;
 }
 
 function clearAll() {
+  if (queueBusy.value) return;
   if (documents.value.length === 0 || window.confirm(`确定要清除全部 ${documents.value.length} 个文档及其转换结果吗？`)) {
     documents.value = [];
     activeIndex.value = 0;
     status.value = "";
+    operationError.value = "";
   }
 }
 

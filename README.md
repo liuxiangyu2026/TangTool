@@ -79,7 +79,7 @@ npm run sidecar:build
 npm run desktop:build
 ```
 
-完整包随应用携带 Python、MarkItDown 和格式依赖；最终用户无需手动安装它们。当前只支持 DOCX/PDF，不支持 `.doc`，无需 LibreOffice。Windows/Intel macOS 真机验收及签名、公证仍在后续发布任务中。
+完整包随应用携带 Python、MarkItDown 和格式依赖；最终用户无需手动安装它们。当前只支持 DOCX/PDF，不支持 `.doc`，无需 LibreOffice。macOS 完整包要求 14 或更新版本；Windows 配置内置 WebView2 离线安装程序。新版本的三平台真机验收、正式签名与公证仍在进行，详情见 [发布检查记录](docs/release-checks.md)。
 
 ## 隐私原则
 

@@ -13,14 +13,17 @@ struct ConversionResponse {
 }
 
 #[tauri::command]
-pub async fn convert_document_to_markdown(path: String) -> Result<String, String> {
+pub async fn convert_document_to_markdown(
+    app: tauri::AppHandle,
+    path: String,
+) -> Result<String, String> {
+    let path = crate::file_access::selected_path(&app, &path, false)?;
     tauri::async_runtime::spawn_blocking(move || convert_document(path))
         .await
         .map_err(|_| "文档转换任务异常结束".to_string())?
 }
 
-fn convert_document(path: String) -> Result<String, String> {
-    let input = PathBuf::from(path);
+fn convert_document(input: PathBuf) -> Result<String, String> {
     let extension = input
         .extension()
         .and_then(|value| value.to_str())

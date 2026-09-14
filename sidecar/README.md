@@ -107,8 +107,9 @@ Rust 在后台线程启动进程，独立读取 stdout/stderr，单次转换最�
 - 从非项目目录启动打包应用，验证中文/空格路径、DOCX 标题和表格、PDF 文本。
 - 在无 Python、无 MarkItDown、无项目仓库的电脑上测试；无需要求用户安装这些工具。
 - 验证损坏文件、缺失文件、拒绝 `.doc`、批量转换后窗口可操作。
-- Windows 若缺 WebView2，需要安装包处理该运行时；离线交付还需 M6 配置和验证。
-- macOS 正式分发仍待开发者签名、公证和目标系统版本验证；当前本地 ad-hoc debug 包不等于已完成正式发布。
+- Windows 配置 `offlineInstaller`，构建时下载并内置 WebView2 安装程序；仍需在无 WebView2 的离线 Windows 上验证。
+- macOS 完整包声明最低 14.0：本机锁定的 NumPy 原生库实际要求 macOS 14，不能沿用 Tauri 默认 10.13。Intel 构建也需核对打包库要求。
+- macOS 候选包使用 ad-hoc 签名保持包结构完整；它不提供开发者身份或 Apple 公证，不能代替正式分发签名。正式签名可通过 Tauri 的签名环境变量配置，私钥不入库。
 
 更新依赖时重新生成并审查锁文件：
 

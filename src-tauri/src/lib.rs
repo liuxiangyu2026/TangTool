@@ -1,9 +1,10 @@
-use base64::engine::general_purpose::STANDARD;
 use md5::{Digest, Md5};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
-use std::io::{self, BufReader, BufWriter, Read};
+use std::io::Read;
+mod base64_file;
 mod document;
+mod file_access;
 use document::convert_document_to_markdown;
 use tauri::{AppHandle, Emitter};
 
@@ -99,18 +100,28 @@ struct FileMd5Result {
 #[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 struct FileMd5Progress {
+    request_id: Option<String>,
     processed_bytes: u64,
     total_bytes: u64,
 }
 
 #[tauri::command]
-async fn calculate_file_md5(app: AppHandle, path: String) -> Result<FileMd5Result, String> {
-    tauri::async_runtime::spawn_blocking(move || calculate_file_md5_sync(app, path))
+async fn calculate_file_md5(
+    app: AppHandle,
+    path: String,
+    request_id: Option<String>,
+) -> Result<FileMd5Result, String> {
+    let path = file_access::selected_path(&app, &path, false)?;
+    tauri::async_runtime::spawn_blocking(move || calculate_file_md5_sync(app, path, request_id))
         .await
         .map_err(|error| format!("文件 MD5 任务执行失败：{error}"))?
 }
 
-fn calculate_file_md5_sync(app: AppHandle, path: String) -> Result<FileMd5Result, String> {
+fn calculate_file_md5_sync(
+    app: AppHandle,
+    path: std::path::PathBuf,
+    request_id: Option<String>,
+) -> Result<FileMd5Result, String> {
     let mut file = File::open(&path).map_err(|error| format!("无法读取文件：{error}"))?;
     let total_bytes = file
         .metadata()
@@ -123,6 +134,7 @@ fn calculate_file_md5_sync(app: AppHandle, path: String) -> Result<FileMd5Result
     let _ = app.emit(
         "md5-file-progress",
         FileMd5Progress {
+            request_id: request_id.clone(),
             processed_bytes,
             total_bytes,
         },
@@ -141,6 +153,7 @@ fn calculate_file_md5_sync(app: AppHandle, path: String) -> Result<FileMd5Result
         let _ = app.emit(
             "md5-file-progress",
             FileMd5Progress {
+                request_id: request_id.clone(),
                 processed_bytes,
                 total_bytes,
             },
@@ -154,33 +167,30 @@ fn calculate_file_md5_sync(app: AppHandle, path: String) -> Result<FileMd5Result
 }
 
 #[tauri::command]
-async fn encode_file_base64(path: String, output_path: String) -> Result<(), String> {
+async fn encode_file_base64(
+    app: AppHandle,
+    path: String,
+    output_path: String,
+) -> Result<(), String> {
+    let path = file_access::selected_path(&app, &path, false)?;
+    let output_path = file_access::selected_path(&app, &output_path, true)?;
     tauri::async_runtime::spawn_blocking(move || {
-        let input = File::open(&path).map_err(|error| format!("读取文件失败：{error}"))?;
-        let output =
-            File::create(&output_path).map_err(|error| format!("创建 Base64 文件失败：{error}"))?;
-        let mut encoder = base64::write::EncoderWriter::new(BufWriter::new(output), &STANDARD);
-        io::copy(&mut BufReader::new(input), &mut encoder)
-            .map_err(|error| format!("Base64 编码失败：{error}"))?;
-        encoder
-            .finish()
-            .map_err(|error| format!("保存 Base64 文件失败：{error}"))?;
-        Ok::<(), String>(())
+        base64_file::convert_file(&path, &output_path, base64_file::Operation::Encode)
     })
     .await
     .map_err(|error| format!("Base64 编码任务失败：{error}"))?
 }
 
 #[tauri::command]
-async fn decode_file_base64(path: String, output_path: String) -> Result<(), String> {
+async fn decode_file_base64(
+    app: AppHandle,
+    path: String,
+    output_path: String,
+) -> Result<(), String> {
+    let path = file_access::selected_path(&app, &path, false)?;
+    let output_path = file_access::selected_path(&app, &output_path, true)?;
     tauri::async_runtime::spawn_blocking(move || {
-        let input = File::open(&path).map_err(|error| format!("读取 Base64 文件失败：{error}"))?;
-        let output =
-            File::create(&output_path).map_err(|error| format!("创建解码文件失败：{error}"))?;
-        let mut decoder = base64::read::DecoderReader::new(BufReader::new(input), &STANDARD);
-        io::copy(&mut decoder, &mut BufWriter::new(output))
-            .map_err(|error| format!("Base64 解码失败：{error}"))?;
-        Ok::<(), String>(())
+        base64_file::convert_file(&path, &output_path, base64_file::Operation::Decode)
     })
     .await
     .map_err(|error| format!("Base64 解码任务失败：{error}"))?

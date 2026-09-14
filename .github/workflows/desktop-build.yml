@@ -40,20 +40,25 @@ jobs:
           python-version: '3.10'
           architecture: ${{ matrix.architecture }}
       - name: Prepare Rust
-        run: rustup toolchain install stable --profile minimal
+        run: rustup toolchain install stable --profile minimal --component rustfmt --component clippy
       - run: rustup default stable
       - run: python -m venv .venv-sidecar
       - name: Install locked sidecar dependencies
         run: ${{ matrix.python }} -m pip install --require-hashes -r sidecar/requirements.lock
       - run: npm ci
-      - run: npm run desktop:build -- --bundles ${{ matrix.bundles }}
-      - name: Archive macOS application (preserve executable bits and symlinks)
-        if: runner.os == 'macOS'
-        run: ditto -c -k --keepParent src-tauri/target/release/bundle/macos/TangTool.app TangTool-${{ matrix.target }}.zip
+      - run: npm test
+      - run: npm run site:build
+      - run: cargo fmt --check
+        working-directory: src-tauri
+      - run: cargo clippy --locked -- -D warnings
+        working-directory: src-tauri
+      - run: npm run desktop:build -- --bundles ${{ matrix.bundles }} -- --locked
+      - name: Verify dependency locks did not change
+        run: git diff --exit-code -- package-lock.json src-tauri/Cargo.lock
+      - name: Collect candidate package and SHA-256 checksums
+        run: npm run release:collect
       - uses: actions/upload-artifact@v4
         with:
           name: TangTool-${{ matrix.target }}
           if-no-files-found: error
-          path: |
-            TangTool-*.zip
-            src-tauri/target/release/bundle/nsis/*.exe
+          path: release-artifacts/${{ matrix.target }}/
