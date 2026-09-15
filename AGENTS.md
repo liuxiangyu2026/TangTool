@@ -27,7 +27,7 @@ TangTool 是 Windows / macOS 本地桌面工具箱，强调离线处理、隐私
 - Vue Router 5 与当前 Vite 不兼容，不使用 `--force` 绕过依赖检查。
 - 工具内容默认仅在本机处理；前端做轻量文本操作，Rust 做文件、密码随机源及进程隔离。
 - 路由懒加载 + 以路由名为 key 的 KeepAlive：菜单切换保留工具输入，刷新/关闭应用后清空。
-- 仅外观与侧栏偏好写入 `tangtool.preferences.v1`；不持久化 JSON、密码或文档内容。
+- 仅语言、外观、收藏、导出和布局偏好写入 `tangtool.preferences.v1`；不持久化 JSON、密码或文档内容。
 - 文件选择/保存使用 Tauri Dialog + 最小 FS 权限；不开放任意目录遍历和删除能力。
 - 应用标识：`com.github.liuxiangyu2026.tangtool`；默认 1200×800，最小 900×640。
 
@@ -50,7 +50,7 @@ TangTool 是 Windows / macOS 本地桌面工具箱，强调离线处理、隐私
 | UUID | 安全随机 UUID v4；1～1000 条、默认 10；大小写/连字符选项；批量复制，不写入磁盘 |
 | 正则调试 | JavaScript g/i/m/s/u/y 标志；Worker 执行，1 秒超时；最多 1000 匹配，有长度/捕获组限制，处理 Unicode 零长度匹配 |
 | 文本整理 / SHA | 逐行去首尾空白→移除空行→区分大小写去重→字符排序；SHA-256/512 按 UTF-8 计算，支持空文本，最多 2 MiB；SHA 本轮只支持文本 |
-| 官网 | 中英双语、19 工具分类目录、6 组双语截图和平台下载；Pages 已启用，部署待合入 main |
+| 官网 | 中英双语、19 工具分类目录、6 组双语截图轮播和平台下载；已上线 https://liuxiangyu2026.github.io/TangTool/ |
 | 首页 | 默认 `/`，菜单名“首页”；顶部单线搜索，无介绍文字；中文/英文/拼音及非连续模糊匹配；共用 `src/data/tools.ts`，会话内保留搜索，不落盘 |
 | Excel/CSV 转 JSON | XLSX/XLS/UTF-8 CSV；单表数组或多表分组；空单元格 null、空/重名表头补齐；原始/显示文本模式，不执行公式和宏；完整只读 CodeMirror、行号/高亮/折叠/全部展开及完整复制 |
 | Cron | 用户确认仅标准 5 段；中英文说明，IANA 时区、ISO 起点、未来 10 次；日期/星期同时限制时 OR；不支持 Quartz、不创建任务 |
@@ -63,65 +63,35 @@ TangTool 是 Windows / macOS 本地桌面工具箱，强调离线处理、隐私
 
 ## 4. 打包与发布真实状态
 
-- M0～M4 核心功能已实现；M5 页面和独立 sidecar 已实现；目前进入 M6 发布准备及体验增强。
-- GitHub Actions [运行 34800140359](https://github.com/liuxiangyu2026/TangTool/actions/runs/34800140359) 的 Windows x64、macOS ARM、macOS Intel 构建、sidecar health 和产物上传全部通过（构建提交 `107b4be`）。
-- 产物名：`TangTool-x86_64-pc-windows-msvc`（含 NSIS .exe）、`TangTool-aarch64-apple-darwin`、`TangTool-x86_64-apple-darwin`（macOS 为保留权限的 .app ZIP）。
-- macOS ARM sidecar 与 Rust 打包路径通过隔离目录、无有效 Python 搜索路径的转换验证。**CI 成功不等于无开发环境的干净机器验收成功。**
-- Windows/Intel macOS 安装运行、无 Python/无仓库/离线转换、升级与卸载仍待真机验收。本机此前 GUI 验收受锁屏/屏幕捕获限制，不能据此标记通过。
-- 本轮开始时仓库没有公开 Release。当前应用版本 0.1.0，仍标记开发阶段；未完成签名、公证和自动更新。
-- 完整安装包内置 Python、MarkItDown 和依赖；最终用户不需要安装这些运行时。Windows 已配置内置离线 WebView2 安装程序，待真机验证；macOS 完整包最低 14.0。
-- 开发转换使用项目 `.venv`；打包应用只调用主程序同目录 sidecar，不回退系统 Python。通信 UTF-8 JSON、后台执行、180 秒超时和输出大小限制。
-- 完整安装包必须使用 `npm run desktop:build`；普通 `tauri build` 不带 sidecar 配置，不能当作完整交付包。
+- 用户已明确授权全部修改合入 main、发布版本并部署官网；此前自动审批的合入阻塞已解除，不再重复询问。已接受首发未签名／未公证，不以购买证书作为发布前提。
+- [PR #1](https://github.com/liuxiangyu2026/TangTool/pull/1) 已合入 main，发布代码来源为 `9a936b8b1f6f889a6a11513531ad07f64179a16d`。本地也已切换 main；后续文档提交不改变安装包来源。
+- [v0.1.0 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.0) 已于 2026-09-15 公开，含 Windows x64 NSIS、macOS ARM/Intel 应用 ZIP、统一 `SHA256SUMS.txt` 与 `build-info.json`。保留预发布标记，不能称为三平台真机全部验收通过的稳定版。
+- 三平台构建 [34934860407](https://github.com/liuxiangyu2026/TangTool/actions/runs/34934860407)、主分支质量检查 [34934810780](https://github.com/liuxiangyu2026/TangTool/actions/runs/34934810780) 全部成功。安装包在 `release-artifacts/ci-34934860407/`，外层/内层摘要、版本、提交与 dirty=false 均核对；上传后的五个附件摘要也全部一致。
+- 已不带登录凭证从公开 Release 回读全部五个附件，大小与 SHA-256 全部一致；记录在该产物目录的 `public-download-verification.json`。公开标签 v0.1.0 固定指向发布提交，不随后续文档提交移动。
+- ARM/Intel 包资源封印、B 图标、主程序和 sidecar 架构、版本 0.1.0、最低 macOS 14.0 已复核。Windows 检查摘要和 NSIS 结构；安装器 PE32 外壳不代表应用不是 x64。
+- 官网已上线：[TangTool](https://liuxiangyu2026.github.io/TangTool/)，部署 [34934863889](https://github.com/liuxiangyu2026/TangTool/actions/runs/34934863889) 同样来自 `9a936b8`。线上中英切换、19 工具、六组截图、圆点切换、放大关闭及三个真实下载入口通过，明确显示预发布。
+- 完整包内置 Python、MarkItDown 和依赖；用户不需额外安装 Python。Windows 已内置 WebView2 离线安装程序，缺少运行时且断网的安装仍待真机验收。macOS 为 ad-hoc 签名，未做 Developer ID 签名或公证。
+- **构建/摘要检查不替代干净目标机验收。** Windows/Intel 安装运行、离线转换、升级卸载及部分 ARM 原生子项仍待验证。历史 `7c1d928` ARM GUI 和 `f13a1d2` 隔离 DOCX/PDF 转换证据不得自动记为新包全部通过；详细边界见 `docs/delivery-checklist.md`、`docs/release-checks.md`。
+- `ci-34840425160/`、`ci-34929714721/` 和本机早期包均为历史产物，不混入本次 Release。源码或打包配置变更需重新完整构建，单独执行收集命令不能把旧包标成新提交。
+- 完整打包使用 `npm run desktop:build`，普通 `tauri build` 不带完整 sidecar。开发转换使用项目 `.venv`；打包仅调用随包 sidecar，不回退系统 Python，UTF-8 JSON 通信、后台执行、180 秒超时及输出限制保持不变。
 
-## 5. 当前任务、验收与下一步
+## 5. 当前交付内容与下一步
 
-发布授权更新（2026-09-15）：用户明确要求“把所有修改合并到主分支，推送后继续发布版本和官网部署”。据此提交全部当前改动、合入 main、重建三平台包、发布 v0.1.0 预发布版并部署 Pages，不再等待合入或部署确认。旧文档的真机验收前置条件不再阻止本次合入/预发布；待验收项继续如实记录，不据此宣称稳定版或全部目标机已通过。下文此前自动审批阻塞仅为历史记录，已获得新的明确授权。
+根目录 README 按用户要求仅保留项目介绍、19 项工具和官网链接；`README.md` 与 `README.en.md` 顶部互相切换。开发与验收信息维护在本文及专题文档，不写回产品 README。
 
-根目录 README 按用户要求仅保留项目介绍、19 项工具和官网链接；中文默认使用 README.md，英文使用 README.en.md，顶部通过相对链接互相切换。开发、打包与验收信息继续维护在本文及对应专题文档，不再写回产品 README。
+- 双语覆盖桌面和官网，各自记住选择，默认简体中文。纯文本字典及显式参数、Vue 响应式语言、Worker 显式 locale、Rust `AppError { key, parameters, cause }` 保持一致；不翻译用户输入、文件名和文档内容，不重建 KeepAlive 工具。维护规则见 `docs/localization.md`。
+- 官网首屏六组中英截图，每 4.5 秒横向轮播，仅显示玻璃圆点；点击圆点切换，点击图片放大、再次点击或 Escape 关闭。悬停/焦点/大图/后台页面暂停，尊重减少动态效果偏好。图片保持 1280×720 原比例，来自生产前端演示数据，不代表原生能力验收。
+- 官网删除“全部工具”按钮，再次点击当前分类恢复全部。首页搜索、统计和卡片共用居中 1200px 最大内容宽度，搜索占内容区约60%，其他工具页保持原布局。
+- R1～R7 发布加固已完成：Base64 同文件保护、临时写入并检查 finish/flush/sync；文档预览 DOMPurify 净化、转换队列锁定及保存快照；MD5 防旧结果回写；自定义文件命令验证 Dialog/FS scope，保留生产/开发 CSP。不得移除这些边界。
+- 现有 13 测试、前端/官网构建、Rust fmt/Clippy 通过；npm 审计 0。Python/Rust 公告检查范围及上游未维护依赖见 `docs/release-checks.md`，不能概括成整个项目没有漏洞。未新增永久单元测试。
+- 体验约定：提示中上方固定显示 2 秒；菜单滚动条4px；折叠时 B Logo 位于展开按钮上方；色卡3:2、216安全色独立滚动；半透明色按明确黑/白底合成后计算对比度。仅偏好/布局落盘，工具内容只在会话保留。
 
-最新界面调整（2026-09-15）：官网删除独立截图模块，六组中英截图集中在首屏“应用实际界面”，每 4.5 秒横向轮播；仅显示玻璃质感圆点，当前圆点高亮、点击切换截图，无箭头/数字/播放按钮；点击放大后再点击图片关闭，也支持 Escape。悬停/键盘焦点/大图/后台页面暂停，尊重减少动态效果偏好。删除“全部工具”按钮，再次点击当前分类恢复全部。工具首页的搜索、统计与卡片共用居中 1200px 最大内容宽度，其他工具页不变。前端/官网构建及现有 13 测试通过；本地预览确认轮播、放大关闭、分类 1→19、英文图片联动和首页计算样式 max-width=1200px。此次首页代码变更尚未进入旧 f13a1d2 安装包，下次候选构建需包含此变更。
+下一步：
 
-用户要求连续推进到正式交付，常规修复、验证和候选包准备不再每步等待“继续”。仍不能把构建成功等同正式交付；证书/付费/账号缺口和目标机验收需明确交接。Word/PDF 互转仍暂缓。
-
-当前 M6：初审发现的 R1～R7 已修复并通过本机隔离复验；详细证据、边界和打包结果见 `docs/release-checks.md`。
-
-新增需求（2026-09-15）：用户已明确接受首发未签名／未公证版本，不再询问此选择，也不以购买证书作为首发前提。官网要完善工具列表并展示多张截图，截图必须端正、保持比例，不使用旋转或透视效果。用户已确认简体中文／英文双语同时覆盖桌面和官网，各自记住选择；默认简体中文。先完成双语后再截取官网展示图，避免使用过时界面。双语实施会改变应用代码，需要对新提交重新构建候选包；历史包不能直接冒充新版本。
-
-双语与官网代码已实现并提交 `f13a1d2`：`src/i18n/core.ts` 使用可读消息标识、纯文本字典和显式参数；Vue 响应式语言由 `src/i18n/index.ts` 接入，Worker 显式接收语言。Rust 传 `AppError { key, parameters, cause }`，前端统一翻译错误。桌面/官网共用 `src/data/toolCatalog.ts`。不翻译用户输入、文件名或文档/JSON 输出，不通过切换路由 key 重建工具。维护规则见 `docs/localization.md`。
-
-新三平台构建 [34929714721](https://github.com/liuxiangyu2026/TangTool/actions/runs/34929714721) 和 PR 质量检查 [34930056991](https://github.com/liuxiangyu2026/TangTool/actions/runs/34930056991) 全部通过。候选包代码来源固定 `f13a1d2`；新包放在 `release-artifacts/ci-34929714721/`，验收摘要见 `docs/delivery-checklist.md`。文档更新不代表应用包重新构建。
-
-[PR #1](https://github.com/liuxiangyu2026/TangTool/pull/1) 已创建，仍为草稿。Pages 已启用 workflow 模式，尚未部署。自动审批拒绝将 PR 合入 main，理由是交付文档要求 Windows/Intel 等真机验收完成后再合入，当前未满足；没有执行标记 ready 或合并，也没有绕过。若用户明确同意先合入代码并上线官网、安装包继续候选状态，可再按该新增授权推进；否则先补真机验收。公开 Release 尚未创建。
-
-本轮本地验证：19 个英文工具页默认文案无中文残留及整页溢出；中英切换后 JSON 原文、差异、分栏和分表结果保留，Cron 中英文说明共用相同执行时间。官网 19 工具、分类筛选、语言记忆、截图放大，以及 320/390px 窄屏通过。`website/screenshots/` 含 6 组中英实际前端截图，共 12 张 1280×720 无损 WebP，未旋转/拉伸。Rust 临时复验覆盖文件往返、同文件保护、非法输入不改旧目标、最终 flush 错误和结构化错误序列化；无永久测试文件。新双语原生预览包已构建，但 Mac 锁定，不能标记新原生 IPC 全量验收通过。
-
-已提交推送 `codex/release-hardening`。应用修复基线 `7c1d928`；三平台构建 [34840425160](https://github.com/liuxiangyu2026/TangTool/actions/runs/34840425160) 全部成功。三份产物已下载到 `release-artifacts/ci-34840425160/` 并核对外层/内层 SHA-256、版本及干净提交。ARM 云端包完成隔离 DOCX/PDF 转换；Intel 只检查架构、包封印与图标，Windows 只检查安装器结构和摘要，均不算目标机运行验收。正式交付验收表与版本说明草稿在 `docs/delivery-checklist.md`、`docs/release-notes-0.1.0.md`。
-
-- Base64 文件：同文件身份检查、拒绝末级符号链接、同目录临时写入、检查 finish/flush/sync 后提交；错误保留旧文件。前端固定输入快照并防重复操作。
-- 文档：DOMPurify 净化预览，仅保留排版，不加载图片/打开链接；复制保存仍保留原 Markdown。保存固定名称/内容快照；转换固定队列并禁止增删，删除前项保持当前选择。
-- MD5：输入变化清空旧摘要，防迟到请求回写，文件进度按 requestId 匹配并清理监听。Base64 文本上限 2 MiB，分块编码及严格 UTF-8 解码。
-- 自定义 Rust 文件命令验证 Dialog/FS scope；启用生产/开发 CSP。真实 scope 临时验证通过，但原生文件对话框和 WebView/CSP 仍需验收。
-- Vitest 4.1.11 / mocker 4.1.11，保留 Vite 6.4.3；现有 13 测试、前端/官网构建、Clippy/rustfmt 通过；npm 全量审计 0。Python 本地公告初筛无命中；Rust 初筛有上游未维护和仅 Linux/BSD 链的 glib 公告，详见报告，不能声称整体无漏洞。
-- 新增 `.github/workflows/quality.yml`；完整打包前检查，Cargo 锁定。未新增永久测试文件。
-- Windows `tauri.windows.conf.json` 配置内置离线 WebView2；需无运行时离线真机验收。
-- macOS `tauri.macos.conf.json` 最低 14.0（当前 NumPy 二进制要求），候选包 ad-hoc 签名并关闭 hardened runtime，避免无 Team ID 的内置 Python 被库验证拒绝；不是开发者签名或公证。正式签名前须按 `sidecar/README.md` 的 TODO 统一内外签名身份、重新开启强化运行时并复验。
-- `npm run release:collect` 紧随完整构建，生成版本化 ZIP/NSIS、SHA-256、提交及 dirty 标记，放入被忽略的 `release-artifacts/`；不要提交二进制。只有干净提交对应的包可进入正式验收。
-- 2026-09-15 已启动云端 ARM 候选包并核对进程路径：原生 DOCX 选择/转换/排版/保存、追加与批量转换、删除前项保持选择、JSON 编辑器显示、MD5 文本/文件及旧摘要失效、Base64 正常编码保存/严格文本解码、正则 Worker 通过。具体通过边界见 `docs/release-checks.md`，不代表全部原生验收通过。
-- 已确认进程退出重启，JSON 收藏仍保留。用户再次解锁后检查到深色主题选择值和收藏仍在，现已恢复为“跟随系统”、未收藏 JSON 格式化，并逐项核对 UI 值。重启后 Base64/JSON 输入、文档列表为空；系统复制→原生粘贴→文本解码及文件解码落盘逐字节验证通过。窗口/分栏、字号、默认目录记忆等未验子项仍见验收表。当前实例在被忽略的 `release-artifacts/ci-34840425160/native-check/TangTool.app`，已返回用户使用的颜色页，保留其选择。
-- 覆盖保护的原生 Replace 确认被自动审批拒绝（认为会不可逆覆盖源文件）；未绕过，也不把源文件未变记为保护通过。目标是本轮生成的可重建临时样本，已只读核对；该原生步骤仍待完成。此前隔离写入保护验证仍有效。
-
-接下来按顺序继续：
-
-1. 新三平台构建已通过，无需重跑已完成检查；若修改应用代码/依赖/打包配置则对新提交重新构建。历史 `107b4be` 仅作历史参考。
-2. 临时偏好已恢复，不要重复清除用户设置。完成验收表里余下的原生子项，并配合 Windows x64、macOS Intel 干净机器验收：无 Python/无仓库、离线转换、文件工具、复制导出、偏好恢复、B 图标、升级卸载。
-3. 双语、官网工具列表和端正截图已完成。解决上述合入前置条件后合入 PR #1，手动运行 main 的 Pages 工作流并检查线上两种语言/图片/下载状态。完成新包验收后上传 Release，不能将候选版标成稳定版。
-4. 发布完成后再考虑文档原生拖放、ESLint/Prettier 和新工具；不在交付修复中扩充功能范围。
-
-双语范围和未签名首发方式均已确认，不再重复询问。新三平台构建完成；Windows/Intel 真机验收仍待进行，原生双语预览因 Mac 锁屏待继续，浏览器检查不能替代。Pages 已启用但未部署，Release 未公开。旧 7c1d928 包不包含本轮双语；不要误用。用户原有主题和收藏已恢复、颜色页输入保留，用户 Python 环境未改动。
-
-现有体验约定：`ToolNotice` 中上方固定浮层 2 秒；首页搜索约60%；菜单滚动条4px，折叠时 B Logo 在展开按钮上方；色卡3:2、216安全色独立滚动；透明色按明确黑/白底合成并计算对比度。工具内容仅会话保留，偏好与布局才落盘。细节以第3节、代码和 Git 记录为准。
-
-未实现候选：JSONPath、SQL 格式化、JWT 本地查看（解码不等于验签）、SHA 文件摘要、JSON/YAML。不得默认加入云端 API、账户或上传。
+1. 使用本次 Release 包完成 Windows x64、macOS Intel 和剩余 ARM 原生验收，并把机器、系统、包摘要与具体结果写入交付表。重点包括无 Python/无仓库的离线转换、文件操作与复制、偏好恢复、图标、升级卸载、Windows 无 WebView2 离线安装。
+2. 验收完成后按用户决定安排稳定版；当前没有自动更新。不把未签名方案重新列为待确认，不默认采购证书。
+3. 发布后的新功能再按需求推进：文档原生拖放、JSONPath、SQL 格式化、JWT 本地查看、SHA 文件摘要、JSON/YAML。Word/PDF 互转仍暂缓；不默认加入云端 API、账户或上传。
+4. 保留用户已有设置、工具输入与两个 Python 环境；不要重复清除已恢复的临时主题和收藏。历史原生测试的详细待验项见交付表。
 
 ## 6. 换机与常用命令
 

@@ -19,18 +19,20 @@ npm run site:dev
 
 访问 http://127.0.0.1:4173 。生产构建 `npm run site:build` 输出至 `website/dist`；可用 `npm run site:preview` 验证生产资源。相对资源路径兼容 `/TangTool/` 子目录。不要将原始 website 文件夹直接上传，必须使用构建结果。
 
-## 首次发布 GitHub Pages
+## GitHub Pages 部署
 
-2026-09-15 已启用 Pages 的 GitHub Actions 模式，尚未部署。完整双语网站位于 PR #1；合入 main 被自动审批拦截，需完成交付验收前置条件或取得用户明确的分阶段上线授权。
+官网已于 2026-09-15 上线：[TangTool](https://liuxiangyu2026.github.io/TangTool/)。部署 [34934863889](https://github.com/liuxiangyu2026/TangTool/actions/runs/34934863889) 来自主分支提交 `9a936b8`；线上中英切换、19 项工具、截图加载和放大关闭已复核。
 
 1. 提交并推送官网代码到 main。
-2. 仓库 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**。
+2. 仓库 Pages 已使用 **GitHub Actions**，无需重复设置。
 3. 在 **Actions → Deploy product website → Run workflow** 选择 main 并运行。
 4. 成功后地址应为 https://liuxiangyu2026.github.io/TangTool/ ，以工作流输出为准。
 
 公开仓库可使用免费的 GitHub Pages 托管与 github.io 地址；这不是赠送独立域名。独立域名需自行注册并配置。工作流仅手动触发，不因普通代码提交自动发布。
 
 ## 安装包与版本记录
+
+首个公开版本为 [v0.1.0 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.0)，三平台安装包、SHA-256 清单和构建来源文件已上传，并通过公开下载回读。官网中英下载入口已验证。
 
 官网从公开 GitHub Releases API 读取最近 30 个发布，优先第一个非预发布版本；仅有预发布时明确标记测试版。无发布、请求超时/限流与单平台缺包都展示可理解的状态，并保留 Releases 页面链接。Actions 产物需要登录且会过期，不作为公开稳定下载源。
 

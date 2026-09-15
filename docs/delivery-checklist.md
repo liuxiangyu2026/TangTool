@@ -1,11 +1,13 @@
 # TangTool 0.1.0 交付验收
 
-当前尚未公开发布。最新双语候选包来自干净提交 `f13a1d2a2464373be1949deacff644129df9196d`，三平台构建 [34929714721](https://github.com/liuxiangyu2026/TangTool/actions/runs/34929714721) 全部通过。旧 `7c1d928` 包不包含双语，不能混用。
+已公开：[v0.1.0 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.0) · [官网](https://liuxiangyu2026.github.io/TangTool/)。公开发布不代表下表所有真机验收完成。
+
+本次 v0.1.0 预发布产物来自干净提交 `9a936b8b1f6f889a6a11513531ad07f64179a16d`，三平台构建 [34934860407](https://github.com/liuxiangyu2026/TangTool/actions/runs/34934860407) 全部通过。包含双语、首页最大宽度、官网圆点轮播及中英文 README；旧构建不能混用。
 
 ## 产物与来源
 
-- 最新三平台包分别在 `release-artifacts/ci-34929714721/aarch64-apple-darwin/`、`x86_64-apple-darwin/`、`x86_64-pc-windows-msvc/`。
-- `release-artifacts/aarch64-apple-darwin/` 和 `ci-34840425160/` 仅为历史包。
+- 最新三平台包分别在 `release-artifacts/ci-34934860407/aarch64-apple-darwin/`、`x86_64-apple-darwin/`、`x86_64-pc-windows-msvc/`。
+- `release-artifacts/aarch64-apple-darwin/`、`ci-34840425160/` 和 `ci-34929714721/` 仅为历史包。
 - 每个平台同时提供 `SHA256SUMS.txt` 和 `build-info.json`；核对版本、目标架构、提交和 `dirty: false`。
 - Windows 为 NSIS `.exe`；macOS 为保留执行权限的 `.app` ZIP。不要把不同提交的包混入同一版本。
 - 完整构建后执行 `npm run release:collect`；它检查 macOS 包资源封印并收集产物。只改代码而未重新构建时，不得用此命令把旧包标记为新提交。
@@ -14,19 +16,20 @@
 
 - R1～R7 的本机隔离复验、现有 13 用例、前端/官网构建、Rust 静态检查；详情见 [发布检查记录](release-checks.md)。
 - macOS ARM 完整候选包资源封印、最低系统版本 14.0、B 图标资源存在。
-- 本机包内 sidecar 在中文空格路径、无有效 Python 搜索路径、项目外目录执行 DOCX/PDF 转换成功。
-- 三平台 CI 的前置检查、完整打包和上传全部通过；下载后外层 GitHub digest、内层包校验、`commit: f13a1d2…` 和 `dirty: false` 均核对通过。
-- 云端 ARM 包解压后的签名资源、B 图标、架构/版本/最低系统信息和隔离 DOCX/PDF 转换通过。Intel 检查包资源/图标/架构，未执行；Windows 检查摘要和 PE 安装器结构，未安装。
+- 历史 `f13a1d2` 包内 sidecar 在中文空格路径、无有效 Python 搜索路径、项目外目录执行 DOCX/PDF 转换成功；此后文档转换代码未改。
+- 本次三平台 CI 的前置检查、完整打包和产物上传全部通过；下载后外层 GitHub digest、内层包校验、`commit: 9a936b8…` 和 `dirty: false` 均核对通过。
+- 本次 ARM/Intel 包资源封印、B 图标、主程序/sidecar 架构、版本 0.1.0 与最低系统 14.0 通过；Windows 检查摘要和 NSIS 结构，未安装。构建中 sidecar health 通过，不替代目标机器安装运行。
+- 发布后的三个安装包和两个校验附件已通过无登录凭证的公开下载回读，大小及 SHA-256 全部匹配。官网中英文下载入口分别指向同一 v0.1.0 的正确平台，明确标记预发布。
 
 | 云端候选包 | 大小（字节） | SHA-256 |
 | --- | --- | --- |
-| macOS ARM ZIP | 63150715 | `7a74957b98eb9353176dd627480259e3f844acf4d4f85abe24a837886b2f40cd` |
-| macOS Intel ZIP | 67155741 | `57b7ce2b4d142de30dbc83288cc5bac6c1f3c166f50c920fbdbc3c79dd3c772f` |
-| Windows x64 NSIS | 283444368 | `b94c65fd770e2c63c9dc7388beed143165647a3549d64ddca66fdd29e40cd9bf` |
+| macOS ARM ZIP | 63152448 | `e24ea5c488e585a0ba46e7331866181f742b60ee3d2221a09a83c3dcfe51c39b` |
+| macOS Intel ZIP | 67154341 | `8e68ce09032f8bc49d181824e5b1422d6e4a2ae66ecdcc6a320ae4638e36df55` |
+| Windows x64 NSIS | 283443400 | `a1a8f6485e46b121644a145ef037bb732a8b93554487a73fda35614a294b59db` |
 
 ## 目标机仍需验收
 
-每个平台分别记录机器系统版本、芯片/架构、产物 SHA-256、日期和结果。Windows/macOS Intel 未实测。下表已通过的 ARM 原生子项来自历史 `7c1d928` 包；新 `f13a1d2` 包完成上述组件/结构核验，Mac 锁定导致新包 GUI 尚未复验。不能把历史通过结果直接移作新包验收。
+每个平台分别记录机器系统版本、芯片/架构、产物 SHA-256、日期和结果。Windows/macOS Intel 未实测。下表已通过的 ARM 原生子项来自历史 `7c1d928` 包；`f13a1d2` 完成隔离转换复验；本次 `9a936b8` 完成上述构建/包结构核验，GUI 尚未全量复验。不能把历史通过结果直接移作新包验收。
 
 | 验收项 | Windows x64 | macOS ARM | macOS Intel |
 | --- | --- | --- | --- |
@@ -46,7 +49,6 @@
 
 - 用户已确认首发接受未签名／未公证版本，官网和发布说明已加入系统安装提示及真实验收范围。不要再以购买证书作为首发前提。
 - 后续若接入 Developer ID，需给 PyInstaller 内部库与 Tauri 外壳统一签名、重新开启 hardened runtime，再公证并复验；属于首发之后的可选改进。
-- 首发版本拟沿用项目现有 `0.1.0`，仅 Windows x64、macOS 14+ ARM/Intel；其他系统/架构不在已声明范围。
-- 所需验收通过后，将同一代码基线合入 main，上传对应三平台产物与独立校验文件，复核下载链接，再启用 GitHub Pages。
-- Pages 已启用 workflow 模式但尚未部署，仓库尚无 Release；不得把 Actions artifact 链接当作对用户永久有效的下载链接。
-- PR #1 为可审查的完整成果。自动审批因真机验收未完成而拒绝合入 main，未执行合并。若用户明确授权先合入代码并上线官网、安装包继续候选状态，可再按该分阶段方案执行；否则先完成验收。
+- 首发版本 `0.1.0` 采用预发布标记，仅 Windows x64、macOS 14+ ARM/Intel；其他系统/架构不在已声明范围。
+- 用户 2026-09-15 明确要求全部修改合入主分支并继续发布和部署。PR #1 已合并，Pages 已上线；此前的自动审批阻塞已经新授权解除，不再重复请求许可。
+- 公开下载使用 GitHub Release 附件，不使用会过期的 Actions artifact 链接；待目标机验收完成后再评估稳定版。

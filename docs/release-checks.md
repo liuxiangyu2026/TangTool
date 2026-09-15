@@ -190,3 +190,12 @@
 - 原生控制再次确认 Mac 锁定；本轮不能补记新包 GUI 验收通过。新包摘要与后续验收以 `delivery-checklist.md` 为准。
 - 三份新产物已下载，GitHub 外层摘要、包内摘要和干净提交均一致。ARM/Intel 主程序与 sidecar 架构正确，macOS 资源封印、版本 0.1.0、最低 14.0 和 B 图标核对通过。Windows NSIS 容器结构通过，尚未安装；安装器外壳为 PE32，不将其混同于所打包应用的 x64 架构。
 - 新 ARM sidecar 在项目外的中文空格路径、无有效 PYTHONHOME/PYTHONPATH 下通过 DOCX/PDF 转换。首次沙箱执行因禁止同步信号量而失败，批准正常执行后成功；不是应用转换缺陷。只使用自行生成样本，验证脚本和样本在收尾时删除，保留用户两个 Python 环境。
+
+## 主分支合入与公开预发布（2026-09-15）
+
+- 用户明确授权全部修改合入主分支、推送后发布版本及官网，覆盖此前的合入前置限制。PR #1 在最新质量检查通过后合入，发布提交为 `9a936b8b1f6f889a6a11513531ad07f64179a16d`。
+- 三平台完整构建 [34934860407](https://github.com/liuxiangyu2026/TangTool/actions/runs/34934860407) 和主分支质量检查 [34934810780](https://github.com/liuxiangyu2026/TangTool/actions/runs/34934810780) 全部成功。新包包含全部双语、首页最大宽度及官网轮播改动。
+- 官网部署 [34934863889](https://github.com/liuxiangyu2026/TangTool/actions/runs/34934863889) 成功，公开地址 https://liuxiangyu2026.github.io/TangTool/ 。线上中英切换、19 工具、六组截图、圆点切换、图片放大再点击关闭，以及三平台 v0.1.0 下载入口通过。脚本、样式及抽查图片从公开地址回读与本地构建一致。
+- [v0.1.0 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.0) 已公开，含三平台安装包、统一 SHA256SUMS.txt 和 build-info.json。标签指向同一发布提交；所有附件上传摘要与本地一致，再经无登录凭证的公开下载回读逐一核对大小和 SHA-256，全部通过。
+- Intel 产物下载和 Windows 上传曾出现客户端时限错误；通过分段下载缓存、支持长时间传输的上传完成重试，未修改包内容，最终完整摘要一致。临时传输与校验脚本不加入仓库。
+- 本轮 ARM/Intel 包资源封印、B 图标、版本 0.1.0、最低 macOS 14.0 和主程序/sidecar 架构核对通过。Windows NSIS 容器检查通过。未将构建、包结构或历史 GUI 验收结果冒充本次所有目标机验收通过，继续保留预发布标记。具体待验项和本次包摘要见 delivery-checklist.md。
