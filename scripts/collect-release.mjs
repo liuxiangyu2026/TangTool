@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { copyFile, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,6 +15,7 @@ const target = {
 if (!target) throw new Error("仅收集 Windows x64 和 macOS ARM/Intel 产物。");
 
 const { version } = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
+const runtime = JSON.parse(await readFile(path.join(root, "sidecar/runtime.json"), "utf8"));
 const commit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
 const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=normal"], { cwd: root, encoding: "utf8" }).trim() !== "";
 const outputDirectory = path.join(root, "release-artifacts", target);
@@ -22,6 +24,7 @@ const files = [];
 
 if (process.platform === "darwin") {
   const app = path.join(root, "src-tauri/target/release/bundle/macos/TangTool.app");
+  if (existsSync(path.join(app, "Contents/MacOS/tangtool-markitdown"))) throw new Error("轻量主包中不应包含文档组件，请重新构建。");
   // 包的资源封印必须完整；ad-hoc 通过此项仍不代表开发者签名或 Apple 公证。
   execFileSync("codesign", ["--verify", "--deep", "--strict", app], { stdio: "inherit" });
   const name = `TangTool-${version}-${target}.zip`;
@@ -29,12 +32,16 @@ if (process.platform === "darwin") {
   files.push(name);
 } else {
   const directory = path.join(root, "src-tauri/target/release/bundle/nsis");
-  const installers = (await readdir(directory)).filter((name) => name.endsWith(".exe"));
+  const installers = (await readdir(directory)).filter((name) => name.includes(`_${version}_`) && name.endsWith(".exe"));
   if (installers.length !== 1) throw new Error("应有且只有一个 NSIS 安装包，请检查构建输出，避免混入旧版本。");
   const name = `TangTool-${version}-${target}-setup.exe`;
   await copyFile(path.join(directory, installers[0]), path.join(outputDirectory, name));
   files.push(name);
 }
+
+const componentName = `TangTool-DocumentRuntime-${runtime.version}-${target}${process.platform === "win32" ? "-setup.exe" : ".pkg"}`;
+await copyFile(path.join(root, "sidecar/build", target, "component/packages", componentName), path.join(outputDirectory, componentName));
+files.push(componentName);
 
 const checksums = [];
 for (const name of files) {
@@ -45,6 +52,7 @@ for (const name of files) {
 
 const manifest = {
   version,
+  componentVersion: runtime.version,
   target,
   commit,
   dirty,

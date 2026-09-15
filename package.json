@@ -1,7 +1,7 @@
 {
   "name": "tangtool",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "site:dev": "vite --config website/vite.config.mjs",
@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "sidecar:build": "node scripts/build-sidecar.mjs",
-    "desktop:build": "npm run sidecar:build && tauri build --config src-tauri/tauri.sidecar.conf.json",
+    "desktop:build": "node scripts/build-desktop.mjs",
     "release:collect": "node scripts/collect-release.mjs",
     "test": "vitest run --dir src",
     "test:watch": "vitest --dir src"

@@ -14,7 +14,7 @@ TangTool is a local desktop toolkit for Windows and macOS, bringing together 19 
 | JSON comparison | Compare structures, locate differences and align key order |
 | JSON to Excel | Export multiple sheets and flatten recursive trees |
 | Excel / CSV to JSON | Select worksheets and convert tables to JSON |
-| Documents to Markdown | Convert DOCX / PDF files in batches, with formatted and raw previews |
+| Documents to Markdown | Install the separate document component to convert DOCX / PDF files in batches, with formatted and raw previews |
 | Password generator | Generate passwords in batches using secure randomness |
 | SHA digest | SHA-256 / SHA-512 text digests |
 | URL encoding | Encode and decode URL parameters |

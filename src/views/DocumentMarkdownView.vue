@@ -6,9 +6,19 @@
       <h1 class="mt-1 text-2xl font-semibold text-neutral-900">{{ t(String(route.meta.title ?? '')) }}</h1>
     </header>
     <div class="mt-4 flex min-h-0 flex-1 flex-col gap-4">
+      <div class="grid min-h-[76px] shrink-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-neutral-200 bg-surface px-3 py-2">
+        <div class="min-w-0">
+          <p class="text-sm font-medium" :class="runtime?.available ? 'text-emerald-600' : 'text-amber-600'">{{ runtimeChecking ? t('正在检测文档组件…') : runtime?.available ? t('文档转换组件已就绪') : t('需要安装文档转换组件') }}</p>
+          <p class="mt-1 truncate text-xs text-neutral-500" :title="runtimeDescription">{{ runtimeDescription }}</p>
+        </div>
+        <div class="flex gap-2">
+          <button type="button" class="flex items-center gap-1 rounded-md bg-blue-600 px-2.5 py-1.5 text-xs text-white" @click="openComponentDownload"><Download :size="14" />{{ t('组件安装包') }}</button>
+          <button type="button" class="flex items-center gap-1 rounded-md border border-neutral-300 px-2.5 py-1.5 text-xs disabled:opacity-50" :disabled="queueBusy" @click="checkRuntime"><RefreshCw :size="14" />{{ t('重新检测') }}</button>
+        </div>
+      </div>
       <div class="flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-surface px-3 py-2">
-        <button class="rounded-md bg-violet-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" type="button" :disabled="queueBusy" @click="selectDocuments">{{ t('选择文档') }}</button>
-        <button class="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" type="button" :disabled="documents.length === 0 || queueBusy"
+        <button class="rounded-md bg-violet-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" type="button" :disabled="queueBusy || !runtime?.available" @click="selectDocuments">{{ t('选择文档') }}</button>
+        <button class="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white disabled:opacity-50" type="button" :disabled="documents.length === 0 || queueBusy || !runtime?.available"
           @click="convertDocuments">
           {{ converting ? t('转换中') : t('转换 Markdown') }}
         </button>
@@ -76,6 +86,10 @@
 </template>
 <script setup lang="ts">
 import { t } from "../i18n/index";
+import { errorMessage } from "../i18n/errors";
+import runtimeConfig from "../../sidecar/runtime.json";
+import { isTauri } from "@tauri-apps/api/core";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { usePanelRatio } from "../composables/usePanelRatio";
 import { exportDefaults } from "../utils/exportDefaults";
 import ToolNotice from "../components/ToolNotice.vue";
@@ -84,11 +98,12 @@ import { open, save } from "@tauri-apps/plugin-dialog";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
 import { renderMarkdownPreview } from "../utils/markdownPreview";
-import { computed, onBeforeUnmount, ref } from "vue";
+import { computed, onActivated, onBeforeUnmount, ref } from "vue";
 import { useRoute } from "vue-router";
-import { GripVertical, Trash2 } from "lucide-vue-next";
+import { Download, GripVertical, RefreshCw, Trash2 } from "lucide-vue-next";
 
 type DocumentItem = { path: string; name: string; markdown: string; error: string };
+type RuntimeStatus = { available: boolean; version: string; downloadUrl: string | null; error: unknown };
 
 const route = useRoute();
 const documents = ref<DocumentItem[]>([]);
@@ -99,7 +114,14 @@ const operationError = ref("");
 const converting = ref(false);
 const selecting = ref(false);
 const saving = ref(false);
-const queueBusy = computed(() => converting.value || selecting.value);
+const runtime = ref<RuntimeStatus | null>(null);
+const runtimeChecking = ref(false);
+const queueBusy = computed(() => converting.value || selecting.value || runtimeChecking.value);
+const runtimeDescription = computed(() => {
+  if (runtimeChecking.value) return t('安装组件后点击重新检测，无需重启应用。');
+  if (runtime.value?.error) return errorMessage(runtime.value.error);
+  return runtime.value?.available ? t('组件 v{version} · 仅在本机处理文档', { version: runtime.value.version }) : t('未安装文档转换组件，安装后才能使用此功能');
+});
 const leftPercent = usePanelRatio("document:left", 35, 25, 55);
 const splitRoot = ref<HTMLDivElement | null>(null);
 let pointerId: number | null = null;
@@ -111,8 +133,36 @@ const renderedMarkdown = computed(() =>
     : renderMarkdownPreview(t('转换结果会显示在这里')),
 );
 
-async function selectDocuments() {
+async function checkRuntime() {
   if (queueBusy.value) return;
+  runtimeChecking.value = true;
+  try {
+    if (!isTauri()) {
+      runtime.value = { available: false, version: runtimeConfig.version, downloadUrl: null, error: { key: '请在桌面应用中安装和检测文档组件' } };
+      return;
+    }
+    runtime.value = await invoke<RuntimeStatus>('check_document_runtime');
+  } catch (error) {
+    runtime.value = { available: false, version: runtimeConfig.version, downloadUrl: runtime.value?.downloadUrl ?? null, error };
+  } finally {
+    runtimeChecking.value = false;
+  }
+}
+
+async function openComponentDownload() {
+  const url = runtime.value?.downloadUrl ?? `https://github.com/liuxiangyu2026/TangTool/releases/tag/${runtimeConfig.release}`;
+  try {
+    if (isTauri()) await openUrl(url);
+    else window.open(url, '_blank', 'noopener,noreferrer');
+  } catch {
+    operationError.value = t('无法打开浏览器，请到官网下载安装文档组件。');
+  }
+}
+
+onActivated(checkRuntime);
+
+async function selectDocuments() {
+  if (queueBusy.value || !runtime.value?.available) return;
   selecting.value = true;
   operationError.value = "";
   status.value = "";
@@ -146,6 +196,8 @@ async function selectDocuments() {
 
 async function convertDocuments() {
   if (queueBusy.value || documents.value.length === 0) return;
+  await checkRuntime();
+  if (!runtime.value?.available) return;
   converting.value = true;
   status.value = "";
   operationError.value = "";
@@ -160,7 +212,7 @@ async function convertDocuments() {
         document.markdown = await invoke<string>("convert_document_to_markdown", { path: document.path });
       } catch (error) {
         failed += 1;
-        document.error = typeof error === "string" ? error : t('转换失败，请检查文档或重新安装完整应用。');
+        document.error = typeof error === "string" ? error : t('转换失败，请检查文档或重新安装文档组件。');
       }
     }
     status.value = failed ? t('完成 {p0} 个，失败 {p1} 个', { p0: queue.length - failed, p1: failed }) : t('已转换 {p0} 个文档', { p0: queue.length });

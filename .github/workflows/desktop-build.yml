@@ -1,4 +1,4 @@
-name: Build desktop with document sidecar
+name: Build desktop and optional document component
 on:
   workflow_dispatch:
 

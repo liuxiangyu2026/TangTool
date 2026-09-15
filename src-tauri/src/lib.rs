@@ -6,6 +6,7 @@ use std::io::Read;
 mod app_error;
 mod base64_file;
 mod document;
+mod document_runtime;
 mod file_access;
 use document::convert_document_to_markdown;
 use tauri::{AppHandle, Emitter};
@@ -261,6 +262,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             calculate_file_md5,
             convert_document_to_markdown,
+            document_runtime::check_document_runtime,
             encode_file_base64,
             decode_file_base64,
             calculate_text_md5,
