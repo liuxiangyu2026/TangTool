@@ -1,17 +1,17 @@
 <template>
-  <ToolPage description="标准 5 段 Cron：分 时 日 月 星期。只解析规则，不创建定时任务；未来时间以所选时区与其夏令时规则计算。" :error="error" :status="status">
+  <ToolPage :description="t('标准 5 段 Cron：分 时 日 月 星期。只解析规则，不创建定时任务；未来时间以所选时区与其夏令时规则计算。')" :error="error" :status="status">
     <template #actions>
       <button class="tool-button bg-violet-600" type="button" @click="expression = '0 9 * * MON-FRI'">
         <BookOpen :size="14" />
-        工作日示例
+        {{ t('工作日示例') }}
       </button>
       <button class="tool-button bg-blue-600" type="button" :disabled="busy" @click="run">
         <CalendarClock :size="14" />
-        {{ busy ? "解析中" : "解析 / 预览" }}
+        {{ busy ? t('解析中') : t('解析 / 预览') }}
       </button>
       <button class="tool-button bg-red-600" type="button" @click=" expression = ''; reset(); ">
         <Trash2 :size="14" />
-        清除
+        {{ t('清除') }}
       </button>
     </template>
     <div class="tool-panel space-y-3">
@@ -21,23 +21,23 @@
       </label>
       <div class="flex flex-wrap gap-3 text-sm">
         <label class="flex items-center gap-2">
-          时区
+          {{ t('时区') }}
           <input v-model="timeZone" list="cron-zones" class="tool-field" />
         </label>
         <datalist id="cron-zones"><option v-for="zone in zones" :key="zone" :value="zone" /></datalist>
         <label class="flex min-w-0 flex-1 items-center gap-2">
-          起点
-          <input v-model="start" class="tool-field min-w-0 flex-1 font-mono" placeholder="带 Z 或偏移的 ISO 日期" />
+          {{ t('起点') }}
+          <input v-model="start" class="tool-field min-w-0 flex-1 font-mono" :placeholder="t('带 Z 或偏移的 ISO 日期')" />
         </label>
-        <button type="button" class="text-xs text-blue-700" @click="start = new Date().toISOString()">使用当前时间</button>
+        <button type="button" class="text-xs text-blue-700" @click="start = new Date().toISOString()">{{ t('使用当前时间') }}</button>
       </div>
-      <p class="text-xs text-neutral-500">预览严格晚于起点的 10 次执行；星期 0 / 7 均表示周日。支持 *、逗号列表、范围与 / 步长，不支持 Quartz。</p>
+      <p class="text-xs text-neutral-500">{{ t('预览严格晚于起点的 10 次执行；星期 0 / 7 均表示周日。支持 *、逗号列表、范围与 / 步长，不支持 Quartz。') }}</p>
     </div>
     <div v-if="result" class="tool-panel space-y-3">
-      <h2 class="text-sm font-semibold">{{ result.description }}</h2>
-      <p v-if="result.dayOr" class="text-xs text-orange-700">日期与星期同时受限：满足其中任一条件就执行，不是必须同时满足。</p>
+      <h2 class="text-sm font-semibold">{{ locale === 'en' ? result.englishDescription : result.description }}</h2>
+      <p v-if="result.dayOr" class="text-xs text-orange-700">{{ t('日期与星期同时受限：满足其中任一条件就执行，不是必须同时满足。') }}</p>
       <div class="flex flex-wrap gap-3 text-xs text-neutral-500">
-        <span v-for="(field, index) in result.fields" :key="index">{{ fieldNames[index] }}：{{ field }}</span>
+        <span v-for="(field, index) in result.fields" :key="index">{{ t(fieldNames[index]) }}: {{ field }}</span>
       </div>
       <ol class="space-y-2 font-mono text-sm">
         <li v-for="(date, index) in result.dates" :key="date" class="flex flex-wrap gap-x-4 border-t border-neutral-200 pt-2">
@@ -50,6 +50,7 @@
 </template>
 
 <script setup lang="ts">
+import { locale, t } from "../i18n/index";
 import { onBeforeUnmount, ref, watch } from "vue";
 import { BookOpen, CalendarClock, Trash2 } from "lucide-vue-next";
 import ToolPage from "../components/ToolPage.vue";
@@ -97,16 +98,16 @@ async function run() {
     );
     if (id === revision) {
       result.value = value;
-      status.value = "已生成未来 10 次执行时间";
+      status.value = t('已生成未来 10 次执行时间');
     }
   } catch (reason) {
-    if (id === revision) error.value = reason instanceof Error ? reason.message : "解析失败。";
+    if (id === revision) error.value = reason instanceof Error ? reason.message : t('解析失败。');
   } finally {
     if (id === revision) busy.value = false;
   }
 }
 
 function formatDate(date: string) {
-  return new Intl.DateTimeFormat("zh-CN", { timeZone: timeZone.value, dateStyle: "medium", timeStyle: "long", hourCycle: "h23" }).format(new Date(date));
+  return new Intl.DateTimeFormat(locale.value, { timeZone: timeZone.value, dateStyle: "medium", timeStyle: "long", hourCycle: "h23" }).format(new Date(date));
 }
 </script>

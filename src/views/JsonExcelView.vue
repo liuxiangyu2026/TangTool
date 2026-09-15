@@ -2,69 +2,69 @@
   <section class="flex h-full min-h-0 flex-col bg-neutral-100 p-4 sm:p-6">
     <ToolNotice :status="statusMessage" :error="errorMessage" :tone="statusTone" />
     <header class="shrink-0">
-      <p class="text-sm font-medium text-neutral-500">{{ route.meta.group }}</p>
-      <h1 class="mt-1 text-2xl font-semibold text-neutral-900">{{ route.meta.title }}</h1>
+      <p class="text-sm font-medium text-neutral-500">{{ t(String(route.meta.group ?? '')) }}</p>
+      <h1 class="mt-1 text-2xl font-semibold text-neutral-900">{{ t(String(route.meta.title ?? '')) }}</h1>
       <p class="mt-2 text-xs leading-5 text-neutral-600">
-        <span class="font-medium text-blue-700">多 Sheet：</span>数组字段可生成独立工作表，并在每行重复所选主要字段。
-        <span class="ml-2 font-medium text-blue-700">递归平铺：</span>树形数据按末级节点生成行，依次保留全部父级数据。
+        <span class="font-medium text-blue-700">{{ t('多 Sheet：') }}</span>{{ t('数组字段可生成独立工作表，并在每行重复所选主要字段。') }}
+        <span class="ml-2 font-medium text-blue-700">{{ t('递归平铺：') }}</span>{{ t('树形数据按末级节点生成行，依次保留全部父级数据。') }}
       </p>
-      <p class="text-xs leading-5 text-neutral-500">点击“生成预览”后，右侧会显示适用选项；启用递归平铺时输出单个 Sheet，不与数组分表同时使用。</p>
+      <p class="text-xs leading-5 text-neutral-500">{{ t('点击“生成预览”后，右侧会显示适用选项；启用递归平铺时输出单个 Sheet，不与数组分表同时使用。') }}</p>
     </header>
 
     <div class="mt-4 flex min-h-0 flex-1 flex-col gap-4">
       <div class="flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-surface px-3 py-2">
         <button class="flex items-center gap-1.5 rounded-md bg-violet-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2" type="button" @click="loadExample">
           <BookOpen :size="14" aria-hidden="true" />
-          <span>示例</span>
+          <span>{{ t('示例') }}</span>
         </button>
         <button class="flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2" type="button" @click="generatePreview">
           <Table2 :size="14" aria-hidden="true" />
-          <span>生成预览</span>
+          <span>{{ t('生成预览') }}</span>
         </button>
         <button class="flex items-center gap-1.5 rounded-md bg-sky-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2" type="button" @click="importJsonFile">
           <FolderOpen :size="14" aria-hidden="true" />
-          <span>导入</span>
+          <span>{{ t('导入') }}</span>
         </button>
         <button class="flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2" type="button" @click="saveXlsxFile">
           <Save :size="14" aria-hidden="true" />
-          <span>保存 XLSX</span>
+          <span>{{ t('保存 XLSX') }}</span>
         </button>
         <button class="flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2" type="button" @click="clearJson">
           <Trash2 :size="14" aria-hidden="true" />
-          <span>清除</span>
+          <span>{{ t('清除') }}</span>
         </button>
       </div>
 
       <div ref="panelSplitContainer" class="flex min-h-0 flex-1">
         <section class="flex min-h-0 min-w-0 shrink-0 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface" :style="{ flexBasis: `${leftPanelPercent}%` }">
-          <h2 class="shrink-0 border-b border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-700">JSON 数据</h2>
+          <h2 class="shrink-0 border-b border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-700">{{ t('JSON 数据') }}</h2>
           <div ref="editorHost" class="min-h-0 flex-1 overflow-hidden"></div>
         </section>
 
-        <div class="group flex w-4 shrink-0 cursor-col-resize touch-none items-center justify-center" role="separator" aria-label="调整 JSON 编辑器和 Excel 预览宽度" aria-orientation="vertical" aria-valuemin="25" aria-valuemax="75" :aria-valuenow="Math.round(leftPanelPercent)" tabindex="0" @keydown="handleSeparatorKeydown" @pointerdown="startResize" @pointermove="resizePanels" @pointerup="stopResize" @pointercancel="stopResize">
+        <div class="group flex w-4 shrink-0 cursor-col-resize touch-none items-center justify-center" role="separator" :aria-label="t('调整 JSON 编辑器和 Excel 预览宽度')" aria-orientation="vertical" aria-valuemin="25" aria-valuemax="75" :aria-valuenow="Math.round(leftPanelPercent)" tabindex="0" @keydown="handleSeparatorKeydown" @pointerdown="startResize" @pointermove="resizePanels" @pointerup="stopResize" @pointercancel="stopResize">
           <span class="flex h-12 w-3 items-center justify-center rounded-full border border-neutral-300 bg-surface text-neutral-400 shadow-sm transition group-hover:border-blue-400 group-hover:text-blue-600">
             <GripVertical :size="14" aria-hidden="true" />
           </span>
         </div>
 
-        <section class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface" aria-label="Excel 数据预览">
+        <section class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface" :aria-label="t('Excel 数据预览')">
           <header class="flex shrink-0 items-center justify-between border-b border-neutral-200 px-3 py-2">
-            <h2 class="text-sm font-medium text-neutral-700">Excel 预览</h2>
-            <span v-if="activeSheet" class="text-xs text-neutral-500">{{ activeSheet.rows.length }} 行 × {{ activeSheet.columns.length }} 列</span>
+            <h2 class="text-sm font-medium text-neutral-700">{{ t('Excel 预览') }}</h2>
+            <span v-if="activeSheet" class="text-xs text-neutral-500">{{ t('{p0} 行 × {p1} 列', { p0: activeSheet.rows.length, p1: activeSheet.columns.length }) }}</span>
           </header>
 
           <div v-if="arrayFields.length > 0 || recursiveArrayFields.length > 0" class="max-h-40 shrink-0 overflow-auto border-b border-blue-100 bg-blue-50/70 px-3 py-2 text-xs">
             <div v-if="recursiveArrayFields.length > 0" class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-              <span class="font-semibold text-violet-900">递归数据平铺</span>
-              <label v-for="field in recursiveArrayFields" :key="field.path" class="flex cursor-pointer items-center gap-1.5 text-neutral-700" :title="`将 ${field.path} 的每条末级路径平铺为一行`">
+              <span class="font-semibold text-violet-900">{{ t('递归数据平铺') }}</span>
+              <label v-for="field in recursiveArrayFields" :key="field.path" class="flex cursor-pointer items-center gap-1.5 text-neutral-700" :title="t('将 {p0} 的每条末级路径平铺为一行', { p0: field.path })">
                 <input class="h-3.5 w-3.5 accent-violet-600" type="checkbox" :checked="selectedRecursivePath === field.path" @change="toggleRecursiveFlatten(field.path)" />
-                <span>平铺 {{ field.path }}</span>
+                <span>{{ t('平铺 {p0}', { p0: field.path }) }}</span>
               </label>
-              <span v-if="selectedRecursivePath" class="text-neutral-500">每行依次展示全部父级和末级节点</span>
+              <span v-if="selectedRecursivePath" class="text-neutral-500">{{ t('每行依次展示全部父级和末级节点') }}</span>
             </div>
 
             <div v-if="selectedRecursivePath === '' && arrayFields.length > 0" class="flex flex-wrap items-center gap-x-3 gap-y-1.5" :class="recursiveArrayFields.length > 0 ? 'mt-2 border-t border-blue-100 pt-2' : ''">
-              <span class="font-semibold text-blue-900">数组生成独立 Sheet</span>
+              <span class="font-semibold text-blue-900">{{ t('数组生成独立 Sheet') }}</span>
               <label v-for="field in arrayFields" :key="field.path" class="flex cursor-pointer items-center gap-1.5 text-neutral-700" :title="field.path">
                 <input v-model="selectedArrayPaths" class="h-3.5 w-3.5 accent-blue-600" type="checkbox" :value="field.path" @change="updateGenerationOptions" />
                 <span>{{ field.path }}</span>
@@ -72,18 +72,18 @@
             </div>
 
             <div v-if="selectedRecursivePath === '' && selectedArrayPaths.length > 0" class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-blue-100 pt-2">
-              <span class="font-semibold text-blue-900">重复主要字段</span>
+              <span class="font-semibold text-blue-900">{{ t('重复主要字段') }}</span>
               <label v-for="column in repeatableColumns" :key="column" class="flex cursor-pointer items-center gap-1.5 text-neutral-700">
                 <input v-model="selectedRepeatColumns" class="h-3.5 w-3.5 accent-emerald-600" type="checkbox" :value="column" @change="updateGenerationOptions" />
                 <span>{{ column }}</span>
               </label>
-              <span v-if="repeatableColumns.length === 0" class="text-neutral-500">没有可重复的非数组字段</span>
+              <span v-if="repeatableColumns.length === 0" class="text-neutral-500">{{ t('没有可重复的非数组字段') }}</span>
             </div>
           </div>
 
-          <p v-if="!hasPreview" class="p-4 text-sm text-neutral-500">输入 JSON 后点击“生成预览”。</p>
+          <p v-if="!hasPreview" class="p-4 text-sm text-neutral-500">{{ t('输入 JSON 后点击“生成预览”。') }}</p>
           <div v-else-if="activeSheet" class="flex min-h-0 flex-1 flex-col">
-            <nav v-if="sheets.length > 1" class="flex shrink-0 gap-1 overflow-x-auto border-b border-neutral-200 bg-neutral-50 px-2 pt-2" aria-label="工作表预览">
+            <nav v-if="sheets.length > 1" class="flex shrink-0 gap-1 overflow-x-auto border-b border-neutral-200 bg-neutral-50 px-2 pt-2" :aria-label="t('工作表预览')">
               <button v-for="(worksheetName, index) in worksheetNames" :key="`${worksheetName}:${index}`" class="whitespace-nowrap rounded-t-md border border-b-0 px-3 py-1.5 text-xs font-medium transition" :class="activeSheetIndex === index ? 'border-neutral-300 bg-surface text-blue-700' : 'border-transparent text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700'" type="button" @click="activeSheetIndex = index">
                 {{ worksheetName }}
               </button>
@@ -102,7 +102,7 @@
                 </tbody>
               </table>
             </div>
-            <p class="shrink-0 border-t border-neutral-200 px-3 py-2 text-xs text-neutral-500">当前 Sheet 预览前 {{ visibleRows.length }} 行，保存时包含全部 {{ activeSheet.rows.length }} 行。</p>
+            <p class="shrink-0 border-t border-neutral-200 px-3 py-2 text-xs text-neutral-500">{{ t('当前 Sheet 预览前 {p0} 行，保存时包含全部 {p1} 行。', { p0: visibleRows.length, p1: activeSheet.rows.length }) }}</p>
           </div>
         </section>
       </div>
@@ -111,6 +111,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from "../i18n/index";
 import { editorPreferences } from "../utils/editorPreferences";
 import { usePanelRatio } from "../composables/usePanelRatio";
 import { exportDefaults } from "../utils/exportDefaults";
@@ -158,8 +159,8 @@ const EXAMPLE_JSON = JSON.stringify([
   },
 ], null, 2);
 
-const JSON_FILE_FILTERS = [{ name: "JSON 文件", extensions: ["json"] }];
-const XLSX_FILE_FILTERS = [{ name: "Excel 工作簿", extensions: ["xlsx"] }];
+const JSON_FILE_FILTERS = computed(() => [{ name: t('JSON 文件'), extensions: ["json"] }]);
+const XLSX_FILE_FILTERS = computed(() => [{ name: t('Excel 工作簿'), extensions: ["xlsx"] }]);
 
 const route = useRoute();
 const editorHost = ref<HTMLDivElement | null>(null);
@@ -213,7 +214,7 @@ onMounted(() => {
   editorView = new EditorView({
     parent: editorHost.value,
     extensions: [
-      basicSetup, editorPreferences(), json(),
+      basicSetup, editorPreferences("JSON 转 Excel 编辑器"), json(),
       linter((view) => {
         const result = validateJson(view.state.doc.toString());
         if (result.ok || result.position === undefined) {
@@ -231,7 +232,6 @@ onMounted(() => {
       lintGutter(),
       syntaxHighlighting(jsonHighlightStyle),
       editorTheme,
-      EditorView.contentAttributes.of({ "aria-label": "JSON 转 Excel 编辑器" }),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           resetPreview();
@@ -334,14 +334,14 @@ async function importJsonFile() {
 
   try {
     const selected = await open({
-      title: "导入 JSON 文件",
+      title: t('导入 JSON 文件'),
       multiple: false,
       directory: false,
-      filters: JSON_FILE_FILTERS,
+      filters: JSON_FILE_FILTERS.value,
     });
 
     if (selected === null) {
-      setStatus("已取消导入", "neutral");
+      setStatus(t("已取消导入"), "neutral");
       return;
     }
 
@@ -351,10 +351,10 @@ async function importJsonFile() {
 
     if (result) {
       const fileName = selected.split(/[\\/]/).pop() || "JSON 文件";
-      setStatus(`已导入 ${fileName}，主 Sheet 共 ${result.sheets[0].rows.length} 行`);
+      setStatus(t("已导入 {p0}，主 Sheet 共 {p1} 行", { p0: fileName, p1: result.sheets[0].rows.length }));
     }
   } catch {
-    errorMessage.value = "读取 JSON 文件失败，请确认文件可访问且为 UTF-8 文本";
+    errorMessage.value = t('读取 JSON 文件失败，请确认文件可访问且为 UTF-8 文本');
   }
 }
 
@@ -366,20 +366,20 @@ async function saveXlsxFile() {
 
   try {
     const selected = await save({
-      title: "保存 Excel 工作簿",
+      title: t('保存 Excel 工作簿'),
       defaultPath: exportDefaults("tangtool-data.xlsx").path,
-      filters: XLSX_FILE_FILTERS,
+      filters: XLSX_FILE_FILTERS.value,
     });
 
     if (selected === null) {
-      setStatus("已取消保存", "neutral");
+      setStatus(t("已取消保存"), "neutral");
       return;
     }
 
     await writeFile(selected, createXlsxData(result.sheets));
-    setStatus(`XLSX 文件已保存，共 ${result.sheets.length} 个 Sheet`);
+    setStatus(t("XLSX 文件已保存，共 {p0} 个 Sheet", { p0: result.sheets.length }));
   } catch {
-    errorMessage.value = "保存 XLSX 文件失败，请确认目标位置可写";
+    errorMessage.value = t('保存 XLSX 文件失败，请确认目标位置可写');
   }
 }
 
@@ -413,18 +413,18 @@ function createTablePreview(): JsonWorkbookSuccessResult | null {
 
 function createPreviewStatus(result: JsonWorkbookSuccessResult): string {
   if (result.recursiveFlatten) {
-    return `已平铺 ${result.sheets[0].rows.length} 个末级节点，共 ${result.recursiveFlatten.maxDepth} 层`;
+    return t('已平铺 {p0} 个末级节点，共 {p1} 层', { p0: result.sheets[0].rows.length, p1: result.recursiveFlatten.maxDepth });
   }
 
   const childSheetCount = result.sheets.length - 1;
   if (selectedArrayPaths.value.length === 0) {
-    return `已生成 ${result.sheets[0].rows.length} 行 × ${result.sheets[0].columns.length} 列预览`;
+    return t('已生成 {p0} 行 × {p1} 列预览', { p0: result.sheets[0].rows.length, p1: result.sheets[0].columns.length });
   }
 
   const skippedSheetCount = selectedArrayPaths.value.length - childSheetCount;
   return skippedSheetCount > 0
-    ? `已生成 ${result.sheets.length} 个 Sheet，跳过 ${skippedSheetCount} 个空数组 Sheet`
-    : `已生成 ${result.sheets.length} 个 Sheet`;
+    ? t('已生成 {p0} 个 Sheet，跳过 {p1} 个空数组 Sheet', { p0: result.sheets.length, p1: skippedSheetCount })
+    : t('已生成 {p0} 个 Sheet', { p0: result.sheets.length });
 }
 
 function replaceEditorContent(content: string) {

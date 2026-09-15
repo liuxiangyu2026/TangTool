@@ -1,3 +1,4 @@
+import { t } from "../i18n/core";
 import { validateJson, type JsonErrorResult } from "./json";
 
 export type JsonTableCellValue = string | number | boolean;
@@ -66,7 +67,7 @@ export function jsonToWorkbook(input: string, options: JsonWorkbookOptions = {})
 
   const value: unknown = JSON.parse(input);
   if ((Array.isArray(value) && value.length === 0) || (isJsonObject(value) && Object.keys(value).length === 0)) {
-    return { ok: false, error: "没有可导出的数据" };
+    return { ok: false, error: t('没有可导出的数据') };
   }
 
   const parentValues = Array.isArray(value) ? value : [value];

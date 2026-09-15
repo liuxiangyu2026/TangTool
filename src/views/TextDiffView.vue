@@ -1,38 +1,38 @@
 <template>
-  <ToolPage description="按行高亮新增和删除；忽略空白时不比较行内空格/制表符，但仍比较换行及空白行。每侧最多 2000 行、20 万字符。" :error="error" :status="status">
+  <ToolPage :description="t('按行高亮新增和删除；忽略空白时不比较行内空格/制表符，但仍比较换行及空白行。每侧最多 2000 行、20 万字符。')" :error="error" :status="status">
     <template #actions>
       <button class="tool-button bg-violet-600" type="button" @click=" left = 'TangTool\n版本 1\n保持本地'; right = 'TangTool\n版本 2\n保持本地\n新增工具'; ">
         <BookOpen :size="14" />
-        示例
+        {{ t('示例') }}
       </button>
       <button class="tool-button bg-blue-600" type="button" :disabled="busy" @click="run">
         <GitCompareArrows :size="14" />
-        {{ busy ? "对比中" : "对比" }}
+        {{ busy ? t('对比中') : t('对比') }}
       </button>
       <button class="tool-button bg-red-600" type="button" @click=" left = ''; right = ''; reset(); ">
         <Trash2 :size="14" />
-        清除
+        {{ t('清除') }}
       </button>
       <label class="ml-2 flex items-center gap-2 text-sm">
         <input v-model="ignoreWhitespace" type="checkbox" />
-        忽略空白
+        {{ t('忽略空白') }}
       </label>
     </template>
-    <SplitPane direction="vertical" label="调整文本输入和差异结果高度" :initial="55" :min="25" :max="75">
+    <SplitPane direction="vertical" :label="t('调整文本输入和差异结果高度')" :initial="55" :min="25" :max="75">
       <template #first>
-        <SplitPane direction="horizontal" label="调整左右文本输入宽度">
+        <SplitPane direction="horizontal" :label="t('调整左右文本输入宽度')">
           <template #first>
-            <textarea v-model="left" class="tool-editor h-full" aria-label="原始文本" placeholder="原始文本"></textarea>
+            <textarea v-model="left" class="tool-editor h-full" :aria-label="t('原始文本')" :placeholder="t('原始文本')"></textarea>
           </template>
           <template #second>
-            <textarea v-model="right" class="tool-editor h-full" aria-label="目标文本" placeholder="目标文本"></textarea>
+            <textarea v-model="right" class="tool-editor h-full" :aria-label="t('目标文本')" :placeholder="t('目标文本')"></textarea>
           </template>
         </SplitPane>
       </template>
       <template #second>
-        <div class="h-full overflow-auto rounded-lg border border-neutral-200 bg-surface" aria-label="逐行差异">
-          <p v-if="!result" class="p-3 text-sm text-neutral-500">输入两侧文本后点击“对比”。</p>
-          <p class="sticky top-0 bg-neutral-50 p-2 text-xs text-neutral-500">新增 {{ result?.added ?? 0 }} 行 / 删除 {{ result?.removed ?? 0 }} 行（空行显示为 ∅）</p>
+        <div class="h-full overflow-auto rounded-lg border border-neutral-200 bg-surface" :aria-label="t('逐行差异')">
+          <p v-if="!result" class="p-3 text-sm text-neutral-500">{{ t('输入两侧文本后点击“对比”。') }}</p>
+          <p class="sticky top-0 bg-neutral-50 p-2 text-xs text-neutral-500">{{ t('新增 {p0} 行 / 删除 {p1} 行（空行显示为 ∅）', { p0: result?.added ?? 0, p1: result?.removed ?? 0 }) }}</p>
           <div v-for="(row, index) in result?.rows ?? []" :key="index" class="grid grid-cols-2 border-t border-neutral-200 font-mono text-xs leading-6"
             :class="row.type === 'added' ? 'bg-green-50' : row.type === 'removed' ? 'bg-red-50' : ''">
             <div class="flex min-w-0 gap-2 border-r border-neutral-200 px-2">
@@ -51,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from "../i18n/index";
 import SplitPane from "../components/SplitPane.vue";
 import { onBeforeUnmount, ref, watch } from "vue";
 import { BookOpen, GitCompareArrows, Trash2 } from "lucide-vue-next";
@@ -97,10 +98,10 @@ async function run() {
     );
     if (id === revision) {
       result.value = value;
-      status.value = value.added || value.removed ? "对比完成" : "按当前规则，文本一致";
+      status.value = value.added || value.removed ? t('对比完成') : t('按当前规则，文本一致');
     }
   } catch (reason) {
-    if (id === revision) error.value = reason instanceof Error ? reason.message : "对比失败。";
+    if (id === revision) error.value = reason instanceof Error ? reason.message : t('对比失败。');
   } finally {
     if (id === revision) busy.value = false;
   }

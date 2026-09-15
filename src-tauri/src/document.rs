@@ -1,3 +1,4 @@
+use crate::app_error::AppError;
 use serde::Deserialize;
 use std::io::{Read, Write};
 use std::path::PathBuf;
@@ -13,27 +14,30 @@ struct ConversionResponse {
 }
 
 #[tauri::command]
-pub async fn convert_document_to_markdown(path: String) -> Result<String, String> {
+pub async fn convert_document_to_markdown(
+    app: tauri::AppHandle,
+    path: String,
+) -> Result<String, AppError> {
+    let path = crate::file_access::selected_path(&app, &path, false)?;
     tauri::async_runtime::spawn_blocking(move || convert_document(path))
         .await
-        .map_err(|_| "文档转换任务异常结束".to_string())?
+        .map_err(|_| AppError::from("文档转换任务异常结束"))?
 }
 
-fn convert_document(path: String) -> Result<String, String> {
-    let input = PathBuf::from(path);
+fn convert_document(input: PathBuf) -> Result<String, AppError> {
     let extension = input
         .extension()
         .and_then(|value| value.to_str())
         .unwrap_or("")
         .to_ascii_lowercase();
     if !matches!(extension.as_str(), "docx" | "pdf") {
-        return Err("仅支持 DOCX 和 PDF 文档".to_string());
+        return Err(AppError::from("仅支持 DOCX 和 PDF 文档"));
     }
     let input = input
         .canonicalize()
-        .map_err(|_| "输入文件不存在或不可访问".to_string())?;
+        .map_err(|_| AppError::from("输入文件不存在或不可访问"))?;
     if !input.is_file() {
-        return Err("请选择一个文档文件".to_string());
+        return Err(AppError::from("请选择一个文档文件"));
     }
 
     // Development uses the local environment; packaged builds only use the adjacent binary.
@@ -48,7 +52,7 @@ fn convert_document(path: String) -> Result<String, String> {
         });
         let runner = root.join("sidecar/markitdown_runner.py");
         if !python.is_file() || !runner.is_file() {
-            return Err("开发环境缺少 .venv 或转换脚本，请按 sidecar/README.md 安装依赖；请勿删除已有虚拟环境".to_string());
+            return Err(AppError::from("开发环境缺少 .venv 或转换脚本，请按 sidecar/README.md 安装依赖；请勿删除已有虚拟环境"));
         }
         let mut command = Command::new(python);
         command.arg(runner).current_dir(root);
@@ -56,7 +60,8 @@ fn convert_document(path: String) -> Result<String, String> {
     };
     #[cfg(not(dev))]
     let mut command = {
-        let executable = std::env::current_exe().map_err(|_| "无法确定应用安装目录".to_string())?;
+        let executable =
+            std::env::current_exe().map_err(|_| AppError::from("无法确定应用安装目录"))?;
         let binary = executable
             .parent()
             .ok_or("无法确定 sidecar 目录")?
@@ -66,10 +71,9 @@ fn convert_document(path: String) -> Result<String, String> {
                 "tangtool-markitdown"
             });
         if !binary.is_file() {
-            return Err(
-                "安装包缺少文档转换组件，请使用完整安装包（开发者请执行 npm run desktop:build）"
-                    .to_string(),
-            );
+            return Err(AppError::from(
+                "安装包缺少文档转换组件，请使用完整安装包（开发者请执行 npm run desktop:build）",
+            ));
         }
         Command::new(binary)
     };
@@ -83,12 +87,12 @@ fn convert_document(path: String) -> Result<String, String> {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .map_err(|error| format!("启动文档转换组件失败：{error}"))?;
+        .map_err(|error| AppError::detail("启动文档转换组件失败：{detail}", error))?;
     let request = serde_json::json!({ "inputPath": input }).to_string();
     let write_result = child
         .stdin
         .take()
-        .ok_or_else(|| "无法打开转换输入通道".to_string())
+        .ok_or_else(|| "Could not open the conversion input pipe".to_string())
         .and_then(|mut stdin| {
             stdin
                 .write_all(request.as_bytes())
@@ -97,7 +101,7 @@ fn convert_document(path: String) -> Result<String, String> {
     if let Err(error) = write_result {
         let _ = child.kill();
         let _ = child.wait();
-        return Err(format!("发送转换请求失败：{error}"));
+        return Err(AppError::detail("发送转换请求失败：{detail}", error));
     }
     // Close stdin before waiting: runner reads until EOF. Drain both pipes concurrently.
     let stdout = child.stdout.take().ok_or("无法打开转换输出通道")?;
@@ -119,40 +123,45 @@ fn convert_document(path: String) -> Result<String, String> {
                 } else {
                     "文档转换超过 180 秒，请尝试拆分文档"
                 }
-                .to_string());
+                .into());
             }
         }
     };
     let output = output_reader.join().map_err(|_| "读取转换结果失败")??;
     let errors = error_reader.join().map_err(|_| "读取转换错误失败")??;
     let response: ConversionResponse = serde_json::from_slice(&output).map_err(|_| {
-        format!(
-            "转换组件返回了无效结果：{}",
+        AppError::detail(
+            "转换组件返回了无效结果：{detail}",
             String::from_utf8_lossy(&errors)
                 .chars()
                 .take(1000)
-                .collect::<String>()
+                .collect::<String>(),
         )
     })?;
     if !response.ok {
-        return Err(response.error.unwrap_or_else(|| "文档转换失败".to_string()));
+        return Err(AppError::detail(
+            "文档转换失败：{detail}",
+            response
+                .error
+                .unwrap_or_else(|| "Unknown conversion error".to_string()),
+        ));
     }
     if !exit_status.success() {
-        return Err("转换组件异常退出，请重试".to_string());
+        return Err(AppError::from("转换组件异常退出，请重试"));
     }
     response
         .markdown
-        .ok_or_else(|| "转换响应缺少 Markdown 内容".to_string())
+        .ok_or_else(|| AppError::from("转换响应缺少 Markdown 内容"))
 }
 
-fn read_output(reader: impl Read, limit: u64) -> Result<Vec<u8>, String> {
+fn read_output(reader: impl Read, limit: u64) -> Result<Vec<u8>, AppError> {
     let mut bytes = Vec::new();
     reader
         .take(limit + 1)
         .read_to_end(&mut bytes)
-        .map_err(|error| format!("读取转换输出失败：{error}"))?;
+        .map_err(|error| AppError::detail("读取转换输出失败：{detail}", error))?;
     if bytes.len() as u64 > limit {
-        return Err("转换输出过大，请拆分文档后重试".to_string());
+        return Err(AppError::from("转换输出过大，请拆分文档后重试"));
     }
     Ok(bytes)
 }

@@ -1,9 +1,12 @@
-use base64::engine::general_purpose::STANDARD;
+use crate::app_error::AppError;
 use md5::{Digest, Md5};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
-use std::io::{self, BufReader, BufWriter, Read};
+use std::io::Read;
+mod app_error;
+mod base64_file;
 mod document;
+mod file_access;
 use document::convert_document_to_markdown;
 use tauri::{AppHandle, Emitter};
 
@@ -30,16 +33,20 @@ struct PasswordOptions {
 }
 
 #[tauri::command]
-fn generate_passwords(options: PasswordOptions) -> Result<Vec<String>, String> {
+fn generate_passwords(options: PasswordOptions) -> Result<Vec<String>, AppError> {
     if !(MIN_PASSWORD_LENGTH..=MAX_PASSWORD_LENGTH).contains(&options.length) {
-        return Err(format!(
-            "密码长度必须在 {MIN_PASSWORD_LENGTH} 到 {MAX_PASSWORD_LENGTH} 之间"
-        ));
+        return Err(AppError::from(
+            "密码长度必须在 {MIN_PASSWORD_LENGTH} 到 {MAX_PASSWORD_LENGTH} 之间",
+        )
+        .parameter("MIN_PASSWORD_LENGTH", MIN_PASSWORD_LENGTH)
+        .parameter("MAX_PASSWORD_LENGTH", MAX_PASSWORD_LENGTH));
     }
     if !(MIN_PASSWORD_COUNT..=MAX_PASSWORD_COUNT).contains(&options.count) {
-        return Err(format!(
-            "生成数量必须在 {MIN_PASSWORD_COUNT} 到 {MAX_PASSWORD_COUNT} 之间"
-        ));
+        return Err(AppError::from(
+            "生成数量必须在 {MIN_PASSWORD_COUNT} 到 {MAX_PASSWORD_COUNT} 之间",
+        )
+        .parameter("MIN_PASSWORD_COUNT", MIN_PASSWORD_COUNT)
+        .parameter("MAX_PASSWORD_COUNT", MAX_PASSWORD_COUNT));
     }
 
     let selected_groups = [
@@ -62,13 +69,13 @@ fn generate_passwords(options: PasswordOptions) -> Result<Vec<String>, String> {
     .collect::<Vec<_>>();
 
     if selected_groups.is_empty() {
-        return Err("请至少选择一种字符类型".to_string());
+        return Err(AppError::from("请至少选择一种字符类型"));
     }
     if selected_groups.iter().any(Vec::is_empty) {
-        return Err("排除易混淆字符后没有可用字符".to_string());
+        return Err(AppError::from("排除易混淆字符后没有可用字符"));
     }
     if options.length < selected_groups.len() {
-        return Err("密码长度不能小于已选择的字符类型数量".to_string());
+        return Err(AppError::from("密码长度不能小于已选择的字符类型数量"));
     }
 
     let character_pool = selected_groups
@@ -81,9 +88,9 @@ fn generate_passwords(options: PasswordOptions) -> Result<Vec<String>, String> {
 }
 
 #[tauri::command]
-fn calculate_text_md5(input: String) -> Result<String, String> {
+fn calculate_text_md5(input: String) -> Result<String, AppError> {
     if input.is_empty() {
-        return Err("请输入需要计算 MD5 的文本".to_string());
+        return Err(AppError::from("请输入需要计算 MD5 的文本"));
     }
 
     Ok(format_md5(Md5::digest(input.as_bytes())))
@@ -99,22 +106,33 @@ struct FileMd5Result {
 #[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 struct FileMd5Progress {
+    request_id: Option<String>,
     processed_bytes: u64,
     total_bytes: u64,
 }
 
 #[tauri::command]
-async fn calculate_file_md5(app: AppHandle, path: String) -> Result<FileMd5Result, String> {
-    tauri::async_runtime::spawn_blocking(move || calculate_file_md5_sync(app, path))
+async fn calculate_file_md5(
+    app: AppHandle,
+    path: String,
+    request_id: Option<String>,
+) -> Result<FileMd5Result, AppError> {
+    let path = file_access::selected_path(&app, &path, false)?;
+    tauri::async_runtime::spawn_blocking(move || calculate_file_md5_sync(app, path, request_id))
         .await
-        .map_err(|error| format!("文件 MD5 任务执行失败：{error}"))?
+        .map_err(|error| AppError::detail("文件 MD5 任务执行失败：{detail}", error))?
 }
 
-fn calculate_file_md5_sync(app: AppHandle, path: String) -> Result<FileMd5Result, String> {
-    let mut file = File::open(&path).map_err(|error| format!("无法读取文件：{error}"))?;
+fn calculate_file_md5_sync(
+    app: AppHandle,
+    path: std::path::PathBuf,
+    request_id: Option<String>,
+) -> Result<FileMd5Result, AppError> {
+    let mut file =
+        File::open(&path).map_err(|error| AppError::detail("无法读取文件：{detail}", error))?;
     let total_bytes = file
         .metadata()
-        .map_err(|error| format!("无法读取文件信息：{error}"))?
+        .map_err(|error| AppError::detail("无法读取文件信息：{detail}", error))?
         .len();
     let mut hasher = Md5::new();
     let mut buffer = [0_u8; 1024 * 1024];
@@ -123,6 +141,7 @@ fn calculate_file_md5_sync(app: AppHandle, path: String) -> Result<FileMd5Result
     let _ = app.emit(
         "md5-file-progress",
         FileMd5Progress {
+            request_id: request_id.clone(),
             processed_bytes,
             total_bytes,
         },
@@ -131,7 +150,7 @@ fn calculate_file_md5_sync(app: AppHandle, path: String) -> Result<FileMd5Result
     loop {
         let bytes_read = file
             .read(&mut buffer)
-            .map_err(|error| format!("读取文件失败：{error}"))?;
+            .map_err(|error| AppError::detail("读取文件失败：{detail}", error))?;
         if bytes_read == 0 {
             break;
         }
@@ -141,6 +160,7 @@ fn calculate_file_md5_sync(app: AppHandle, path: String) -> Result<FileMd5Result
         let _ = app.emit(
             "md5-file-progress",
             FileMd5Progress {
+                request_id: request_id.clone(),
                 processed_bytes,
                 total_bytes,
             },
@@ -154,36 +174,33 @@ fn calculate_file_md5_sync(app: AppHandle, path: String) -> Result<FileMd5Result
 }
 
 #[tauri::command]
-async fn encode_file_base64(path: String, output_path: String) -> Result<(), String> {
+async fn encode_file_base64(
+    app: AppHandle,
+    path: String,
+    output_path: String,
+) -> Result<(), AppError> {
+    let path = file_access::selected_path(&app, &path, false)?;
+    let output_path = file_access::selected_path(&app, &output_path, true)?;
     tauri::async_runtime::spawn_blocking(move || {
-        let input = File::open(&path).map_err(|error| format!("读取文件失败：{error}"))?;
-        let output =
-            File::create(&output_path).map_err(|error| format!("创建 Base64 文件失败：{error}"))?;
-        let mut encoder = base64::write::EncoderWriter::new(BufWriter::new(output), &STANDARD);
-        io::copy(&mut BufReader::new(input), &mut encoder)
-            .map_err(|error| format!("Base64 编码失败：{error}"))?;
-        encoder
-            .finish()
-            .map_err(|error| format!("保存 Base64 文件失败：{error}"))?;
-        Ok::<(), String>(())
+        base64_file::convert_file(&path, &output_path, base64_file::Operation::Encode)
     })
     .await
-    .map_err(|error| format!("Base64 编码任务失败：{error}"))?
+    .map_err(|error| AppError::detail("Base64 编码任务失败：{detail}", error))?
 }
 
 #[tauri::command]
-async fn decode_file_base64(path: String, output_path: String) -> Result<(), String> {
+async fn decode_file_base64(
+    app: AppHandle,
+    path: String,
+    output_path: String,
+) -> Result<(), AppError> {
+    let path = file_access::selected_path(&app, &path, false)?;
+    let output_path = file_access::selected_path(&app, &output_path, true)?;
     tauri::async_runtime::spawn_blocking(move || {
-        let input = File::open(&path).map_err(|error| format!("读取 Base64 文件失败：{error}"))?;
-        let output =
-            File::create(&output_path).map_err(|error| format!("创建解码文件失败：{error}"))?;
-        let mut decoder = base64::read::DecoderReader::new(BufReader::new(input), &STANDARD);
-        io::copy(&mut decoder, &mut BufWriter::new(output))
-            .map_err(|error| format!("Base64 解码失败：{error}"))?;
-        Ok::<(), String>(())
+        base64_file::convert_file(&path, &output_path, base64_file::Operation::Decode)
     })
     .await
-    .map_err(|error| format!("Base64 解码任务失败：{error}"))?
+    .map_err(|error| AppError::detail("Base64 解码任务失败：{detail}", error))?
 }
 
 fn format_md5(digest: impl AsRef<[u8]>) -> String {
@@ -198,7 +215,7 @@ fn generate_one_password(
     length: usize,
     selected_groups: &[Vec<u8>],
     character_pool: &[u8],
-) -> Result<String, String> {
+) -> Result<String, AppError> {
     let mut password = Vec::with_capacity(length);
 
     // 每个已选类型先取一个字符，保证生成结果满足用户选择。
@@ -215,17 +232,17 @@ fn generate_one_password(
         password.swap(index, target_index);
     }
 
-    String::from_utf8(password).map_err(|_| "生成密码时发生字符编码错误".to_string())
+    String::from_utf8(password).map_err(|_| AppError::from("生成密码时发生字符编码错误"))
 }
 
-fn random_index(upper_bound: usize) -> Result<usize, String> {
+fn random_index(upper_bound: usize) -> Result<usize, AppError> {
     let upper_bound = upper_bound as u64;
     let unbiased_limit = u64::MAX - (u64::MAX % upper_bound);
 
     loop {
         let mut random_bytes = [0_u8; 8];
         getrandom::fill(&mut random_bytes)
-            .map_err(|error| format!("无法从操作系统获取安全随机数：{error}"))?;
+            .map_err(|error| AppError::detail("无法从操作系统获取安全随机数：{detail}", error))?;
         let random_value = u64::from_ne_bytes(random_bytes);
 
         if random_value < unbiased_limit {

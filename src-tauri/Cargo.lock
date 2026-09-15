@@ -3577,6 +3577,7 @@ dependencies = [
  "base64 0.22.1",
  "getrandom 0.4.3",
  "md-5",
+ "same-file",
  "serde",
  "serde_json",
  "tauri",
@@ -3585,6 +3586,7 @@ dependencies = [
  "tauri-plugin-dialog",
  "tauri-plugin-fs",
  "tauri-plugin-opener",
+ "tempfile",
 ]
 
 [[package]]

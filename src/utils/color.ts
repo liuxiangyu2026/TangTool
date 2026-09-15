@@ -1,3 +1,4 @@
+import { t } from "../i18n/core";
 export type RgbaColor = { r: number; g: number; b: number; a: number };
 
 export function rgbToHsv(color: RgbaColor) {
@@ -25,7 +26,7 @@ export function hsvToRgb(h: number, s: number, v: number, a = 1): RgbaColor {
 export function parseHexColor(input: string): RgbaColor {
   let value = input.trim().replace(/^#/, "");
   if (!/^(?:[\da-f]{3}|[\da-f]{4}|[\da-f]{6}|[\da-f]{8})$/i.test(value)) {
-    throw new Error("请输入 HEX 颜色：#RGB、#RGBA、#RRGGBB 或 #RRGGBBAA。");
+    throw new Error(t('请输入 HEX 颜色：#RGB、#RGBA、#RRGGBB 或 #RRGGBBAA。'));
   }
   if (value.length <= 4) value = [...value].map(char => char + char).join("");
   return {
@@ -39,7 +40,7 @@ export function parseHexColor(input: string): RgbaColor {
 export function describeColor(color: RgbaColor) {
   const { r, g, b, a } = color;
   if (![r, g, b].every(value => Number.isInteger(value) && value >= 0 && value <= 255) || !Number.isFinite(a) || a < 0 || a > 1) {
-    throw new Error("RGB 通道需为 0～255 的整数，透明度需为 0～1。");
+    throw new Error(t('RGB 通道需为 0～255 的整数，透明度需为 0～1。'));
   }
   const channels = [r, g, b].map(value => value / 255);
   const high = Math.max(...channels);

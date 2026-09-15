@@ -27,12 +27,12 @@ def main() -> int:
 
         request = json.loads(sys.stdin.read())
         if not isinstance(request, dict) or not isinstance(request.get("inputPath"), str):
-            raise ValueError("请求必须包含字符串 inputPath")
+            raise ValueError("The request must include a string inputPath")
         input_path = Path(request["inputPath"]).resolve()
         if input_path.suffix.lower() not in (".docx", ".pdf"):
-            raise ValueError("仅支持 DOCX 和 PDF 文档，不支持旧式 .doc")
+            raise ValueError("Only DOCX and PDF documents are supported; legacy .doc files are not supported")
         if not input_path.is_file():
-            raise ValueError("输入文件不存在或不可读取")
+            raise ValueError("The input file does not exist or cannot be read")
 
         from markitdown import MarkItDown
         from markitdown.converters import DocxConverter, PdfConverter
