@@ -1,6 +1,8 @@
-# TangTool v0.1.0 发布说明草稿
+# TangTool v0.1.0 · 首发预览版
 
-发布前请核对 [交付验收](delivery-checklist.md) 与本次构建提交。本文件为发布说明草稿，尚不代表已发布。首发已确认不提供正式开发者签名或 Apple 公证。
+首发预发布版本，包含 Windows x64、macOS Apple Silicon 和 macOS Intel 安装包。未提供正式开发者签名或 Apple 公证，部分目标机验收仍待完成；完整记录见 [交付验收](delivery-checklist.md)。
+
+[产品官网](https://liuxiangyu2026.github.io/TangTool/) · [English website](https://liuxiangyu2026.github.io/TangTool/?lang=en)
 
 TangTool 是 Windows/macOS 本地工具箱，日常内容在本机处理，无账户和云端上传。
 
@@ -35,6 +37,8 @@ TangTool 是 Windows/macOS 本地工具箱，日常内容在本机处理，无�
 三平台构建和目标机器验收分别记录。macOS ARM 已进行部分原生验收；Windows/Intel 的完整安装运行、升级卸载及无 WebView2 离线安装仍需真机验证。请以本次 Release 对应的验收记录为准，不把旧提交的通过结果视为新包已全部通过。
 
 ## English
+
+This is the initial preview release. It includes packages for all three platforms, with remaining target-machine checks recorded below.
 
 TangTool is a local desktop toolkit for Windows and macOS, with 19 tools and a Simplified Chinese / English interface. Language changes preserve tool inputs and existing results. The website includes the complete tool catalog and matching screenshots in both languages.
 

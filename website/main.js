@@ -12,6 +12,22 @@ const dialog = document.querySelector("#screenshot-dialog");
 const expandedImage = document.querySelector("#expanded-screenshot");
 const expandedCaption = document.querySelector("#expanded-caption");
 const screenImages = import.meta.glob("./screenshots/*.webp", { eager: true, query: "?url", import: "default" });
+const carousel = document.querySelector("#screenshots");
+const screenshotTrack = carousel.querySelector(".screenshot-track");
+const slides = [...carousel.querySelectorAll("[data-screenshot]")];
+const screenshotDots = slides.map((slide, index) => {
+  const dot = document.createElement("button");
+  dot.type = "button";
+  dot.className = "screenshot-dot";
+  dot.addEventListener("click", () => {
+    slideIndex = index;
+    renderSlide();
+    scheduleSlide();
+  });
+  carousel.querySelector(".screenshot-dots").append(dot);
+  return dot;
+});
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 let language = "zh-CN";
 const requestedLanguage = new URLSearchParams(window.location.search).get("lang");
@@ -32,6 +48,33 @@ let activeGroup = "all";
 let activeScreenshot = null;
 let previousOverflow = "";
 let releaseState = { loading: true, failed: false, releases: [] };
+let slideIndex = 0;
+let carouselTimer;
+let pointerOverCarousel = false;
+
+function renderSlide() {
+  screenshotTrack.style.transform = `translateX(-${slideIndex * 100}%)`;
+  slides.forEach((slide, index) => {
+    // 画面外的截图不接受焦点，避免 Tab 进入不可见链接。
+    slide.inert = index !== slideIndex;
+    slide.setAttribute("aria-hidden", String(index !== slideIndex));
+  });
+  screenshotDots.forEach((dot, index) => {
+    dot.setAttribute("aria-label", t("查看截图：{name}", { name: slides[index].querySelector("img").alt }));
+    dot.setAttribute("aria-pressed", String(index === slideIndex));
+  });
+}
+
+function scheduleSlide() {
+  clearTimeout(carouselTimer);
+  // 悬停、键盘操作、大图和后台页面均暂停，避免用户正在查看的截图被切走。
+  if (reducedMotion.matches || pointerOverCarousel || carousel.contains(document.activeElement) || dialog.open || document.hidden) return;
+  carouselTimer = setTimeout(() => {
+    slideIndex = (slideIndex + 1) % slides.length;
+    renderSlide();
+    scheduleSlide();
+  }, 4500);
+}
 
 function renderTools() {
   let count = 0;
@@ -41,6 +84,7 @@ function renderTools() {
   }
   for (const button of document.querySelectorAll("[data-tool-filter]")) {
     button.setAttribute("aria-pressed", String(button.dataset.toolFilter === activeGroup));
+    button.title = button.dataset.toolFilter === activeGroup ? t("再次点击显示所有工具") : "";
   }
   document.querySelector("#tool-count").textContent = t("显示 {count} 个工具", { count });
 }
@@ -147,6 +191,7 @@ function applyLanguage() {
   for (const { node, attribute, key } of attributeBindings) node.setAttribute(attribute, t(key));
   renderTools();
   renderScreenshots();
+  renderSlide();
   renderReleases();
 }
 
@@ -165,7 +210,7 @@ languageSelect.addEventListener("change", () => {
 for (const button of document.querySelectorAll("[data-tool-filter]")) {
   button.addEventListener("click", () => {
     const group = button.dataset.toolFilter;
-    activeGroup = group === "all" || toolGroups.some(item => item.id === group) ? group : "all";
+    activeGroup = group !== activeGroup && toolGroups.some(item => item.id === group) ? group : "all";
     renderTools();
   });
 }
@@ -180,16 +225,34 @@ for (const link of document.querySelectorAll("[data-screenshot]")) {
     previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     dialog.showModal();
+    scheduleSlide();
   });
 }
 dialog.addEventListener("click", event => {
-  if (event.target === dialog) dialog.close();
+  if (event.target === dialog || event.target === expandedImage) dialog.close();
 });
 dialog.addEventListener("close", () => {
   document.body.style.overflow = previousOverflow;
   activeScreenshot?.focus();
   activeScreenshot = null;
+  scheduleSlide();
 });
+
+carousel.addEventListener("pointerenter", event => {
+  if (event.pointerType === "touch") return;
+  pointerOverCarousel = true;
+  scheduleSlide();
+});
+carousel.addEventListener("pointerleave", () => {
+  pointerOverCarousel = false;
+  scheduleSlide();
+});
+carousel.addEventListener("focusin", scheduleSlide);
+carousel.addEventListener("focusout", () => queueMicrotask(scheduleSlide));
+document.addEventListener("visibilitychange", scheduleSlide);
+reducedMotion.addEventListener("change", scheduleSlide);
+window.addEventListener("pagehide", () => clearTimeout(carouselTimer));
+window.addEventListener("pageshow", scheduleSlide);
 
 async function loadReleases() {
   const controller = new AbortController();
@@ -214,4 +277,5 @@ async function loadReleases() {
 }
 
 applyLanguage();
+scheduleSlide();
 void loadReleases();

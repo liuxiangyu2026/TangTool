@@ -141,24 +141,58 @@ figure {
   width: 100%;
   height: auto;
 }
-.screenshots-section {
-  border-block: 1px solid #dedfd6;
-  background: #f0f2ea;
+.screenshot-viewport {
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 16px 42px -26px #34423260;
 }
-.screenshot-grid {
+.screenshot-track {
+  display: flex;
+  transition: transform 450ms ease;
+}
+.screenshot-track .screenshot-link {
+  flex: 0 0 100%;
+  min-width: 0;
+  aspect-ratio: 16 / 9;
+  box-shadow: none;
+}
+.screenshot-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 10px;
+}
+.screenshot-dot {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 36px 26px;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
 }
-.screenshot-grid figcaption {
-  padding: 18px 4px 0;
+.screenshot-dot::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border: 1px solid #ffffffcc;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ffffffc9, #9baa9166);
+  box-shadow: inset 0 1px 2px #ffffffd9, 0 1px 4px #34423238;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
-.screenshot-grid h3 {
-  margin-bottom: 7px;
+.screenshot-dot:hover::before,
+.screenshot-dot[aria-pressed="true"]::before {
+  background: linear-gradient(145deg, #c3d2adcc, #557642b3);
+  box-shadow: inset 0 1px 2px #ffffffb3, 0 1px 5px #34423252;
 }
-.screenshot-grid p {
-  color: #677069;
-  font-size: 13px;
+.screenshot-dot[aria-pressed="true"]::before {
+  width: 12px;
+  height: 12px;
 }
 #screenshot-dialog {
   width: min(1280px, calc(100vw - 32px));
@@ -193,6 +227,7 @@ figure {
   height: auto;
   max-height: calc(100dvh - 156px);
   object-fit: contain;
+  cursor: zoom-out;
 }
 #expanded-caption {
   margin-top: 12px;
@@ -574,7 +609,6 @@ details p {
     margin-top: 15px;
   }
   .feature-grid,
-  .screenshot-grid,
   .download-grid,
   .versions {
     grid-template-columns: 1fr;
@@ -608,5 +642,8 @@ details p {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .screenshot-track {
+    transition: none;
   }
 }
