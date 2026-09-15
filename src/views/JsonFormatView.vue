@@ -2,8 +2,8 @@
   <section class="flex h-full min-h-0 flex-col bg-neutral-100 p-4 sm:p-6">
     <ToolNotice :status="statusMessage" :error="errorMessage" :tone="statusTone" />
     <header class="shrink-0">
-      <p class="text-sm font-medium text-neutral-500">{{ route.meta.group }}</p>
-      <h1 class="mt-1 text-2xl font-semibold text-neutral-900">{{ route.meta.title }}</h1>
+      <p class="text-sm font-medium text-neutral-500">{{ t(String(route.meta.group ?? '')) }}</p>
+      <h1 class="mt-1 text-2xl font-semibold text-neutral-900">{{ t(String(route.meta.title ?? '')) }}</h1>
     </header>
 
     <div class="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface">
@@ -11,31 +11,31 @@
         <div class="flex flex-wrap items-center gap-2">
           <button class="flex items-center gap-1.5 rounded-md bg-violet-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2" type="button" @click="loadExample">
             <BookOpen :size="14" aria-hidden="true" />
-            <span>示例</span>
+            <span>{{ t('示例') }}</span>
           </button>
           <button class="flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2" type="button" @click="transformJson(formatJson)">
             <WandSparkles :size="14" aria-hidden="true" />
-            <span>格式化</span>
+            <span>{{ t('格式化') }}</span>
           </button>
           <button class="flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-offset-2" type="button" @click="transformJson(minifyJson)">
             <Minimize2 :size="14" aria-hidden="true" />
-            <span>压缩</span>
+            <span>{{ t('json.minify') }}</span>
           </button>
           <button class="flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2" type="button" @click="copyJson">
             <Copy :size="14" aria-hidden="true" />
-            <span>复制</span>
+            <span>{{ t('复制') }}</span>
           </button>
           <button class="flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2" type="button" @click="clearJson">
             <Trash2 :size="14" aria-hidden="true" />
-            <span>清除</span>
+            <span>{{ t('清除') }}</span>
           </button>
           <button class="flex items-center gap-1.5 rounded-md bg-sky-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2" type="button" @click="importJsonFile">
             <FolderOpen :size="14" aria-hidden="true" />
-            <span>导入</span>
+            <span>{{ t('导入') }}</span>
           </button>
           <button class="flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2" type="button" @click="exportJsonFile">
             <Save :size="14" aria-hidden="true" />
-            <span>导出</span>
+            <span>{{ t('导出') }}</span>
           </button>
         </div>
       </div>
@@ -46,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from "../i18n/index";
 import { editorPreferences } from "../utils/editorPreferences";
 import { usePreferencesStore } from "../stores/preferences";
 import { exportDefaults } from "../utils/exportDefaults";
@@ -59,7 +60,7 @@ import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { basicSetup, EditorView } from "codemirror";
 import { BookOpen, Copy, FolderOpen, Minimize2, Save, Trash2, WandSparkles } from "lucide-vue-next";
-import { onActivated, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onActivated, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 
 import { formatJson, formatJsonErrorMessage, minifyJson, validateJson, type FormatJsonResult, type JsonErrorResult } from "../utils/json";
@@ -81,7 +82,7 @@ const EXAMPLE_JSON = JSON.stringify({
   },
 }, null, 2);
 
-const JSON_FILE_FILTERS = [{ name: "JSON 文件", extensions: ["json"] }];
+const JSON_FILE_FILTERS = computed(() => [{ name: t('JSON 文件'), extensions: ["json"] }]);
 
 const route = useRoute();
 const preferences = usePreferencesStore();
@@ -117,7 +118,6 @@ onMounted(() => {
       lintGutter(),
       syntaxHighlighting(jsonHighlightStyle),
       jsonEditorTheme,
-      EditorView.contentAttributes.of({ "aria-label": "JSON 编辑器" }),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           errorMessage.value = "";
@@ -152,7 +152,7 @@ function transformJson(transform: JsonTransform) {
 
 function loadExample() {
   replaceEditorContent(EXAMPLE_JSON);
-  setStatus("已填充示例 JSON");
+  setStatus(t("已填充示例 JSON"));
 }
 
 async function importJsonFile() {
@@ -161,14 +161,14 @@ async function importJsonFile() {
 
   try {
     const selected = await open({
-      title: "导入 JSON 文件",
+      title: t('导入 JSON 文件'),
       multiple: false,
       directory: false,
-      filters: JSON_FILE_FILTERS,
+      filters: JSON_FILE_FILTERS.value,
     });
 
     if (selected === null) {
-      setStatus("已取消导入", "neutral");
+      setStatus(t("已取消导入"), "neutral");
       return;
     }
 
@@ -182,9 +182,9 @@ async function importJsonFile() {
     }
 
     const fileName = selected.split(/[\\/]/).pop() || "JSON 文件";
-    setStatus(`已导入 ${fileName}`);
+    setStatus(t("已导入 {p0}", { p0: fileName }));
   } catch {
-    errorMessage.value = "读取 JSON 文件失败，请确认文件可访问且为 UTF-8 文本";
+    errorMessage.value = t('读取 JSON 文件失败，请确认文件可访问且为 UTF-8 文本');
   }
 }
 
@@ -200,20 +200,20 @@ async function exportJsonFile() {
 
   try {
     const selected = await save({
-      title: "导出 JSON 文件",
+      title: t('导出 JSON 文件'),
       defaultPath: exportDefaults("tangtool.json").path,
-      filters: JSON_FILE_FILTERS,
+      filters: JSON_FILE_FILTERS.value,
     });
 
     if (selected === null) {
-      setStatus("已取消导出", "neutral");
+      setStatus(t("已取消导出"), "neutral");
       return;
     }
 
     await writeTextFile(selected, content);
-    setStatus("JSON 文件已保存");
+    setStatus(t("JSON 文件已保存"));
   } catch {
-    errorMessage.value = "保存 JSON 文件失败，请确认目标位置可写";
+    errorMessage.value = t('保存 JSON 文件失败，请确认目标位置可写');
   }
 }
 
@@ -265,15 +265,15 @@ async function copyJson() {
   statusMessage.value = "";
 
   if (content.trim() === "") {
-    errorMessage.value = "没有可复制的 JSON 内容";
+    errorMessage.value = t('没有可复制的 JSON 内容');
     return;
   }
 
   try {
     await writeText(content);
-    setStatus("已复制到剪贴板");
+    setStatus(t("已复制到剪贴板"));
   } catch {
-    errorMessage.value = "复制失败，请检查系统剪贴板权限";
+    errorMessage.value = t('复制失败，请检查系统剪贴板权限');
   }
 }
 

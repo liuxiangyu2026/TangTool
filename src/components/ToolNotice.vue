@@ -4,12 +4,13 @@
       :class="error ? 'border-red-200 text-red-700' : tone === 'neutral' ? 'border-neutral-300 text-neutral-700' : 'border-emerald-200 text-emerald-700'"
       :role="error ? 'alert' : 'status'" aria-atomic="true">
       <p class="max-h-40 min-w-0 flex-1 overflow-auto whitespace-pre-wrap break-words">{{ message }}</p>
-      <button type="button" class="shrink-0 rounded p-0.5 text-neutral-500 hover:bg-neutral-100" aria-label="关闭提示" @click="dismissed = true"><X :size="16" /></button>
+      <button type="button" class="shrink-0 rounded p-0.5 text-neutral-500 hover:bg-neutral-100" :aria-label="t('关闭提示')" @click="dismissed = true"><X :size="16" /></button>
     </div>
   </Teleport>
 </template>
 
 <script setup lang="ts">
+import { t } from "../i18n/index";
 import { computed, onActivated, onBeforeUnmount, onDeactivated, ref, watch } from "vue";
 import { X } from "lucide-vue-next";
 

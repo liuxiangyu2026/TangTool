@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { onBeforeUnmount, onMounted, watch } from "vue";
 import { isTauri } from "@tauri-apps/api/core";
 import { currentMonitor, getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
@@ -20,7 +21,7 @@ export function useWindowPreferences() {
       const normal = maximized ? settings.windowSize ?? { width: 1200, height: 800 } : logical;
       settings.windowSize = { width: normal.width, height: normal.height, maximized };
     } catch {
-      settings.storageError = "无法记录窗口尺寸，其他设置不受影响。";
+      settings.storageError = t("无法记录窗口尺寸，其他设置不受影响。");
     }
   }
   onMounted(async () => {
@@ -44,7 +45,7 @@ export function useWindowPreferences() {
       await recordSize();
     } catch {
       restoring = false;
-      settings.storageError = "恢复窗口尺寸失败，使用当前窗口尺寸。";
+      settings.storageError = t("恢复窗口尺寸失败，使用当前窗口尺寸。");
     }
   });
   watch(() => settings.rememberWindow, enabled => { if (enabled) void recordSize(); });

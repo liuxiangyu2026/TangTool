@@ -2,16 +2,17 @@
   <div class="flex min-h-48 min-w-0 flex-1 gap-3">
     <div ref="plane" class="color-plane relative min-w-0 flex-1 cursor-crosshair touch-none overflow-hidden rounded-md border border-neutral-300"
       :style="{ backgroundColor: `hsl(${hsv.h}, 100%, 50%)` }" tabindex="0" role="group"
-      aria-label="饱和度与明度选色板，左右调整饱和度，上下调整明度" @pointerdown="start" @pointermove="move" @pointerup="stop" @pointercancel="stop" @lostpointercapture="stop" @keydown="adjust">
+      :aria-label="t('饱和度与明度选色板，左右调整饱和度，上下调整明度')" @pointerdown="start" @pointermove="move" @pointerup="stop" @pointercancel="stop" @lostpointercapture="stop" @keydown="adjust">
       <span class="pointer-events-none absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_#000]"
         :style="{ left: `${hsv.s * 100}%`, top: `${(1 - hsv.v) * 100}%` }"></span>
-      <span class="sr-only">饱和度 {{ Math.round(hsv.s * 100) }}%，明度 {{ Math.round(hsv.v * 100) }}%</span>
+      <span class="sr-only">{{ t('饱和度 {p0}%，明度 {p1}%', { p0: Math.round(hsv.s * 100), p1: Math.round(hsv.v * 100) }) }}</span>
     </div>
-    <input class="hue-slider h-full w-5 shrink-0 cursor-pointer" type="range" min="0" max="360" step="1" :value="hsv.h" aria-label="色相" aria-orientation="vertical" @input="changeHue" />
+    <input class="hue-slider h-full w-5 shrink-0 cursor-pointer" type="range" min="0" max="360" step="1" :value="hsv.h" :aria-label="t('色相')" aria-orientation="vertical" @input="changeHue" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { t } from "../i18n/index";
 import { onBeforeUnmount, onDeactivated, ref, watch } from "vue";
 import { hsvToRgb, rgbToHsv, type RgbaColor } from "../utils/color";
 

@@ -1,3 +1,4 @@
+import { t } from "../i18n/core";
 import { parser } from "@lezer/json";
 
 export type JsonErrorResult = {
@@ -44,18 +45,18 @@ export function formatJsonErrorMessage(result: JsonErrorResult): string {
     return result.error;
   }
 
-  return `${result.error}（第 ${result.line} 行，第 ${result.column} 列）`;
+  return t('{p0}（第 {p1} 行，第 {p2} 列）', { p0: result.error, p1: result.line, p2: result.column });
 }
 
 function parseJson(input: string): ParseJsonResult {
   if (input.trim() === "") {
-    return { ok: false, error: "JSON 内容不能为空" };
+    return { ok: false, error: t('JSON 内容不能为空') };
   }
 
   try {
     return { ok: true, value: JSON.parse(input) };
   } catch (error) {
-    const rawMessage = error instanceof Error ? error.message : "JSON 格式无效";
+    const rawMessage = error instanceof Error ? error.message : t('JSON 格式无效');
     const position = getJsonErrorPosition(input, rawMessage);
     const { line, column } = getLineAndColumn(input, position);
 
@@ -121,5 +122,5 @@ function normalizeJsonError(message: string): string {
     .replace(/\s+at line \d+ column \d+$/i, "")
     .trim();
 
-  return `JSON 语法错误：${reason || "格式无效"}`;
+  return t('JSON 语法错误：{p0}', { p0: reason || t('格式无效') });
 }

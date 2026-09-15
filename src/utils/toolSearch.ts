@@ -4,7 +4,8 @@ export function searchTools<T extends { label: string; description: string; keyw
   return items
     .map((item) => {
       const name = item.label.toLocaleLowerCase();
-      const fields = [name, item.keywords.toLocaleLowerCase(), item.description.toLocaleLowerCase()];
+      const fields = [name, item.keywords.toLocaleLowerCase(), item.description.toLocaleLowerCase(),
+        translate(item.label, "en").toLocaleLowerCase(), translate(item.description, "en").toLocaleLowerCase()];
       let score = 0;
       for (const term of terms) {
         if (name.includes(term)) continue;
@@ -31,3 +32,4 @@ export function searchTools<T extends { label: string; description: string; keyw
     .sort((a, b) => a.score - b.score)
     .map((match) => match.item);
 }
+import { translate } from "../i18n/core";

@@ -1,6 +1,6 @@
 # TangTool 0.1.0 交付验收
 
-当前为候选包，尚未公开发布。应用代码基线 `7c1d928`；三平台构建全部成功：[34840425160](https://github.com/liuxiangyu2026/TangTool/actions/runs/34840425160)。后续文档提交不改变该应用代码基线。
+当前尚未公开发布。下文的 `7c1d928` / [34840425160](https://github.com/liuxiangyu2026/TangTool/actions/runs/34840425160) 为双语改动之前的已构建基线。本轮新增双语和后台错误结构，必须重新构建三平台包，不能直接交付旧安装包来声称具备双语功能。
 
 ## 产物与来源
 
@@ -44,8 +44,8 @@
 
 - 临时主题和 JSON 格式化收藏已恢复并核对（跟随系统、未收藏），不需要再次修改用户设置。已回到用户使用的颜色页并保留其当前颜色/底色。
 
-- TODO：确认首发是否接受未签名/未公证的公开版本及系统安装提示，或提供 Developer ID/Windows 签名方案后再发布；不会代购证书。
-- TODO：如使用 Developer ID，给 PyInstaller 内部库和 Tauri 外壳统一签名，重新开启 hardened runtime，完成公证和签名后转换复验。当前 ad-hoc 候选包不满足这一条件。
+- 用户已确认首发接受未签名／未公证版本，官网和发布说明已加入系统安装提示及真实验收范围。不要再以购买证书作为首发前提。
+- 后续若接入 Developer ID，需给 PyInstaller 内部库与 Tauri 外壳统一签名、重新开启 hardened runtime，再公证并复验；属于首发之后的可选改进。
 - 首发版本拟沿用项目现有 `0.1.0`，仅 Windows x64、macOS 14+ ARM/Intel；其他系统/架构不在已声明范围。
 - 所需验收通过后，将同一代码基线合入 main，上传对应三平台产物与独立校验文件，复核下载链接，再启用 GitHub Pages。
 - 官网尚未启用 Pages，仓库尚无 Release；不得把 Actions artifact 链接当作对用户永久有效的下载链接。

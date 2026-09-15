@@ -1,18 +1,20 @@
-export type RegexMatch = { index: number; value: string; groups: string[] };
+import { configureLocale, normalizeLocale, t } from "../i18n/core";
+export type RegexMatch = { index: number; value: string; groups: (string | null)[] };
 export type RegexResponse = { matches: RegexMatch[]; limited: boolean; error: string };
 
-self.onmessage = (event: MessageEvent<{ pattern: string; flags: string; input: string }>) => {
+self.onmessage = (event: MessageEvent<{ pattern: string; flags: string; input: string; locale?: string }>) => {
+  configureLocale(() => normalizeLocale(event.data.locale));
   const { pattern, flags, input } = event.data;
   const response: RegexResponse = { matches: [], limited: false, error: "" };
   try {
-    if (!/^[gimsuy]*$/.test(flags)) throw new Error("仅支持 g、i、m、s、u、y 标志。");
+    if (!/^[gimsuy]*$/.test(flags)) throw new Error(t('仅支持 g、i、m、s、u、y 标志。'));
     const regex = new RegExp(pattern, flags);
     let match: RegExpExecArray | null;
     while ((match = regex.exec(input)) !== null) {
       response.matches.push({
         index: match.index,
         value: match[0].slice(0, 2000),
-        groups: match.slice(1, 21).map((value) => (value === undefined ? "（未参与匹配）" : value.slice(0, 500))),
+        groups: match.slice(1, 21).map((value) => (value === undefined ? null : value.slice(0, 500))),
       });
       if (response.matches.length >= 1000) {
         response.limited = true;
@@ -26,7 +28,7 @@ self.onmessage = (event: MessageEvent<{ pattern: string; flags: string; input: s
       }
     }
   } catch (reason) {
-    response.error = reason instanceof Error ? reason.message : "正则表达式无效";
+    response.error = reason instanceof Error ? reason.message : t('正则表达式无效');
   }
   self.postMessage(response);
 };
