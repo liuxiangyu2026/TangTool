@@ -21,7 +21,7 @@ npm run site:dev
 
 ## GitHub Pages 部署
 
-官网已上线：[TangTool](https://liuxiangyu2026.github.io/TangTool/)。最新部署 [34947571777](https://github.com/liuxiangyu2026/TangTool/actions/runs/34947571777) 来自主分支提交 `c4f7a15`；中英文主程序/文档组件六个下载入口已复核。首页继续保持完整工具目录和玻璃圆点截图轮播。
+官网已上线：[TangTool](https://liuxiangyu2026.github.io/TangTool/)。最新部署 [34961948075](https://github.com/liuxiangyu2026/TangTool/actions/runs/34961948075) 来自主分支提交 `5f668bc`，包含 v0.1.2 版本说明。首页继续保持完整工具目录和玻璃圆点截图轮播。
 
 1. 提交并推送官网代码到 main。
 2. 仓库 Pages 已使用 **GitHub Actions**，无需重复设置。
