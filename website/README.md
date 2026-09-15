@@ -19,7 +19,7 @@ npm run site:dev
 
 ## 首次发布 GitHub Pages
 
-当前只添加了工作流，尚未修改远程设置或上线。
+2026-09-15 已启用 Pages 的 GitHub Actions 模式，尚未部署。完整双语网站位于 PR #1；合入 main 被自动审批拦截，需完成交付验收前置条件或取得用户明确的分阶段上线授权。
 
 1. 提交并推送官网代码到 main。
 2. 仓库 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**。
