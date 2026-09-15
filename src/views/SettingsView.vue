@@ -32,6 +32,13 @@
         <p class="mt-2 text-xs text-neutral-500">{{ t('文字、间距和编辑器按比例缩放，即时生效。') }}</p>
       </div>
       <div class="rounded-md bg-neutral-50 p-3 text-sm leading-6 text-neutral-600">{{ t('设置仅保存在这台电脑。不会保存输入的 JSON、文档内容或生成的密码，也不会同步到网络。') }}</div>
+      <fieldset class="space-y-3 border-t border-neutral-200 pt-5 text-sm">
+        <legend class="font-medium">{{ t('更新提醒') }}</legend>
+        <label class="flex items-center gap-2"><input v-model="preferences.autoCheckUpdates" type="checkbox" />{{ t('自动检查更新') }}</label>
+        <p class="text-xs leading-5 text-neutral-500">{{ t('启动及使用期间每 6 小时检查 GitHub 公开版本，不上传工具内容，也不自动安装。关闭后仍可在版本页手动检查。') }}</p>
+        <label class="flex items-center gap-2"><input v-model="preferences.includePrereleases" type="checkbox" />{{ t('接收预发布版本') }}</label>
+        <p class="text-xs text-neutral-500">{{ t('关闭后仅提醒正式版本；预发布版可能仍有待验证的问题。') }}</p>
+      </fieldset>
       <fieldset class="border-t border-neutral-200 pt-5">
         <legend class="text-sm font-medium">{{ t('工具收藏') }}</legend>
         <p class="mt-2 text-xs text-neutral-500">{{ t('收藏后在首页优先显示；也可在首页点击星标。') }}</p>

@@ -3572,7 +3572,7 @@ dependencies = [
 
 [[package]]
 name = "tangtool"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "base64 0.22.1",
  "getrandom 0.4.3",
@@ -3587,6 +3587,7 @@ dependencies = [
  "tauri-plugin-fs",
  "tauri-plugin-opener",
  "tempfile",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

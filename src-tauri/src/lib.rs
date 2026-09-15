@@ -8,6 +8,8 @@ mod base64_file;
 mod document;
 mod document_runtime;
 mod file_access;
+#[cfg(windows)]
+mod windows_icon;
 use document::convert_document_to_markdown;
 use tauri::{AppHandle, Emitter};
 
@@ -259,6 +261,21 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            #[cfg(windows)]
+            {
+                use tauri::Manager;
+                for window in app.webview_windows().values() {
+                    // 图标失败不阻止工具启动，保留框架的默认处理并输出诊断。
+                    if let Err(error) = windows_icon::apply(window) {
+                        eprintln!("Windows icon setup failed for {}: {error}", window.label());
+                    }
+                }
+            }
+            #[cfg(not(windows))]
+            let _ = app;
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             calculate_file_md5,
             convert_document_to_markdown,
