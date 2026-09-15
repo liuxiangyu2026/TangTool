@@ -28,6 +28,9 @@ export const usePreferencesStore = defineStore("preferences", () => {
   const indentWidth = ref(2);
   const exportDirectory = ref("");
   const filenameRule = ref<"original" | "timestamp">("original");
+  const autoCheckUpdates = ref(true);
+  // 当前发行渠道为 Preview；用户可关闭预发布提醒，仅接收正式版本。
+  const includePrereleases = ref(true);
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) ?? "null");
     if (saved && typeof saved === "object") {
@@ -53,6 +56,8 @@ export const usePreferencesStore = defineStore("preferences", () => {
       if ([2, 4, 8].includes(saved.indentWidth)) indentWidth.value = saved.indentWidth;
       if (typeof saved.exportDirectory === "string" && saved.exportDirectory.length < 4096) exportDirectory.value = saved.exportDirectory;
       if (["original", "timestamp"].includes(saved.filenameRule)) filenameRule.value = saved.filenameRule;
+      if (typeof saved.autoCheckUpdates === 'boolean') autoCheckUpdates.value = saved.autoCheckUpdates;
+      if (typeof saved.includePrereleases === 'boolean') includePrereleases.value = saved.includePrereleases;
     }
   } catch {
     storageError.value = t('无法读取本地偏好，已使用默认设置。');
@@ -73,9 +78,9 @@ export const usePreferencesStore = defineStore("preferences", () => {
   watch(rememberWindow, enabled => { if (!enabled) windowSize.value = null; });
   watch(rememberPanels, enabled => { if (!enabled) panelRatios.value = {}; });
   watch(
-    [language, theme, fontSize, sidebarCollapsed, collapsedGroups, favorites, rememberWindow, rememberPanels, windowSize, panelRatios, editorFont, editorWrap, indentWidth, exportDirectory, filenameRule],
+    [language, theme, fontSize, sidebarCollapsed, collapsedGroups, favorites, rememberWindow, rememberPanels, windowSize, panelRatios, editorFont, editorWrap, indentWidth, exportDirectory, filenameRule, autoCheckUpdates, includePrereleases],
     () => {
-      // 仅保存外观偏好；JSON、文档内容和密码不写入持久化存储。
+      // 仅保存偏好；JSON、文档内容、密码和版本查询结果不写入持久化存储。
       try {
         localStorage.setItem(
           storageKey,
@@ -89,6 +94,7 @@ export const usePreferencesStore = defineStore("preferences", () => {
             windowSize: rememberWindow.value ? windowSize.value : null, panelRatios: rememberPanels.value ? panelRatios.value : {},
             editorFont: editorFont.value, editorWrap: editorWrap.value, indentWidth: indentWidth.value,
             exportDirectory: exportDirectory.value, filenameRule: filenameRule.value,
+            autoCheckUpdates: autoCheckUpdates.value, includePrereleases: includePrereleases.value,
           }),
         );
         storageError.value = "";
@@ -102,5 +108,5 @@ export const usePreferencesStore = defineStore("preferences", () => {
     favorites.value = favorites.value.includes(path) ? favorites.value.filter(value => value !== path) : [...favorites.value, path];
   }
   return { language, theme, fontSize, sidebarCollapsed, collapsedGroups, storageError, favorites, toggleFavorite,
-    rememberWindow, rememberPanels, windowSize, panelRatios, editorFont, editorWrap, indentWidth, exportDirectory, filenameRule };
+    rememberWindow, rememberPanels, windowSize, panelRatios, editorFont, editorWrap, indentWidth, exportDirectory, filenameRule, autoCheckUpdates, includePrereleases };
 });

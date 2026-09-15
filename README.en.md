@@ -2,7 +2,7 @@
 
 [简体中文](README.md) | English
 
-TangTool is a local desktop toolkit for Windows and macOS, bringing together 19 tools for data, documents, encoding, text and images. It supports Simplified Chinese and English, tool search, favorites and themes. Your inputs and files are processed on your device.
+TangTool is a local desktop toolkit for Windows and macOS, bringing together 19 tools for data, documents, encoding, text and images. It supports Simplified Chinese and English, tool search, favorites, themes and update reminders. Your inputs and files are processed on your device.
 
 [Visit the website](https://liuxiangyu2026.github.io/TangTool/?lang=en)
 

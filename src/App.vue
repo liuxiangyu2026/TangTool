@@ -45,10 +45,12 @@
           {{ allGroupsCollapsed ? t('展开全部分组') : t('折叠到一级') }}
         </button>
         <RouterLink v-for="item in footerItems" :key="item.path" :to="item.path"
-          class="flex items-center gap-2 rounded-md px-3 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100" :class="{ 'justify-center': preferences.sidebarCollapsed }"
-          exact-active-class="bg-neutral-200 text-neutral-900" :title="t(item.label)" :aria-label="t(item.label)">
+          class="relative flex items-center gap-2 rounded-md px-3 py-1.5 text-xs text-neutral-500 hover:bg-neutral-100" :class="{ 'justify-center': preferences.sidebarCollapsed }"
+          exact-active-class="bg-neutral-200 text-neutral-900" :title="item.title" :aria-label="item.title">
           <component :is="item.icon" :size="14" class="shrink-0" />
           <span v-if="!preferences.sidebarCollapsed">{{ t(item.label) }}</span>
+          <span v-if="item.path === '/releases' && updates.available" aria-hidden="true"
+            :class="preferences.sidebarCollapsed ? 'absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-red-500' : 'ml-auto shrink-0 rounded bg-red-500 px-1 py-0.5 text-[10px] leading-none text-white'">{{ preferences.sidebarCollapsed ? '' : t('新版') }}</span>
         </RouterLink>
       </div>
     </aside>
@@ -64,14 +66,18 @@
 <script setup lang="ts">
 import { t } from "./i18n/index";
 import { PanelLeftClose, PanelLeftOpen, Settings, History, ChevronDown, ListTree, House } from "lucide-vue-next";
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { usePreferencesStore } from "./stores/preferences";
+import { useUpdatesStore } from "./stores/updates";
 import { version } from "../package.json";
 import { menuGroups } from "./data/tools";
 import { useWindowPreferences } from "./composables/useWindowPreferences";
 
 const preferences = usePreferencesStore();
+const updates = useUpdatesStore();
+onMounted(updates.start);
+onBeforeUnmount(updates.stop);
 useWindowPreferences();
 const route = useRoute();
 const allGroupsCollapsed = computed(() => menuGroups.every((group) => preferences.collapsedGroups.includes(group.id)));
@@ -84,8 +90,11 @@ function toggleGroup(id: string) {
   }
 }
 
-const footerItems = computed(() => [
-  { path: "/releases", label: t('版本与升级 · {version}', { version }), icon: History },
-  { path: "/settings", label: "用户设置", icon: Settings },
-]);
+const footerItems = computed(() => {
+  const label = t('版本与升级 · {version}', { version });
+  return [
+    { path: '/releases', label, title: updates.available ? `${label} · ${t('发现新版本 {version}', { version: updates.available.tag })}` : label, icon: History },
+    { path: '/settings', label: '用户设置', title: t('用户设置'), icon: Settings },
+  ];
+});
 </script>
