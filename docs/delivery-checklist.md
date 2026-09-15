@@ -1,5 +1,7 @@
 # TangTool 0.1.0 交付验收
 
+本文件保留 v0.1.0 历史记录。新的轻量主包与独立组件验收见 [v0.1.1 交付记录](delivery-checklist-0.1.1.md)。
+
 已公开：[v0.1.0 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.0) · [官网](https://liuxiangyu2026.github.io/TangTool/)。公开发布不代表下表所有真机验收完成。
 
 本次 v0.1.0 预发布产物来自干净提交 `9a936b8b1f6f889a6a11513531ad07f64179a16d`，三平台构建 [34934860407](https://github.com/liuxiangyu2026/TangTool/actions/runs/34934860407) 全部通过。包含双语、首页最大宽度、官网圆点轮播及中英文 README；旧构建不能混用。

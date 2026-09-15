@@ -42,7 +42,7 @@ TangTool 是 Windows / macOS 本地桌面工具箱，强调离线处理、隐私
 | 拖动布局 | JSON 对比左右 25%～75%、结果高度 20%～60%；Excel 左右 25%～75%；文档左右 25%～55%；统一 Grip 图标并支持键盘 |
 | 密码 | Rust 操作系统安全随机源，无偏采样与打乱；长度 4～128（默认 20），数量 1～20（默认 6）；保证所选字符类型，默认排除易混淆字符 |
 | URL / MD5 / Base64 | 三个独立菜单及不同图标；URL 参数组件编解码；MD5 文本/文件；Base64 文本/文件；文件 Rust 流式处理；明确不是加密 |
-| 文档转 Markdown | 仅 DOCX / PDF，不支持 .doc、无需 LibreOffice；最多 10 个，追加并按路径去重；逐个转换、点击查看、独立删除与保存；清除需确认，只清列表不删文件 |
+| 文档转 Markdown | 需独立文档组件，页面提供下载/重新检测，未安装禁用转换；仅 DOCX / PDF，最多10个，追加去重、逐个转换、独立删除保存，清除需确认且不删源文件 |
 | Markdown 预览 | marked 解析；格式化 / 原始模式，支持标题、表格、列表等；复杂排版、扫描 PDF、字体可能影响转换，不含 OCR |
 | 侧栏与设置 | 图标折叠、悬停名称，底部版本/设置入口；浅色/深色/跟随系统；紧凑/标准/较大字号；本机记忆 |
 | 一级菜单 | 分组标题可展开/收起；底部“折叠到一级 / 展开全部分组”；collapsedGroups 与外观一同保存；图标侧栏模式继续显示工具图标 |
@@ -63,25 +63,22 @@ TangTool 是 Windows / macOS 本地桌面工具箱，强调离线处理、隐私
 
 ## 4. 打包与发布真实状态
 
-本节为已发布 v0.1.0 的记录；正在实现的 v0.1.1 采用下节所述轻量主包和可选组件方案，不能再沿用 v0.1.0 的内置运行时说明。
-
-- 用户已明确授权全部修改合入 main、发布版本并部署官网；此前自动审批的合入阻塞已解除，不再重复询问。已接受首发未签名／未公证，不以购买证书作为发布前提。
-- [PR #1](https://github.com/liuxiangyu2026/TangTool/pull/1) 已合入 main，发布代码来源为 `9a936b8b1f6f889a6a11513531ad07f64179a16d`。本地也已切换 main；后续文档提交不改变安装包来源。
-- [v0.1.0 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.0) 已于 2026-09-15 公开，含 Windows x64 NSIS、macOS ARM/Intel 应用 ZIP、统一 `SHA256SUMS.txt` 与 `build-info.json`。保留预发布标记，不能称为三平台真机全部验收通过的稳定版。
-- 三平台构建 [34934860407](https://github.com/liuxiangyu2026/TangTool/actions/runs/34934860407)、主分支质量检查 [34934810780](https://github.com/liuxiangyu2026/TangTool/actions/runs/34934810780) 全部成功。安装包在 `release-artifacts/ci-34934860407/`，外层/内层摘要、版本、提交与 dirty=false 均核对；上传后的五个附件摘要也全部一致。
-- 已不带登录凭证从公开 Release 回读全部五个附件，大小与 SHA-256 全部一致；记录在该产物目录的 `public-download-verification.json`。公开标签 v0.1.0 固定指向发布提交，不随后续文档提交移动。
-- ARM/Intel 包资源封印、B 图标、主程序和 sidecar 架构、版本 0.1.0、最低 macOS 14.0 已复核。Windows 检查摘要和 NSIS 结构；安装器 PE32 外壳不代表应用不是 x64。
-- 官网已上线：[TangTool](https://liuxiangyu2026.github.io/TangTool/)，部署 [34934863889](https://github.com/liuxiangyu2026/TangTool/actions/runs/34934863889) 同样来自 `9a936b8`。线上中英切换、19 工具、六组截图、圆点切换、放大关闭及三个真实下载入口通过，明确显示预发布。
-- 完整包内置 Python、MarkItDown 和依赖；用户不需额外安装 Python。Windows 已内置 WebView2 离线安装程序，缺少运行时且断网的安装仍待真机验收。macOS 为 ad-hoc 签名，未做 Developer ID 签名或公证。
-- **构建/摘要检查不替代干净目标机验收。** Windows/Intel 安装运行、离线转换、升级卸载及部分 ARM 原生子项仍待验证。历史 `7c1d928` ARM GUI 和 `f13a1d2` 隔离 DOCX/PDF 转换证据不得自动记为新包全部通过；详细边界见 `docs/delivery-checklist.md`、`docs/release-checks.md`。
-- `ci-34840425160/`、`ci-34929714721/` 和本机早期包均为历史产物，不混入本次 Release。源码或打包配置变更需重新完整构建，单独执行收集命令不能把旧包标成新提交。
-- 完整打包使用 `npm run desktop:build`，普通 `tauri build` 不带完整 sidecar。开发转换使用项目 `.venv`；打包仅调用随包 sidecar，不回退系统 Python，UTF-8 JSON 通信、后台执行、180 秒超时及输出限制保持不变。
+- 用户已授权合入、发布和官网部署，接受未签名／未公证预发布；不再以购买证书或重复确认作为前提。
+- 当前公开版本：[v0.1.1 Lightweight Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.1)。发布/标签提交为 `73b95fb81e4f879d522a2b7befa27da13189998a`，PR #2 已合入 main（`c4f7a15`）；合并后文件内容与已构建提交一致，没有改写旧版附件。
+- 三平台构建 [34944063273](https://github.com/liuxiangyu2026/TangTool/actions/runs/34944063273) 与质量检查 [34944062682](https://github.com/liuxiangyu2026/TangTool/actions/runs/34944062682) 全部通过。每个平台提供主包和独立文档组件，共六份安装包；另附统一 SHA256SUMS.txt 和 build-info.json。
+- 主包大小约 Windows 2.9 MiB、macOS ARM 4.0 MiB、macOS Intel 4.1 MiB；组件约45.9 / 56.2 / 59.8 MiB。产物在 `release-artifacts/ci-34944063273/`，来源、dirty=false、内外摘要与上传摘要均核对，八份附件均完成无登录凭证的公开下载回读；TLS 中断通过重试解决。
+- 官网：[TangTool](https://liuxiangyu2026.github.io/TangTool/)，最新部署 [34947571777](https://github.com/liuxiangyu2026/TangTool/actions/runs/34947571777) 来自主分支 `c4f7a15`。中英六个主包/组件链接及说明已复核；主包匹配明确排除 DocumentRuntime，不能混淆安装包类型。
+- Windows 主包不再包含 WebView2 离线安装器。安装页检测 HKLM/HKCU 运行时，缺少时提供微软链接，下一步重新检测并阻止继续。文档组件默认不勾选，勾选后需手动安装组件并通过自检，不选可继续。
+- macOS 主应用默认不含文档组件，独立 PKG 安装到 `/Library/Application Support/TangTool/DocumentRuntime/1.0.0`；Windows 组件为当前用户安装到 `%LOCALAPPDATA%\TangTool\DocumentRuntime\1.0.0`。组件自带 Python，不使用用户系统 Python。PKG 固定路径、架构、最低14.0及禁用框架迁移已核对。
+- 文档组件版本1.0.0、协议1和下载版本v0.1.1由 `sidecar/runtime.json` 统一定义。健康检查20秒/64 KiB，转换180秒/16 MiB；只有匹配版本/架构且自检成功才启用转换，页面提供安装包和重新检测，无需重启。
+- ARM 组件在本机与云端 PKG 解包后通过项目外、无有效 Python 搜索路径的 DOCX（含表格）/PDF 转换及协议拒绝。独立标识原生预览通过中英缺失提示、禁用状态与重复检测；没有实际安装组件到用户系统目录，没有改动用户正式应用偏好。
+- **CI、自检和摘要检查不等于全部目标机交互验收通过。** Windows 安装页的真实点击分支、组件安装卸载，macOS 系统 Installer 安装后重新检测，以及干净机器流程仍待验证。详情见 `docs/delivery-checklist-0.1.1.md`。保持预发布、无正式签名／公证及无自动更新说明。
+- `npm run desktop:build` 现在生成轻量主包和独立组件包，`npm run sidecar:build` 单独生成组件，`release:collect` 紧随完整构建收集两份平台附件。已移除旧 tauri.sidecar.conf.json。开发模式继续用项目 `.venv`，打包用 `.venv-sidecar`，必须保留两者。
+- 旧 [v0.1.0](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.0) 完整包保留，其内置运行时说明和旧验收记录不能套用于轻量包。旧产物目录仅供历史参考；代码/依赖/打包配置变化需重新构建，不把旧包标为新提交。
 
 ## 5. 当前交付内容与下一步
 
-当前任务：用户确认 Windows 可选安装文档组件，macOS 默认不包含，在工具页提示缺少组件不能转换并提供安装包链接。正在实现 v0.1.1 主包 + 文档组件 1.0.0 分开交付：Windows 默认不勾选文档组件；选中则需下载独立安装器并在下一步自检，不选可继续。WebView2 仍为必需，缺少时提示微软下载并阻止继续，不再内嵌离线安装器。macOS 使用独立 PKG，固定安装到 TangTool 专属目录，不迁移已有 Python.framework。版本与协议见 sidecar/runtime.json；健康检查及转换均验证对应组件版本，不回退系统 Python。构建命令与安装路径以新版 sidecar/README.md 为准。
-
-本轮已通过前端构建、现有 13 测试、Rust fmt/Clippy 和官网构建。ARM 主包约3.9 MiB、独立组件约56 MiB；PKG 解包后在项目外、无有效 Python 搜索路径下通过健康检查、DOCX（含表格）/PDF 转换及不兼容协议拒绝。PKG 元数据无 Python.framework 自动迁移条目。Windows 安装页和三平台新产物尚未验收/发布。删除过时 tauri.sidecar.conf.json；desktop:build 现在生成主包和独立组件包，release:collect 每个平台收集两份附件。不得把当前页面中的 v0.1.1 组件链接宣称为已上线，直到对应附件实际发布。
+可选文档组件与轻量安装包方案已实现并公开。不要重新从该功能开始；接下来优先按 v0.1.1 交付表补齐目标机安装、检测、升级卸载验收。
 
 根目录 README 按用户要求仅保留项目介绍、19 项工具和官网链接；`README.md` 与 `README.en.md` 顶部互相切换。开发与验收信息维护在本文及专题文档，不写回产品 README。
 
@@ -94,7 +91,7 @@ TangTool 是 Windows / macOS 本地桌面工具箱，强调离线处理、隐私
 
 下一步：
 
-1. 使用本次 Release 包完成 Windows x64、macOS Intel 和剩余 ARM 原生验收，并把机器、系统、包摘要与具体结果写入交付表。重点包括无 Python/无仓库的离线转换、文件操作与复制、偏好恢复、图标、升级卸载、Windows 无 WebView2 离线安装。
+1. 使用 v0.1.1 包完成交付表中的目标机验收：Windows WebView2 缺失重检与组件可选分支，独立组件安装后页面重新检测、无系统 Python 的转换、文件操作、偏好恢复、图标和升级卸载。
 2. 验收完成后按用户决定安排稳定版；当前没有自动更新。不把未签名方案重新列为待确认，不默认采购证书。
 3. 发布后的新功能再按需求推进：文档原生拖放、JSONPath、SQL 格式化、JWT 本地查看、SHA 文件摘要、JSON/YAML。Word/PDF 互转仍暂缓；不默认加入云端 API、账户或上传。
 4. 保留用户已有设置、工具输入与两个 Python 环境；不要重复清除已恢复的临时主题和收藏。历史原生测试的详细待验项见交付表。
