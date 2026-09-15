@@ -1,119 +1,74 @@
-# 文档转换 sidecar
+# 文档转换组件
 
-仅支持 DOCX/PDF，离线调用 MarkItDown。旧式 `.doc` 已移除，不依赖 LibreOffice。
+从 TangTool 0.1.1 起，主程序与文档组件分开交付。组件包含 Python、MarkItDown 0.1.7 及 DOCX/PDF 依赖，用户不需要手动配置 Python，也不支持旧式 .doc、OCR 或 Word/PDF 互转。
 
-## 开发与打包是两个环境
+## 用户安装
 
-- `npm run tauri dev`：从项目 `.venv` 启动 Python runner，方便调试。路径由 Rust 编译时项目目录定位，不依赖终端当前目录。
-- `npm run desktop:build`：先用 PyInstaller 生成独立程序，再通过 `tauri.sidecar.conf.json` 的 `externalBin` 随应用打包。安装包从主程序同目录启动转换器，不访问项目 `.venv`，不回退系统 Python。
-- `npm run tauri build` 未带 sidecar 配置时不会携带转换器；只适合排查 UI，不可作为完整交付包。缺少组件会明确报错。
-- **不要删除用户已有的 `.venv` 来清理测试环境。** `.venv` 和 `.venv-sidecar` 均被 Git 忽略；换机时各自重建，不复制环境目录。
+- Windows：主安装器先检测必需的 WebView2；缺少时提供微软下载链接，点击下一步重新检测。文档组件默认不勾选，勾选后需从链接单独安装并通过检测；不勾选可以继续。
+- macOS：主应用 ZIP 不包含文档组件。文档页提供对应架构的 PKG 链接，用户通过系统 Installer 安装，可能需要管理员授权。
+- 文档页始终提供“组件安装包”和“重新检测”。未安装、版本不匹配或自检失败时禁用选择/转换；已有结果仍可复制保存，其他工具不受影响。
+- 检测通过后无需重启应用。应用只在用户点击链接时打开浏览器，不自动联网下载或更新组件。
+- Windows 组件可在系统应用列表独立卸载。组件与主程序分别安装，删除或升级主程序不会主动删除共享组件及用户文档。
 
-## 本机准备
+组件版本、协议与下载 Release 统一定义在 `runtime.json`。本轮为组件 1.0.0、协议 1，附件随应用 v0.1.1 发布；发布前不得把尚未存在的下载链接标记为可用。
 
-构建要求 Node、Rust/Tauri 平台工具链及同架构 CPython 3.10。`requirements.txt` 固定主要依赖，`requirements.lock` 锁定传递依赖和哈希。依赖下载安装仅发生在开发/构建阶段。
+| 平台 | 固定组件目录 |
+| --- | --- |
+| Windows x64 | `%LOCALAPPDATA%\\TangTool\\DocumentRuntime\\1.0.0` |
+| macOS ARM / Intel | `/Library/Application Support/TangTool/DocumentRuntime/1.0.0` |
 
-macOS（项目根目录）：
+目录内为 `tangtool-markitdown.exe` / `tangtool-markitdown` 和 `_internal/`。只读取固定版本目录，不扫描磁盘、不回退到系统 Python，也不使用旧版主程序旁的组件。macOS PKG 禁止自动识别和迁移内置 Python.framework，确保不覆盖系统已有 Python；明确最低 macOS 14.0 和对应架构。
+
+## 开发环境
+
+开发模式继续使用项目 `.venv` 和 `sidecar/markitdown_runner.py`。独立打包使用 `.venv-sidecar`。**必须保留用户已有的这两个环境；仅在新机器或环境不存在时创建，不跨机器复制、不作为临时目录清理。**
+
+新机器可按对应平台创建环境，再安装锁定依赖：
 
 ```bash
-# 已有 .venv 时跳过第一行。
-uv venv --python 3.10 .venv
-uv pip install --python .venv/bin/python --require-hashes -r sidecar/requirements.lock
-
-# 独立打包环境，已有时跳过创建命令。
-uv venv --python 3.10 .venv-sidecar
-uv pip install --python .venv-sidecar/bin/python --require-hashes -r sidecar/requirements.lock
-npm ci
-npm run sidecar:build
-npm run desktop:build -- --bundles app
+# macOS：在项目根目录，使用同架构 Python 3.10
+python3.10 -m venv .venv
+python3.10 -m venv .venv-sidecar
+.venv/bin/python -m pip install --require-hashes -r sidecar/requirements.lock
+.venv-sidecar/bin/python -m pip install --require-hashes -r sidecar/requirements.lock
 ```
-
-Windows PowerShell（项目根目录）：
 
 ```powershell
-# 已有环境时跳过对应的创建命令。
-uv venv --python 3.10 .venv
-uv pip install --python .venv\Scripts\python.exe --require-hashes -r sidecar/requirements.lock
-uv venv --python 3.10 .venv-sidecar
-uv pip install --python .venv-sidecar\Scripts\python.exe --require-hashes -r sidecar/requirements.lock
-npm ci
-npm run sidecar:build
-npm run desktop:build -- --bundles nsis
+# Windows：使用 Python 3.10 x64
+py -3.10 -m venv .venv
+py -3.10 -m venv .venv-sidecar
+.venv\Scripts\python.exe -m pip install --require-hashes -r sidecar/requirements.lock
+.venv-sidecar\Scripts\python.exe -m pip install --require-hashes -r sidecar/requirements.lock
 ```
 
-已构建 sidecar 后，快速打 debug 应用（不重新运行 PyInstaller）：
+可以用 `TANGTOOL_SIDECAR_PYTHON` 指定已有的同架构打包 Python。构建脚本检查 Python/Node 架构及固定工具版本，不安装依赖或重建用户环境。
+
+## 构建与发布
 
 ```bash
-npm run tauri build -- --debug --config src-tauri/tauri.sidecar.conf.json
+npm run desktop:build -- --bundles app -- --locked   # macOS
+npm run desktop:build -- --bundles nsis -- --locked  # Windows
+npm run release:collect
 ```
 
-可用 `TANGTOOL_SIDECAR_PYTHON` 指定另一个同架构、已安装锁定依赖的 Python。构建脚本不会下载依赖，也不会创建或清空环境；只重建 `sidecar/build` 下的自有产物和 `src-tauri/binaries/tangtool-markitdown-*`。
+`desktop:build` 先生成 Windows 检查页所需的版本常量并构建轻量主包，然后构建独立组件。Windows 复用 Tauri 下载的 NSIS 编译器；也可用 `TANGTOOL_MAKENSIS` 指向已有编译器。macOS 使用系统 pkgbuild/productbuild。不要再传已移除的 tauri.sidecar.conf.json。
 
-## 平台产物
+单独运行 `npm run sidecar:build` 只重建组件；Windows 需已具备上述 NSIS 编译器。生成目录为 `sidecar/build/<target>/component/`，PyInstaller 使用 onedir，避免启动时重复解压整个组件。该目录和生成的 Windows 常量文件均被 Git 忽略。
 
-| 构建环境 | 产物 |
-| --- | --- |
-| macOS Apple Silicon | `src-tauri/binaries/tangtool-markitdown-aarch64-apple-darwin` |
-| macOS Intel | `src-tauri/binaries/tangtool-markitdown-x86_64-apple-darwin` |
-| Windows x64 | `src-tauri/binaries/tangtool-markitdown-x86_64-pc-windows-msvc.exe` |
+每个平台收集两份安装包：
 
-必须在目标系统/架构分别构建；不能只改文件名来跨平台使用。打包后 Tauri 去掉 target 后缀，macOS 将 sidecar 放在 `.app/Contents/MacOS`，Windows 放在主程序同目录。二进制不提交 Git。
+- 主程序：`TangTool-0.1.1-<target>.zip` 或 `TangTool-0.1.1-<target>-setup.exe`。
+- 文档组件：`TangTool-DocumentRuntime-1.0.0-<target>.pkg` 或 `TangTool-DocumentRuntime-1.0.0-<target>-setup.exe`。
 
-`.github/workflows/desktop-build.yml` 提供手动运行的三个平台构建任务，仅上传 Actions 产物，不发布 Release、不签名。
+`release:collect` 还输出 SHA256SUMS.txt、提交/dirty 标记及 componentVersion。必须紧随完整构建运行，不把旧包标记为新代码。三平台工作流仍为 `.github/workflows/desktop-build.yml`；一个 Release 应包含三份主包、三份组件包和统一校验/来源文件。已发布 v0.1.0 附件保持不变。
 
-2026-09-14，[首次三平台构建](https://github.com/liuxiangyu2026/TangTool/actions/runs/34800140359) 已全部成功，构建提交为 `107b4be`。产物名称如下：
+## 协议与验证
 
-| 平台 | Artifact | 大小（约） |
-| --- | --- | --- |
-| Windows x64 | `TangTool-x86_64-pc-windows-msvc` | 64.5 MiB |
-| macOS Apple Silicon | `TangTool-aarch64-apple-darwin` | 59.9 MiB |
-| macOS Intel | `TangTool-x86_64-apple-darwin` | 63.6 MiB |
+- `--health` 导入实际 DOCX/PDF 依赖并初始化文件识别模型，输出 JSON：ok、componentVersion、protocol、target、formats、MarkItDown version。
+- Windows 安装器使用 `--check`，成功时退出 0 并输出无换行的 `TangToolDocumentRuntime:1.0.0:<target>`；不只检查文件存在。
+- 转换 stdin 为 UTF-8 JSON，包含 inputPath、protocol 和 componentVersion。stdout 返回 ok、同一协议/组件版本及 markdown 或 error；stderr 只作诊断。
+- 健康检查限制 20 秒/64 KiB 输出，转换限制 180 秒/16 MiB，双管道同时读取，关闭 stdin 后等待，不在 UI 线程执行。
+- 构建会运行组件自检；还需在各目标机验收缺失/安装/重新检测、DOCX/PDF 转换、Windows 可选分支与 WebView2 缺失重检，以及组件升级卸载。CI 通过不等于所有真机项目已通过。
+- 无正式开发者签名或公证；后续接入证书时需同时评估独立组件中的所有二进制签名及主程序配置，不能把 ad-hoc 封印检查当作正式签名。
 
-这些结果确认完整包构建、sidecar `--health` 与产物上传通过；尚未确认目标电脑安装、离线文档转换、签名或公证。下一步使用这些产物做下面的交付验收，不必为同一提交重复运行构建。
-
-### 启动三平台构建
-
-1. 先确认工作流代码已经提交并推送到 GitHub。
-2. 登录 GitHub，打开仓库 Actions → **Build desktop with document sidecar**。
-3. 点击 **Run workflow**，选择 `main`，启动构建。
-4. 等待三个任务分别结束；若某个平台失败，打开失败步骤日志定位，不把其他平台通过等同于全平台通过。
-5. 在运行详情页 Artifacts 下载对应架构产物。macOS 下载 zip 并解压 `.app`，Windows 下载 artifact zip 后取出其中 NSIS `.exe` 安装包。
-
-如果已安装并登录 GitHub CLI，也可以在项目根目录执行：
-
-```bash
-gh workflow run desktop-build.yml --ref main
-gh run list --workflow desktop-build.yml --limit 5
-```
-
-工作流仅有 `workflow_dispatch` 触发器，因此提交或推送代码不会自动开始构建。页面没有 **Run workflow** 时，先检查是否登录、有仓库写权限，以及工作流是否已在默认分支。无需把访问令牌写进仓库或发到聊天中。
-
-构建成功后仍需下载产物，在目标系统上完成下方交付验收；Actions 构建成功本身不代表安装与文档转换已经通过。
-
-## 协议与行为
-
-stdin 接收一个 UTF-8 JSON 对象，写完必须关闭 stdin：
-
-```json
-{"inputPath":"文档绝对路径.docx"}
-```
-
-stdout 只输出一个 JSON 对象：成功返回 `{"ok":true,"markdown":"..."}` 并退出 0；失败返回 `{"ok":false,"error":"..."}` 并退出 1。诊断写入 stderr。`--health` 返回版本及支持格式。
-
-Rust 在后台线程启动进程，独立读取 stdout/stderr，单次转换最长 180 秒，结果上限 16 MiB；不上传文件、不启用云服务或第三方插件。PDF 扫描件无 OCR，复杂表格、字体映射仍可能影响转换质量。Python 运行时、格式依赖及 Magika 模型由 PyInstaller 收入独立程序。
-
-## 交付验收
-
-- 从非项目目录启动打包应用，验证中文/空格路径、DOCX 标题和表格、PDF 文本。
-- 在无 Python、无 MarkItDown、无项目仓库的电脑上测试；无需要求用户安装这些工具。
-- 验证损坏文件、缺失文件、拒绝 `.doc`、批量转换后窗口可操作。
-- Windows 配置 `offlineInstaller`，构建时下载并内置 WebView2 安装程序；仍需在无 WebView2 的离线 Windows 上验证。
-- macOS 完整包声明最低 14.0：本机锁定的 NumPy 原生库实际要求 macOS 14，不能沿用 Tauri 默认 10.13。Intel 构建也需核对打包库要求。
-- macOS 候选包使用 ad-hoc 签名保持包结构完整，当前关闭 hardened runtime：无 Team ID 的外壳若开启库验证，会拒绝加载 PyInstaller 内置的 Python 动态库。这不提供开发者身份或 Apple 公证，不能代替正式分发签名。
-- TODO（正式签名前）：确认 Developer ID 证书后，给 PyInstaller 内置原生库和 Tauri 外壳使用同一身份，重新开启 hardened runtime，再进行公证和隔离转换验收；不能只替换外壳的签名。私钥不得入库。
-
-更新依赖时重新生成并审查锁文件：
-
-```bash
-uv pip compile sidecar/requirements.txt --universal --python-version 3.10 --generate-hashes -o sidecar/requirements.lock
-```
+更新 Python 依赖时，用 Python 3.10 更新 `requirements.txt` 和跨平台哈希锁文件 `requirements.lock`，并提升组件版本、重新检查各平台。保持用户不新增永久单元测试的约定，临时验证脚本与样本在完成后删除。

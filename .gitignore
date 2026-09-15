@@ -30,3 +30,4 @@ release-artifacts/
 __pycache__/
 sidecar/build/
 src-tauri/binaries/tangtool-markitdown-*
+src-tauri/windows/generated/

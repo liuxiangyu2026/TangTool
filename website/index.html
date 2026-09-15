@@ -94,22 +94,24 @@
                     <h3>Windows</h3>
                     <p data-i18n>x64 · NSIS 安装程序</p>
                     <a class="button secondary" data-platform="windows" href="https://github.com/liuxiangyu2026/TangTool/releases" data-i18n>查看发布状态 ↗</a>
+                    <a class="text-link component-download" data-component-platform="windows" href="https://github.com/liuxiangyu2026/TangTool/releases" data-i18n>文档组件安装包 ↗</a>
                 </article>
                 <article>
                     <span class="platform-symbol" aria-hidden="true">⌘</span>
                     <h3>macOS <small>Apple Silicon</small></h3>
                     <p data-i18n>macOS 14+ · Apple M 系列</p>
                     <a class="button secondary" data-platform="arm" href="https://github.com/liuxiangyu2026/TangTool/releases" data-i18n>查看发布状态 ↗</a>
+                    <a class="text-link component-download" data-component-platform="arm" href="https://github.com/liuxiangyu2026/TangTool/releases" data-i18n>文档组件安装包 ↗</a>
                 </article>
                 <article>
                     <span class="platform-symbol" aria-hidden="true">⌘</span>
                     <h3>macOS <small>Intel</small></h3>
                     <p data-i18n>macOS 14+ · Intel x64</p>
                     <a class="button secondary" data-platform="intel" href="https://github.com/liuxiangyu2026/TangTool/releases" data-i18n>查看发布状态 ↗</a>
+                    <a class="text-link component-download" data-component-platform="intel" href="https://github.com/liuxiangyu2026/TangTool/releases" data-i18n>文档组件安装包 ↗</a>
                 </article>
             </div>
-            <p class="download-note" data-i18n>完整安装包内置文档转换运行时，无需另装 Python 或 MarkItDown。Windows 包包含 WebView2 离线安装程序。下载后请核对同一版本的 SHA-256
-                校验文件。</p>
+            <p class="download-note" data-i18n>主程序为轻量安装包。Windows 缺少 WebView2 时需先从微软安装；文档转换组件独立下载，Windows 可选安装，macOS 默认不安装。组件内置 Python 和转换依赖，未安装组件时不能使用文档转换，其他工具不受影响。</p>
             <div class="install-notice">
                 <h3 data-i18n>首次安装前，请了解</h3>
                 <p data-i18n>首发版本没有正式开发者签名或 Apple 公证，系统可能提示未知发布者或阻止打开。仅从本仓库 Release 下载，核对来源后再决定是否运行。</p>
@@ -125,7 +127,7 @@
                                                                                                                                                           rel="noopener noreferrer"
                                                                                                                                                           data-i18n>微软说明 ↗</a>
                 </p>
-                <p data-i18n>三平台构建已通过，macOS ARM 已完成部分原生验收；Windows/Intel 的完整安装、升级卸载及无 WebView2 离线安装仍待真机验证。</p>
+                <p data-i18n>版本构建与目标机验收分别记录；预发布版本仍需验证各平台的安装、组件检测、升级和卸载。</p>
             </div>
         </div>
     </section>

@@ -14,7 +14,7 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱，集成 19 
 | JSON 对比 | 结构化差异、定位与 key 顺序对齐 |
 | JSON 转 Excel | 多 Sheet 导出、递归树形数据平铺 |
 | Excel / CSV 转 JSON | 选择工作表，将表格转换为 JSON |
-| 文档转 Markdown | 批量 DOCX / PDF 转换，支持排版与原始预览 |
+| 文档转 Markdown | 安装独立文档组件后，批量转换 DOCX / PDF，支持排版与原始预览 |
 | 密码生成器 | 使用安全随机源批量生成密码 |
 | SHA 摘要 | SHA-256 / SHA-512 文本摘要 |
 | URL 编码 | URL 参数编码与解码 |

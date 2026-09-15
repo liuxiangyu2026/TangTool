@@ -8,6 +8,7 @@ const languageSelect = document.querySelector("#site-language");
 const status = document.querySelector("#release-status");
 const versionList = document.querySelector("#version-list");
 const downloads = document.querySelectorAll("[data-platform]");
+const componentDownloads = document.querySelectorAll("[data-component-platform]");
 const dialog = document.querySelector("#screenshot-dialog");
 const expandedImage = document.querySelector("#expanded-screenshot");
 const expandedCaption = document.querySelector("#expanded-caption");
@@ -39,7 +40,7 @@ try {
 if (requestedLanguage === "en" || requestedLanguage === "zh-CN") language = requestedLanguage;
 configureLocale(() => language);
 
-const textBindings = [...document.querySelectorAll("[data-i18n]")].map(node => ({ node, key: node.textContent.trim() }));
+const textBindings = [...document.querySelectorAll("[data-i18n]")].map(node => ({ node, key: node.textContent.replace(/\s+/g, " ").trim() }));
 const attributeBindings = [
   ...[...document.querySelectorAll("[data-i18n-aria]")].map(node => ({ node, attribute: "aria-label", key: node.getAttribute("aria-label") })),
   ...[...document.querySelectorAll("[data-i18n-alt]")].map(node => ({ node, attribute: "alt", key: node.getAttribute("alt") })),
@@ -122,6 +123,11 @@ function releaseLink(value, kind) {
 function renderReleases() {
   const { loading, failed, releases } = releaseState;
   versionList.replaceChildren();
+  for (const link of componentDownloads) {
+    link.href = releasesUrl;
+    link.textContent = t("文档组件安装包 ↗");
+    link.removeAttribute("title");
+  }
   if (!releases.length) {
     for (const release of changelog) {
       const article = document.createElement("article");
@@ -155,6 +161,7 @@ function renderReleases() {
   for (const link of downloads) {
     const asset = (Array.isArray(current.assets) ? current.assets : []).find(asset => {
       if (!asset || typeof asset.name !== "string" || !releaseLink(asset.browser_download_url, "download")) return false;
+      if (asset.name.startsWith("TangTool-DocumentRuntime-")) return false;
       if (link.dataset.platform === "windows") return /^TangTool.*(?:x64|x86_64).*\.exe$/i.test(asset.name);
       const isMac = /\.dmg$/i.test(asset.name) || /(?:apple-darwin|macos).*\.zip$/i.test(asset.name);
       if (link.dataset.platform === "arm") return isMac && /^TangTool.*(?:aarch64|arm64)/i.test(asset.name);
@@ -164,6 +171,15 @@ function renderReleases() {
     link.textContent = asset ? t("下载 {version} ↓", { version: current.tag_name }) : t("此版本暂无安装包 ↗");
     if (asset && Number.isFinite(asset.size)) link.title = `${asset.name} · ${(asset.size / 1024 / 1024).toFixed(1)} MB`;
     else link.removeAttribute("title");
+  }
+
+  for (const link of componentDownloads) {
+    const target = { windows: "x86_64-pc-windows-msvc-setup.exe", arm: "aarch64-apple-darwin.pkg", intel: "x86_64-apple-darwin.pkg" }[link.dataset.componentPlatform];
+    const asset = (Array.isArray(current.assets) ? current.assets : []).find(asset =>
+      asset && typeof asset.name === "string" && asset.name.startsWith("TangTool-DocumentRuntime-") && asset.name.endsWith(target) && releaseLink(asset.browser_download_url, "download"));
+    link.href = asset ? releaseLink(asset.browser_download_url, "download") : current.html_url;
+    link.textContent = t(asset ? "下载文档组件 ↓" : "文档组件安装包 ↗");
+    if (asset && Number.isFinite(asset.size)) link.title = `${asset.name} · ${(asset.size / 1024 / 1024).toFixed(1)} MB`;
   }
 
   for (const release of releases.slice(0, 5)) {
