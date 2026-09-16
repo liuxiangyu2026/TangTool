@@ -745,7 +745,7 @@
   "所有 PDF 都能准确转换吗？": "Can every PDF be converted accurately?",
   "扫描版 PDF、复杂排版、字体及表格可能影响结果，当前不提供 OCR；转换后请检查内容。旧式 .doc 文件不在支持范围内。": "Scanned PDFs, complex layouts, fonts and tables can affect conversion. OCR is not included. Check the converted content. Legacy .doc files are not supported.",
   "如何升级？": "How do I update?",
-  "v0.1.2 起会检查新版，并在侧栏“版本与升级”提示；设置中可关闭自动检查或预发布提醒。旧版用户需先手动升级一次。保存正在处理的内容并关闭旧版，再下载对应平台的新版本安装或替换；不会自动安装，未签名的新版本可能再次出现系统提示。": "Starting with v0.1.2, the app checks for newer releases and shows a badge next to Versions & updates. Settings lets you disable automatic checks or preview updates. Older versions need one manual upgrade first. Save your work and close the old app, then download and install or replace it with the version for your platform. Updates are not installed automatically; new unsigned versions may trigger system warnings again.",
+  "应用会检查新版，并在侧栏“版本与升级”提示；设置中可关闭自动检查或预发布提醒。升级前保存正在处理的内容并关闭应用，再下载对应平台的新版本安装或替换；不会自动安装，未签名的新版本可能再次出现系统提示。": "The app checks for newer releases and shows a badge next to Versions & updates. Settings lets you disable automatic checks or preview updates. Before upgrading, save your work and close the app, then download and install or replace it with the version for your platform. Updates are not installed automatically; new unsigned versions may trigger system warnings again.",
   "工具在手边，数据在本机。": "Tools within reach. Data on your computer.",
   "反馈与建议 ↗": "Feedback and ideas ↗",
   "界面截图大图": "Enlarged app screenshot",
@@ -848,5 +848,8 @@
   "版本信息无效，请稍后重试或打开 GitHub 版本列表。": "The release information is invalid. Try again later or open GitHub Releases.",
   "检查更新超时，请稍后重试。": "The update check timed out. Try again later.",
   "图标修复与更新提醒": "Icon fix and update reminders",
-  "新增启动及定期版本检查，侧栏提示新版，版本页查看说明并下载；支持关闭自动检查和选择预发布渠道。": "Added startup and periodic update checks, a sidebar badge, and release notes with download links. Automatic checks and preview releases can be configured."
+  "新增启动及定期版本检查，侧栏提示新版，版本页查看说明并下载；支持关闭自动检查和选择预发布渠道。": "Added startup and periodic update checks, a sidebar badge, and release notes with download links. Automatic checks and preview releases can be configured.",
+  "主程序与文档组件独立下载；Windows 安装前检测 WebView2，文档组件可选，macOS 默认不安装组件。": "Download the app and document component separately. Windows checks WebView2 before installation and offers the optional component; macOS does not include it by default.",
+  "统一使用 TangTool B 标志，支持启动及定期版本检查、侧栏新版提醒和手动下载；设置可关闭自动检查或预发布提醒。": "The TangTool B logo is used throughout. Startup and periodic release checks, a sidebar badge and manual downloads are included; automatic checks and preview updates can be disabled in Settings.",
+  "首发采用未签名／未公证版本；系统可能显示安装提示，不会自动安装更新。": "The first release has no verified signing or notarization. System installation warnings may appear; updates are not installed automatically."
 }

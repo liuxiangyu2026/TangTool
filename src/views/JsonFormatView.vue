@@ -70,7 +70,7 @@ type StatusTone = "success" | "neutral";
 
 const EXAMPLE_JSON = JSON.stringify({
   name: "TangTool",
-  version: "0.1.0",
+  version: "0.1.2",
   offline: true,
   tools: [
     { name: "JSON 格式化", enabled: true },

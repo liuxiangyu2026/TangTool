@@ -1,6 +1,6 @@
 # 文档转换组件
 
-从 TangTool 0.1.1 起，主程序与文档组件分开交付。组件包含 Python、MarkItDown 0.1.7 及 DOCX/PDF 依赖，用户不需要手动配置 Python，也不支持旧式 .doc、OCR 或 Word/PDF 互转。
+TangTool 从 v0.1.2 开始公开发布，主程序与文档组件分开交付。组件包含 Python、MarkItDown 0.1.7 及 DOCX/PDF 依赖，用户不需要手动配置 Python，也不支持旧式 .doc、OCR 或 Word/PDF 互转。
 
 ## 用户安装
 
@@ -10,7 +10,7 @@
 - 检测通过后无需重启应用。应用只在用户点击链接时打开浏览器，不自动联网下载或更新组件。
 - Windows 组件可在系统应用列表独立卸载。组件与主程序分别安装，删除或升级主程序不会主动删除共享组件及用户文档。
 
-组件版本、协议与下载 Release 统一定义在 `runtime.json`。当前为组件 1.0.0、协议 1，三平台安装包已随 [应用 v0.1.1](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.1) 公开并通过下载回读。未来调整版本时，发布前不得把尚未存在的链接标记为可用。
+组件版本、协议与下载 Release 统一定义在 `runtime.json`。当前为组件 1.0.0、协议 1，三平台组件安装包与主程序统一放在 [应用 v0.1.2](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.2)。未来调整版本时，发布前不得把尚未存在的链接标记为可用。
 
 | 平台 | 固定组件目录 |
 | --- | --- |
@@ -57,10 +57,10 @@ npm run release:collect
 
 每个平台收集两份安装包：
 
-- 主程序：`TangTool-0.1.1-<target>.zip` 或 `TangTool-0.1.1-<target>-setup.exe`。
+- 主程序：`TangTool-0.1.2-<target>.zip` 或 `TangTool-0.1.2-<target>-setup.exe`。
 - 文档组件：`TangTool-DocumentRuntime-1.0.0-<target>.pkg` 或 `TangTool-DocumentRuntime-1.0.0-<target>-setup.exe`。
 
-`release:collect` 还输出 SHA256SUMS.txt、提交/dirty 标记及 componentVersion。必须紧随完整构建运行，不把旧包标记为新代码。三平台工作流仍为 `.github/workflows/desktop-build.yml`；一个 Release 应包含三份主包、三份组件包和统一校验/来源文件。已发布 v0.1.0 附件保持不变。
+`release:collect` 还输出 SHA256SUMS.txt、提交/dirty 标记及 componentVersion。必须紧随完整构建运行，不把旧包标记为新代码。三平台工作流为 `.github/workflows/desktop-build.yml`；一个 Release 应包含三份主包、三份组件包和统一校验/来源文件。
 
 ## 协议与验证
 

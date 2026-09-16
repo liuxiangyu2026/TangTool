@@ -138,7 +138,7 @@ const PREVIEW_ROW_LIMIT = 50;
 const EXAMPLE_JSON = JSON.stringify([
   {
     name: "TangTool",
-    version: "0.1.0",
+    version: "0.1.2",
     user: { age: 18, active: true },
     tags: ["JSON", "Tauri"],
     modules: [
