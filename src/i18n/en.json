@@ -745,7 +745,7 @@
   "所有 PDF 都能准确转换吗？": "Can every PDF be converted accurately?",
   "扫描版 PDF、复杂排版、字体及表格可能影响结果，当前不提供 OCR；转换后请检查内容。旧式 .doc 文件不在支持范围内。": "Scanned PDFs, complex layouts, fonts and tables can affect conversion. OCR is not included. Check the converted content. Legacy .doc files are not supported.",
   "如何升级？": "How do I update?",
-  "保存正在处理的内容并关闭旧版，下载对应平台的新版本后安装或替换。当前没有自动更新；未签名的新版本可能再次出现系统提示。": "Save your work and close the old app, then download and install or replace it with the version for your platform. There are no automatic updates. New unsigned versions may trigger system warnings again.",
+  "v0.1.2 起会检查新版，并在侧栏“版本与升级”提示；设置中可关闭自动检查或预发布提醒。旧版用户需先手动升级一次。保存正在处理的内容并关闭旧版，再下载对应平台的新版本安装或替换；不会自动安装，未签名的新版本可能再次出现系统提示。": "Starting with v0.1.2, the app checks for newer releases and shows a badge next to Versions & updates. Settings lets you disable automatic checks or preview updates. Older versions need one manual upgrade first. Save your work and close the old app, then download and install or replace it with the version for your platform. Updates are not installed automatically; new unsigned versions may trigger system warnings again.",
   "工具在手边，数据在本机。": "Tools within reach. Data on your computer.",
   "反馈与建议 ↗": "Feedback and ideas ↗",
   "界面截图大图": "Enlarged app screenshot",

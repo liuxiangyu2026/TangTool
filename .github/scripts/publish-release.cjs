@@ -74,7 +74,6 @@ module.exports = async function publish({ github, context, core }) {
     if (asset.state !== 'uploaded' || asset.size !== file.data.length || asset.digest !== `sha256:${file.sha256}`) {
       throw new Error(`Remote checksum mismatch: ${file.name}`);
     }
-    file.url = asset.browser_download_url;
     core.info(`Verified upload: ${file.name}`);
   }
   const { data: ready } = await github.rest.repos.getRelease({ ...repo, release_id: releaseId });
@@ -82,11 +81,18 @@ module.exports = async function publish({ github, context, core }) {
   if (ready.draft) await github.rest.repos.updateRelease({ ...repo, release_id: releaseId, draft: false, prerelease: true });
   const { data: tag } = await github.rest.git.getRef({ ...repo, ref: `tags/${release.tag_name}` });
   if (tag.object.sha !== commit) throw new Error('Published tag source mismatch');
+  // 草稿附件的 URL 可能含临时标签；发布后必须重新读取正式下载地址。
+  const { data: published } = await github.rest.repos.getRelease({ ...repo, release_id: releaseId });
+  if (published.draft || published.assets.length !== files.length) throw new Error('Release is not publicly complete');
 
   const verified = [];
   for (const file of files) {
+    const asset = published.assets.find(item => item.name === file.name);
+    if (!asset || asset.size !== file.data.length || asset.digest !== `sha256:${file.sha256}`) {
+      throw new Error(`Published asset mismatch: ${file.name}`);
+    }
     // 使用无登录凭证的公开下载地址回读，不能仅凭上传接口成功就认定交付完成。
-    const response = await fetch(file.url, { signal: AbortSignal.timeout(120000), credentials: 'omit' });
+    const response = await fetch(asset.browser_download_url, { signal: AbortSignal.timeout(120000), credentials: 'omit' });
     if (!response.ok) throw new Error(`Public download failed: ${file.name} (${response.status})`);
     const hash = createHash('sha256');
     let bytes = 0;
