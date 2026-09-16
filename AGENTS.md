@@ -1,6 +1,6 @@
 # TangTool 协作与接续说明
 
-> 更新于 2026-09-15。本文只保存当前约定、状态和下一步；历史实现过程请查 Git 记录。不要从早期占位页或已完成里程碑重新开始。
+> 更新于 2026-09-16。本文只保存当前约定、状态和下一步；历史实现过程请查 Git 记录。不要从早期占位页或已完成里程碑重新开始。
 
 ## 1. 目标与协作约定
 
@@ -64,21 +64,21 @@ TangTool 是 Windows / macOS 本地桌面工具箱，强调离线处理、隐私
 ## 4. 打包与发布真实状态
 
 - 用户已授权合入、发布和官网部署，接受未签名／未公证预发布；不再以购买证书或重复确认作为前提。
-- 当前公开版本：[v0.1.1 Lightweight Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.1)。发布/标签提交为 `73b95fb81e4f879d522a2b7befa27da13189998a`，PR #2 已合入 main（`c4f7a15`）；合并后文件内容与已构建提交一致，没有改写旧版附件。
-- 三平台构建 [34944063273](https://github.com/liuxiangyu2026/TangTool/actions/runs/34944063273) 与质量检查 [34944062682](https://github.com/liuxiangyu2026/TangTool/actions/runs/34944062682) 全部通过。每个平台提供主包和独立文档组件，共六份安装包；另附统一 SHA256SUMS.txt 和 build-info.json。
-- 主包大小约 Windows 2.9 MiB、macOS ARM 4.0 MiB、macOS Intel 4.1 MiB；组件约45.9 / 56.2 / 59.8 MiB。产物在 `release-artifacts/ci-34944063273/`，来源、dirty=false、内外摘要与上传摘要均核对，八份附件均完成无登录凭证的公开下载回读；TLS 中断通过重试解决。
-- 官网：[TangTool](https://liuxiangyu2026.github.io/TangTool/)，最新部署 [34947571777](https://github.com/liuxiangyu2026/TangTool/actions/runs/34947571777) 来自主分支 `c4f7a15`。中英六个主包/组件链接及说明已复核；主包匹配明确排除 DocumentRuntime，不能混淆安装包类型。
+- 当前公开版本：[v0.1.2 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.2)，包含 Windows 图标设置修复与更新提醒。发布/标签提交为 `93d9f72ba472aa542d66e6b49fbb7d6c7889b0f9`，PR #3 已合入 main（`5f668bc`）；之后的发布流程/官网/交接文档提交不改写安装包来源。
+- 三平台构建 [34954747054](https://github.com/liuxiangyu2026/TangTool/actions/runs/34954747054) 与质量检查 [34954747296](https://github.com/liuxiangyu2026/TangTool/actions/runs/34954747296) 全部通过。每个平台提供主包和独立文档组件，共六份安装包；另附统一 SHA256SUMS.txt 和 build-info.json。
+- 主包大小约 Windows 2.9 MiB、macOS ARM 4.0 MiB、macOS Intel 4.1 MiB；组件约45.9 / 56.2 / 59.8 MiB。产物在 `release-artifacts/ci-34954747054/`，来源、dirty=false、内外摘要与上传摘要均核对。发布工作流 [35042315356](https://github.com/liuxiangyu2026/TangTool/actions/runs/35042315356) 成功，八份附件均经 GitHub runner 无登录凭证公开下载回读并匹配 SHA-256。
+- 官网：[TangTool](https://liuxiangyu2026.github.io/TangTool/)，最新部署 [35042315249](https://github.com/liuxiangyu2026/TangTool/actions/runs/35042315249) 来自主分支 `fdee4f3`。中英六个主包/组件链接已复核，均指向 v0.1.2；官网升级说明同步自动检查、手动安装和旧版首次手动升级的要求。主包匹配明确排除 DocumentRuntime，不能混淆安装包类型。
 - Windows 主包不再包含 WebView2 离线安装器。安装页检测 HKLM/HKCU 运行时，缺少时提供微软链接，下一步重新检测并阻止继续。文档组件默认不勾选，勾选后需手动安装组件并通过自检，不选可继续。
 - macOS 主应用默认不含文档组件，独立 PKG 安装到 `/Library/Application Support/TangTool/DocumentRuntime/1.0.0`；Windows 组件为当前用户安装到 `%LOCALAPPDATA%\TangTool\DocumentRuntime\1.0.0`。组件自带 Python，不使用用户系统 Python。PKG 固定路径、架构、最低14.0及禁用框架迁移已核对。
 - 文档组件版本1.0.0、协议1和下载版本v0.1.1由 `sidecar/runtime.json` 统一定义。健康检查20秒/64 KiB，转换180秒/16 MiB；只有匹配版本/架构且自检成功才启用转换，页面提供安装包和重新检测，无需重启。
 - ARM 组件在本机与云端 PKG 解包后通过项目外、无有效 Python 搜索路径的 DOCX（含表格）/PDF 转换及协议拒绝。独立标识原生预览通过中英缺失提示、禁用状态与重复检测；没有实际安装组件到用户系统目录，没有改动用户正式应用偏好。
-- **CI、自检和摘要检查不等于全部目标机交互验收通过。** Windows 安装页的真实点击分支、组件安装卸载，macOS 系统 Installer 安装后重新检测，以及干净机器流程仍待验证。详情见 `docs/delivery-checklist-0.1.1.md`。保持预发布、无正式签名／公证及无自动更新说明。
+- **CI、自检和摘要检查不等于全部目标机交互验收通过。** Windows 安装页的真实点击分支、组件安装卸载，macOS 系统 Installer 安装后重新检测，以及干净机器流程仍待验证。详情见 `docs/delivery-checklist-0.1.2.md` 及引用的旧待验项。保持预发布、无正式签名／公证及不自动安装更新的说明。
 - `npm run desktop:build` 现在生成轻量主包和独立组件包，`npm run sidecar:build` 单独生成组件，`release:collect` 紧随完整构建收集两份平台附件。已移除旧 tauri.sidecar.conf.json。开发模式继续用项目 `.venv`，打包用 `.venv-sidecar`，必须保留两者。
 - 旧 [v0.1.0](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.0) 完整包保留，其内置运行时说明和旧验收记录不能套用于轻量包。旧产物目录仅供历史参考；代码/依赖/打包配置变化需重新构建，不把旧包标为新提交。
 
 ## 5. 当前交付内容与下一步
 
-v0.1.2 实现已通过 PR #3 合入 main（构建提交 `93d9f72`，合并 `5f668bc`），三平台构建34954747054和质量检查34954747296均成功。官网部署34961948075成功。Release草稿389077246已有三份主包并核对摘要；本地大文件传输持续中断，三份组件和两份元数据尚未上传，**尚未公开 v0.1.2**。为改由GitHub直接传输，已准备 `.github/workflows/publish-release.yml` 和 `.github/scripts/publish-release.cjs`，隔离模拟检查通过；自动权限审核拒绝推送新增 `contents: write` 工作流，已向用户申请明确授权，尚未推送或执行。继续时先看用户答复，不能绕过该拒绝；若不授权则恢复本地上传。临时发布材料位于 `/tmp/tangtool-icon.AI6Uz3`，安装包位于 `release-artifacts/ci-34954747054/`，不要清理未完成发布所需文件。
+v0.1.2 已公开交付，Release ID 为389077246。用户于2026-09-16明确授权启用发布工作流及所需写入权限，原权限阻塞已解除，不要再次询问。`.github/workflows/publish-release.yml` 只允许从 main 手动触发，输入成功构建 run ID、完整源码 commit 和已有预发布草稿 ID；校验来源/摘要，保留已完成附件，只清理本草稿未完成传输，完整后发布并回读公开下载。发布后的正式下载地址需重新查询，不能复用草稿临时标签地址。不会触发新一轮桌面重编译，不覆盖历史公开包。
 
 Windows 任务栏图标设置修复已合入 v0.1.2：旧主 EXE 的 ICO 已是 B 图标，当前 tauri-runtime-wry/tao 默认只设置 ICON_SMALL，ICON_BIG 未同步；新增 Windows 专属启动设置，从当前 EXE 的32512号资源组显式设置两种图标，NSIS 安装/卸载图标共用品牌 ICO。Windows 编译及新主程序/安装器六种尺寸资源像素核对通过；实际任务栏仍待 Windows 复核。使用锁文件已有 windows-sys 0.61.2，不改应用标识、不清理用户固定图标缓存；旧固定项若仍缓存图标，可取消固定再从开始菜单启动新版并重新固定。
 
@@ -125,3 +125,4 @@ npm run tauri dev
 - 官网：`npm run site:dev`；生产构建：`npm run site:build`；发布说明：`website/README.md`。
 - 常用检查：`npm run build`、现有 `npm test`、`git diff --check`；Rust 变更再运行 Cargo check / Clippy / rustfmt。
 - 打包：`npm run desktop:build`；三平台工作流：`.github/workflows/desktop-build.yml`（手动触发）。
+- 发布：先建立指向构建源码提交的预发布草稿，再从 main 手动运行 `.github/workflows/publish-release.yml`，填写 `run_id`、`commit` 和 `release_id`；运行成功且公开回读报告齐全后更新交付文档。工作流已获用户授权，无需重新申请相同权限。
