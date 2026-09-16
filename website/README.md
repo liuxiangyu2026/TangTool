@@ -21,7 +21,7 @@ npm run site:dev
 
 ## GitHub Pages 部署
 
-官网已上线：[TangTool](https://liuxiangyu2026.github.io/TangTool/)。最新部署 [35042315249](https://github.com/liuxiangyu2026/TangTool/actions/runs/35042315249) 来自主分支提交 `fdee4f3`，包含 v0.1.2 版本和升级说明。首页继续保持完整工具目录和玻璃圆点截图轮播。
+官网已上线：[TangTool](https://liuxiangyu2026.github.io/TangTool/)。最新部署 [35044164403](https://github.com/liuxiangyu2026/TangTool/actions/runs/35044164403) 来自主分支提交 `e556e5b`，仅保留 v0.1.2 首发说明。首页继续保持完整工具目录和玻璃圆点截图轮播。
 
 1. 提交并推送官网代码到 main。
 2. 仓库 Pages 已使用 **GitHub Actions**，无需重复设置。
@@ -32,9 +32,9 @@ npm run site:dev
 
 ## 安装包与版本记录
 
-v0.1.1 起主程序和文档组件分别下载。主包匹配必须排除 DocumentRuntime 文件，组件匹配以对应平台 EXE/PKG 后缀为准；不跨版本补齐缺失附件。Windows 缺少 WebView2 时需用户先从微软安装，文档组件默认不勾选；macOS 默认不含组件。官网说明必须与实际交付方案一致。
+公开版本从 v0.1.2 开始，主程序和文档组件分别下载。主包匹配必须排除 DocumentRuntime 文件，组件匹配以对应平台 EXE/PKG 后缀为准；不跨版本补齐缺失附件。Windows 缺少 WebView2 时需用户先从微软安装，文档组件默认不勾选；macOS 默认不含组件。官网说明必须与实际交付方案一致。
 
-最新为 [v0.1.2 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.2)，包含三平台主包、三平台组件包、SHA-256 清单和构建来源文件，八份公开下载回读通过；中英文六个下载安装入口已复核。文档组件仍为1.0.0，已有组件无需重装。旧 v0.1.0 完整包及 v0.1.1 附件保留，不覆盖历史版本。
+首发为 [v0.1.2 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.2)，包含三平台主包、三平台组件包、SHA-256 清单和构建来源文件。文档组件为1.0.0，应用和安装器的组件链接均指向本版本。公开版本列表与内置说明从本版本起算；当前验收与来源见 `../docs/delivery-checklist-0.1.2.md`。
 
 官网从公开 GitHub Releases API 读取最近 30 个发布，优先第一个非预发布版本；仅有预发布时明确标记测试版。无发布、请求超时/限流与单平台缺包都展示可理解的状态，并保留 Releases 页面链接。Actions 产物需要登录且会过期，不作为公开稳定下载源。
 
