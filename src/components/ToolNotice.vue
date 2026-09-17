@@ -1,9 +1,10 @@
 <template>
   <Teleport to="body">
-    <div v-if="active && message && !dismissed" class="fixed left-1/2 top-[8vh] z-50 flex w-96 max-w-[calc(100vw-2rem)] -translate-x-1/2 items-start gap-3 rounded-lg border bg-surface px-4 py-3 text-sm shadow-lg"
+    <div v-if="active && message && !dismissed" class="fixed left-1/2 top-2 z-50 flex w-96 max-w-[calc(100vw-2rem)] -translate-x-1/2 items-start gap-3 rounded-lg border bg-surface px-4 py-2 text-sm shadow-lg"
       :class="error ? 'border-red-200 text-red-700' : tone === 'neutral' ? 'border-neutral-300 text-neutral-700' : 'border-emerald-200 text-emerald-700'"
       :role="error ? 'alert' : 'status'" aria-atomic="true">
-      <p class="max-h-40 min-w-0 flex-1 overflow-auto whitespace-pre-wrap break-words">{{ message }}</p>
+      <!-- 顶部固定距离与紧凑高度避免长提示下伸到工具栏，完整内容仍可滚动查看。 -->
+      <p class="max-h-10 min-w-0 flex-1 overflow-auto whitespace-pre-wrap break-words">{{ message }}</p>
       <button type="button" class="shrink-0 rounded p-0.5 text-neutral-500 hover:bg-neutral-100" :aria-label="t('关闭提示')" @click="dismissed = true"><X :size="16" /></button>
     </div>
   </Teleport>

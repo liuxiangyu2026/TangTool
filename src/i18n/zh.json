@@ -1,4 +1,12 @@
 {
   "json.minify": "压缩",
-  "color.apply": "应用"
+  "color.apply": "应用",
+  "json.escape": "\\转义",
+  "json.escapeLabel": "转义",
+  "json.escapeAdd": "添加\\转义",
+  "json.escapeRemove": "去除\\转义",
+  "json.escapeHint": "处理全部双引号，每次添加或去除其前面的一个反斜杠；不解析 JSON。",
+  "json.escapeAdded": "已在每个双引号前添加一个反斜杠",
+  "json.escapeRemoved": "已去除双引号前的一个反斜杠",
+  "json.escapeUnchanged": "没有需要处理的双引号转义"
 }

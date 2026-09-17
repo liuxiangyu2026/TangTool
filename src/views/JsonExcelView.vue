@@ -21,6 +21,7 @@
           <Table2 :size="14" aria-hidden="true" />
           <span>{{ t('生成预览') }}</span>
         </button>
+        <JsonEscapeMenu @select="escapeQuotes" />
         <button class="flex items-center gap-1.5 rounded-md bg-sky-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2" type="button" @click="importJsonFile">
           <FolderOpen :size="14" aria-hidden="true" />
           <span>{{ t('导入') }}</span>
@@ -37,7 +38,10 @@
 
       <div ref="panelSplitContainer" class="flex min-h-0 flex-1">
         <section class="flex min-h-0 min-w-0 shrink-0 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface" :style="{ flexBasis: `${leftPanelPercent}%` }">
-          <h2 class="shrink-0 border-b border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-700">{{ t('JSON 数据') }}</h2>
+          <header class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-neutral-200 px-3 py-2">
+            <h2 class="text-sm font-medium text-neutral-700">{{ t('JSON 数据') }}</h2>
+            <JsonFoldActions @fold="setJsonFold(editorView, $event)" />
+          </header>
           <div ref="editorHost" class="min-h-0 flex-1 overflow-hidden"></div>
         </section>
 
@@ -116,6 +120,10 @@ import { editorPreferences } from "../utils/editorPreferences";
 import { usePanelRatio } from "../composables/usePanelRatio";
 import { exportDefaults } from "../utils/exportDefaults";
 import ToolNotice from "../components/ToolNotice.vue";
+import JsonEscapeMenu from "../components/JsonEscapeMenu.vue";
+import JsonFoldActions from "../components/JsonFoldActions.vue";
+import { setJsonFold } from "../utils/jsonFolding";
+import { transformQuoteEscapes, type QuoteEscapeAction } from "../utils/quoteEscape";
 import { json } from "@codemirror/lang-json";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { forceLinting, linter, lintGutter } from "@codemirror/lint";
@@ -442,6 +450,17 @@ function replaceEditorContent(content: string) {
   });
   view.focus();
   forceLinting(view);
+}
+
+function escapeQuotes(action: QuoteEscapeAction) {
+  const input = editorView?.state.doc.toString() ?? "";
+  const result = transformQuoteEscapes(input, action);
+  if (result === input) {
+    setStatus(t("json.escapeUnchanged"), "neutral");
+    return;
+  }
+  replaceEditorContent(result);
+  setStatus(t(action === "add" ? "json.escapeAdded" : "json.escapeRemoved"));
 }
 
 function showJsonError(result: JsonErrorResult) {

@@ -10,6 +10,7 @@
         <RefreshCw :size="14" />
         {{ busy ? t('处理中') : t('转换') }}
       </button>
+      <JsonEscapeMenu :disabled="!result || busy" @select="escapeQuotes" />
       <button class="tool-button bg-emerald-600" type="button" :disabled="!result" @click="exportJson">
         <Save :size="14" />
         {{ t('保存 JSON') }}
@@ -70,6 +71,8 @@ import { isTauri } from "@tauri-apps/api/core";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import ToolPage from "../components/ToolPage.vue";
 import JsonResultEditor from "../components/JsonResultEditor.vue";
+import JsonEscapeMenu from "../components/JsonEscapeMenu.vue";
+import { transformQuoteEscapes, type QuoteEscapeAction } from "../utils/quoteEscape";
 import type { TableJsonResult } from "../utils/tableToJson";
 import { runWorker } from "../utils/workerTask";
 import { saveOutput } from "../utils/saveOutput";
@@ -181,6 +184,17 @@ async function exportJson() {
   } catch {
     error.value = t('保存失败，请检查目标路径。');
   }
+}
+
+function escapeQuotes(action: QuoteEscapeAction) {
+  if (busy.value || !result.value) return;
+  const escaped = transformQuoteEscapes(result.value, action);
+  error.value = "";
+  status.value = escaped === result.value
+    ? t("json.escapeUnchanged")
+    : t(action === "add" ? "json.escapeAdded" : "json.escapeRemoved");
+  // 直接更新完整结果，复制与保存跟随可见文本；不重新执行表格转换。
+  result.value = escaped;
 }
 
 async function copyResult() {

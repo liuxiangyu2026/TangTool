@@ -24,7 +24,7 @@ TangTool is a local desktop toolkit for Windows and macOS, bringing together 19 
 | UUID generator | Generate UUID v4 batches with case and hyphen options |
 | Cron parser | Explain standard 5-field rules and preview the next 10 executions |
 | Regex tester | Inspect match positions and capture groups, with timeout protection |
-| Text cleanup | Trim whitespace, remove duplicates and sort lines |
+| Text cleanup | Live trimming, deduplication, sorting, delimiter joining and surrounding quote handling |
 | Text comparison | Highlight line differences, with an option to ignore whitespace |
 | QR code generator | Generate QR codes locally and export PNG / SVG |
 | Image compression | Adjust quality and dimensions, then save as JPEG / WebP |

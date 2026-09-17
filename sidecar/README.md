@@ -4,7 +4,7 @@ TangTool 从 v0.1.2 开始公开发布，主程序与文档组件分开交付。
 
 ## 用户安装
 
-- Windows：主安装器先检测必需的 WebView2；缺少时提供微软下载链接，点击下一步重新检测。文档组件默认不勾选，勾选后需从链接单独安装并通过检测；不勾选可以继续。
+- Windows：主安装器仅检测必需的 WebView2；缺少时提供微软下载链接，点击下一步重新检测。不显示、安装或检查文档组件。用户安装主程序后，在文档工具页按需下载独立组件安装器。
 - macOS：主应用 ZIP 不包含文档组件。文档页提供对应架构的 PKG 链接，用户通过系统 Installer 安装，可能需要管理员授权。
 - 文档页始终提供“组件安装包”和“重新检测”。未安装、版本不匹配或自检失败时禁用选择/转换；已有结果仍可复制保存，其他工具不受影响。
 - 检测通过后无需重启应用。应用只在用户点击链接时打开浏览器，不自动联网下载或更新组件。
@@ -65,10 +65,10 @@ npm run release:collect
 ## 协议与验证
 
 - `--health` 导入实际 DOCX/PDF 依赖并初始化文件识别模型，输出 JSON：ok、componentVersion、protocol、target、formats、MarkItDown version。
-- Windows 安装器使用 `--check`，成功时退出 0 并输出无换行的 `TangToolDocumentRuntime:1.0.0:<target>`；不只检查文件存在。
+- Windows 独立文档组件安装器使用 `--check` 验证自身安装结果，成功时退出0并输出无换行的 `TangToolDocumentRuntime:1.0.0:<target>`。主程序安装器不调用此检查；应用文档工具页仍使用健康检查。
 - 转换 stdin 为 UTF-8 JSON，包含 inputPath、protocol 和 componentVersion。stdout 返回 ok、同一协议/组件版本及 markdown 或 error；stderr 只作诊断。
 - 健康检查限制 20 秒/64 KiB 输出，转换限制 180 秒/16 MiB，双管道同时读取，关闭 stdin 后等待，不在 UI 线程执行。
-- 构建会运行组件自检；还需在各目标机验收缺失/安装/重新检测、DOCX/PDF 转换、Windows 可选分支与 WebView2 缺失重检，以及组件升级卸载。CI 通过不等于所有真机项目已通过。
+- 构建会运行组件自检；还需在各目标机验收主安装器不再出现文档组件选项/检查、WebView2 缺失重检、工具页下载后重新检测、DOCX/PDF 转换及组件升级卸载。CI 通过不等于所有真机项目已通过。
 - 无正式开发者签名或公证；后续接入证书时需同时评估独立组件中的所有二进制签名及主程序配置，不能把 ad-hoc 封印检查当作正式签名。
 
 更新 Python 依赖时，用 Python 3.10 更新 `requirements.txt` 和跨平台哈希锁文件 `requirements.lock`，并提升组件版本、重新检查各平台。保持用户不新增永久单元测试的约定，临时验证脚本与样本在完成后删除。

@@ -21,6 +21,7 @@
             <Minimize2 :size="14" aria-hidden="true" />
             <span>{{ t('json.minify') }}</span>
           </button>
+          <JsonEscapeMenu @select="escapeQuotes" />
           <button class="flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2" type="button" @click="copyJson">
             <Copy :size="14" aria-hidden="true" />
             <span>{{ t('复制') }}</span>
@@ -40,6 +41,7 @@
         </div>
       </div>
 
+      <div class="flex shrink-0 justify-end border-b border-neutral-200 px-3 py-2"><JsonFoldActions @fold="setJsonFold(editorView, $event)" /></div>
       <div ref="editorHost" class="min-h-0 flex-1 overflow-hidden"></div>
     </div>
   </section>
@@ -51,6 +53,10 @@ import { editorPreferences } from "../utils/editorPreferences";
 import { usePreferencesStore } from "../stores/preferences";
 import { exportDefaults } from "../utils/exportDefaults";
 import ToolNotice from "../components/ToolNotice.vue";
+import JsonEscapeMenu from "../components/JsonEscapeMenu.vue";
+import JsonFoldActions from "../components/JsonFoldActions.vue";
+import { setJsonFold } from "../utils/jsonFolding";
+import { transformQuoteEscapes, type QuoteEscapeAction } from "../utils/quoteEscape";
 import { jsonHighlightStyle, jsonEditorTheme } from "../utils/jsonEditorAppearance";
 import { json } from "@codemirror/lang-json";
 import { syntaxHighlighting } from "@codemirror/language";
@@ -153,6 +159,17 @@ function transformJson(transform: JsonTransform) {
 function loadExample() {
   replaceEditorContent(EXAMPLE_JSON);
   setStatus(t("已填充示例 JSON"));
+}
+
+function escapeQuotes(action: QuoteEscapeAction) {
+  const input = editorView?.state.doc.toString() ?? "";
+  const result = transformQuoteEscapes(input, action);
+  if (result === input) {
+    setStatus(t("json.escapeUnchanged"), "neutral");
+    return;
+  }
+  replaceEditorContent(result);
+  setStatus(t(action === "add" ? "json.escapeAdded" : "json.escapeRemoved"));
 }
 
 async function importJsonFile() {

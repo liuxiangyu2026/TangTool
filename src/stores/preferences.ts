@@ -19,6 +19,7 @@ export const usePreferencesStore = defineStore("preferences", () => {
   const collapsedGroups = ref<string[]>([]);
   const storageError = ref("");
   const favorites = ref<string[]>([]);
+  const sidebarFavoritesOnly = ref(false);
   const rememberWindow = ref(true);
   const rememberPanels = ref(true);
   const windowSize = ref<{ width: number; height: number; maximized: boolean } | null>(null);
@@ -42,6 +43,7 @@ export const usePreferencesStore = defineStore("preferences", () => {
         collapsedGroups.value = saved.collapsedGroups.filter((key: unknown) => typeof key === "string").slice(0, 20);
       }
       if (Array.isArray(saved.favorites)) favorites.value = [...new Set<string>(saved.favorites.filter((value: unknown) => typeof value === "string" && value.startsWith("/")).slice(0, 100))];
+      if (typeof saved.sidebarFavoritesOnly === "boolean") sidebarFavoritesOnly.value = saved.sidebarFavoritesOnly;
       if (typeof saved.rememberWindow === "boolean") rememberWindow.value = saved.rememberWindow;
       if (typeof saved.rememberPanels === "boolean") rememberPanels.value = saved.rememberPanels;
       const size = saved.windowSize;
@@ -78,7 +80,7 @@ export const usePreferencesStore = defineStore("preferences", () => {
   watch(rememberWindow, enabled => { if (!enabled) windowSize.value = null; });
   watch(rememberPanels, enabled => { if (!enabled) panelRatios.value = {}; });
   watch(
-    [language, theme, fontSize, sidebarCollapsed, collapsedGroups, favorites, rememberWindow, rememberPanels, windowSize, panelRatios, editorFont, editorWrap, indentWidth, exportDirectory, filenameRule, autoCheckUpdates, includePrereleases],
+    [language, theme, fontSize, sidebarCollapsed, collapsedGroups, favorites, sidebarFavoritesOnly, rememberWindow, rememberPanels, windowSize, panelRatios, editorFont, editorWrap, indentWidth, exportDirectory, filenameRule, autoCheckUpdates, includePrereleases],
     () => {
       // 仅保存偏好；JSON、文档内容、密码和版本查询结果不写入持久化存储。
       try {
@@ -91,6 +93,7 @@ export const usePreferencesStore = defineStore("preferences", () => {
             sidebarCollapsed: sidebarCollapsed.value,
             collapsedGroups: collapsedGroups.value,
             favorites: favorites.value, rememberWindow: rememberWindow.value, rememberPanels: rememberPanels.value,
+            sidebarFavoritesOnly: sidebarFavoritesOnly.value,
             windowSize: rememberWindow.value ? windowSize.value : null, panelRatios: rememberPanels.value ? panelRatios.value : {},
             editorFont: editorFont.value, editorWrap: editorWrap.value, indentWidth: indentWidth.value,
             exportDirectory: exportDirectory.value, filenameRule: filenameRule.value,
@@ -107,6 +110,6 @@ export const usePreferencesStore = defineStore("preferences", () => {
   function toggleFavorite(path: string) {
     favorites.value = favorites.value.includes(path) ? favorites.value.filter(value => value !== path) : [...favorites.value, path];
   }
-  return { language, theme, fontSize, sidebarCollapsed, collapsedGroups, storageError, favorites, toggleFavorite,
+  return { language, theme, fontSize, sidebarCollapsed, collapsedGroups, storageError, favorites, sidebarFavoritesOnly, toggleFavorite,
     rememberWindow, rememberPanels, windowSize, panelRatios, editorFont, editorWrap, indentWidth, exportDirectory, filenameRule, autoCheckUpdates, includePrereleases };
 });

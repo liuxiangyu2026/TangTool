@@ -59,21 +59,21 @@ export const toolCatalog = [
   {
     "label": "URL 编码",
     "path": "/hash-codec",
-    "group": "codec",
+    "group": "security",
     "description": "URL 参数的编码与解码。",
     "keywords": "url encode decode bianma 编码 解码"
   },
   {
     "label": "MD5",
     "path": "/md5",
-    "group": "codec",
+    "group": "security",
     "description": "文本和文件 MD5 摘要。",
     "keywords": "md5 hash 哈希 文件 摘要"
   },
   {
     "label": "Base64",
     "path": "/base64",
-    "group": "codec",
+    "group": "security",
     "description": "文本及文件 Base64 编解码。",
     "keywords": "base64 encode decode 编码 解码"
   },
@@ -108,14 +108,14 @@ export const toolCatalog = [
   {
     "label": "文本整理",
     "path": "/text",
-    "group": "developer",
-    "description": "按行去空白、去重与排序。",
-    "keywords": "text wenben 文本 去重 排序 空白"
+    "group": "text",
+    "description": "实时去重排序、分隔符拼接与首尾引号处理。",
+    "keywords": "text wenben 文本 去重 排序 空白 excel column delimiter join 列 拼接 分隔 分割 引号"
   },
   {
     "label": "文本对比",
     "path": "/text/diff",
-    "group": "developer",
+    "group": "text",
     "description": "逐行差异高亮，可忽略空白。",
     "keywords": "text diff compare wenben duibi 文本 对比 差异"
   },
@@ -145,12 +145,12 @@ export const toolGroups = [
     "label": "文档"
   },
   {
-    "id": "security",
-    "label": "安全"
+    "id": "text",
+    "label": "文本"
   },
   {
-    "id": "codec",
-    "label": "编码"
+    "id": "security",
+    "label": "安全"
   },
   {
     "id": "developer",

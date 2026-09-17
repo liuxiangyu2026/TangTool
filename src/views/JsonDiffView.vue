@@ -29,7 +29,11 @@
       <div ref="verticalSplitContainer" class="flex min-h-0 flex-1 flex-col">
         <div ref="editorSplitContainer" class="flex min-h-48 flex-1">
           <section class="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface" :style="{ flexBasis: `${leftPanelPercent}%` }">
-            <h2 class="shrink-0 border-b border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-700">{{ t('原始 JSON') }}</h2>
+            <header class="flex shrink-0 items-center justify-between gap-2 border-b border-neutral-200 px-3 py-1">
+              <h2 class="min-w-0 truncate text-sm font-medium text-neutral-700" :title="t('原始 JSON')">{{ t('原始 JSON') }}</h2>
+              <JsonEscapeMenu :label="t('原始 JSON') + ' · ' + t('json.escape')" @select="escapeQuotes('left', $event)" />
+            </header>
+            <div class="flex shrink-0 justify-end border-b border-neutral-200 px-3 py-2"><JsonFoldActions @fold="setJsonFold(leftEditor, $event)" /></div>
             <div ref="leftEditorHost" class="min-h-0 flex-1 overflow-hidden"></div>
           </section>
 
@@ -40,7 +44,11 @@
           </div>
 
           <section class="flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface">
-            <h2 class="shrink-0 border-b border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-700">{{ t('目标 JSON') }}</h2>
+            <header class="flex shrink-0 items-center justify-between gap-2 border-b border-neutral-200 px-3 py-1">
+              <h2 class="min-w-0 truncate text-sm font-medium text-neutral-700" :title="t('目标 JSON')">{{ t('目标 JSON') }}</h2>
+              <JsonEscapeMenu :label="t('目标 JSON') + ' · ' + t('json.escape')" @select="escapeQuotes('right', $event)" />
+            </header>
+            <div class="flex shrink-0 justify-end border-b border-neutral-200 px-3 py-2"><JsonFoldActions @fold="setJsonFold(rightEditor, $event)" /></div>
             <div ref="rightEditorHost" class="min-h-0 flex-1 overflow-hidden"></div>
           </section>
         </div>
@@ -95,6 +103,10 @@ import { editorPreferences } from "../utils/editorPreferences";
 import { usePreferencesStore } from "../stores/preferences";
 import { usePanelRatio } from "../composables/usePanelRatio";
 import ToolNotice from "../components/ToolNotice.vue";
+import JsonEscapeMenu from "../components/JsonEscapeMenu.vue";
+import JsonFoldActions from "../components/JsonFoldActions.vue";
+import { setJsonFold } from "../utils/jsonFolding";
+import { transformQuoteEscapes, type QuoteEscapeAction } from "../utils/quoteEscape";
 import { json } from "@codemirror/lang-json";
 import { HighlightStyle, syntaxHighlighting, syntaxTree } from "@codemirror/language";
 import { StateEffect, StateField } from "@codemirror/state";
@@ -315,6 +327,21 @@ function clearInputs() {
   replaceEditorContent(leftEditor, "");
   replaceEditorContent(rightEditor, "");
   leftEditor?.focus();
+}
+
+function escapeQuotes(side: "left" | "right", action: QuoteEscapeAction) {
+  const editor = side === "left" ? leftEditor : rightEditor;
+  const input = editor?.state.doc.toString() ?? "";
+  const result = transformQuoteEscapes(input, action);
+  if (result === input) {
+    statusMessage.value = t("json.escapeUnchanged");
+    return;
+  }
+  // 内容变化后旧差异已失效；只改目标编辑框，同时清理两侧旧定位标记。
+  clearEditorHighlights();
+  replaceEditorContent(editor, result);
+  editor?.focus();
+  statusMessage.value = t(action === "add" ? "json.escapeAdded" : "json.escapeRemoved");
 }
 
 function replaceEditorContent(editor: EditorView | null, content: string) {
