@@ -21,6 +21,8 @@ const dirty = execFileSync("git", ["status", "--porcelain", "--untracked-files=n
 const outputDirectory = path.join(root, "release-artifacts", target);
 await mkdir(outputDirectory, { recursive: true });
 const files = [];
+let updateFile;
+let updateSignature;
 
 if (process.platform === "darwin") {
   const app = path.join(root, "src-tauri/target/release/bundle/macos/TangTool.app");
@@ -30,6 +32,10 @@ if (process.platform === "darwin") {
   const name = `TangTool-${version}-${target}.zip`;
   execFileSync("ditto", ["-c", "-k", "--keepParent", app, path.join(outputDirectory, name)], { stdio: "inherit" });
   files.push(name);
+  updateFile = `TangTool-${version}-${target}.app.tar.gz`;
+  updateSignature = `${updateFile}.sig`;
+  await copyFile(`${app}.tar.gz`, path.join(outputDirectory, updateFile));
+  await copyFile(`${app}.tar.gz.sig`, path.join(outputDirectory, updateSignature));
 } else {
   const directory = path.join(root, "src-tauri/target/release/bundle/nsis");
   const installers = (await readdir(directory)).filter((name) => name.includes(`_${version}_`) && name.endsWith(".exe"));
@@ -37,11 +43,16 @@ if (process.platform === "darwin") {
   const name = `TangTool-${version}-${target}-setup.exe`;
   await copyFile(path.join(directory, installers[0]), path.join(outputDirectory, name));
   files.push(name);
+  updateFile = name;
+  updateSignature = `${name}.sig`;
+  await copyFile(path.join(directory, `${installers[0]}.sig`), path.join(outputDirectory, updateSignature));
 }
 
 const componentName = `TangTool-DocumentRuntime-${runtime.version}-${target}${process.platform === "win32" ? "-setup.exe" : ".pkg"}`;
 await copyFile(path.join(root, "sidecar/build", target, "component/packages", componentName), path.join(outputDirectory, componentName));
 files.push(componentName);
+if (!files.includes(updateFile)) files.push(updateFile);
+files.push(updateSignature);
 
 const checksums = [];
 for (const name of files) {
@@ -59,6 +70,12 @@ const manifest = {
   builtAt: new Date().toISOString(),
   node: process.version,
   files,
+  updater: {
+    platform: { "darwin-arm64": "darwin-aarch64", "darwin-x64": "darwin-x86_64", "win32-x64": "windows-x86_64" }[`${process.platform}-${process.arch}`],
+    file: updateFile,
+    signatureFile: updateSignature,
+    signature: (await readFile(path.join(outputDirectory, updateSignature), "utf8")).trim(),
+  },
   acceptance: "candidate-only",
   note: "构建产物，尚不能替代目标机安装、离线转换、升级卸载及正式签名/公证验收。",
 };

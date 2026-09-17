@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::Read;
 mod app_error;
+mod app_update;
 mod base64_file;
 mod document;
 mod document_runtime;
@@ -257,10 +258,25 @@ fn random_index(upper_bound: usize) -> Result<usize, AppError> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(app_update::UpdateState::default())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
+        .on_window_event(|window, event| {
+            use std::sync::atomic::Ordering;
+            use tauri::Manager;
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                if window
+                    .state::<app_update::UpdateState>()
+                    .busy
+                    .load(Ordering::SeqCst)
+                {
+                    api.prevent_close();
+                }
+            }
+        })
         .setup(|app| {
             #[cfg(windows)]
             {
@@ -277,6 +293,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            app_update::install_app_update,
             calculate_file_md5,
             convert_document_to_markdown,
             document_runtime::check_document_runtime,

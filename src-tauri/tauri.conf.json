@@ -24,7 +24,14 @@
       "devCsp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' ipc: http://ipc.localhost ws://localhost:1420 ws://127.0.0.1:1420 ws://localhost:1421 ws://127.0.0.1:1421 https://api.github.com/repos/liuxiangyu2026/TangTool/releases; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; frame-src 'none'; form-action 'none'"
     }
   },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU0NjlBQ0M4NEEyM0EwQzUKUldURm9DTkt5S3hwNUZxVmxjVUdVU3RWbkg3dTFMYSswZVJnR0dXaG8rUW9VczI3VVM5R0V0SkEK",
+      "windows": { "installMode": "passive" }
+    }
+  },
   "bundle": {
+    "createUpdaterArtifacts": true,
     "active": true,
     "targets": "all",
     "icon": [

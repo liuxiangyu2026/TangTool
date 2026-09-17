@@ -1,12 +1,16 @@
 import { computed, onScopeDispose, ref, watch } from 'vue';
 import { defineStore } from 'pinia';
-import { isTauri } from '@tauri-apps/api/core';
+import { Channel, isTauri } from '@tauri-apps/api/core';
+import { invoke } from '../utils/invoke';
+import { t } from '../i18n/index';
 import { version } from '../../package.json';
 import { findAvailableUpdate, readReleases, type ReleaseInfo } from '../utils/appUpdates';
 import { usePreferencesStore } from './preferences';
 
 const releasesApi = 'https://api.github.com/repos/liuxiangyu2026/TangTool/releases?per_page=30';
 const interval = 6 * 60 * 60 * 1000;
+type InstallPhase = 'idle' | 'confirming' | 'checking' | 'downloading' | 'verifying' | 'installing' | 'failed';
+type InstallProgress = { phase: 'checking' | 'downloading' | 'verifying' | 'installing'; downloaded: number; total: number | null };
 
 export const useUpdatesStore = defineStore('updates', () => {
   const preferences = usePreferencesStore();
@@ -15,14 +19,23 @@ export const useUpdatesStore = defineStore('updates', () => {
   const errorKey = ref('');
   const lastCheckedAt = ref(0);
   const available = computed(() => findAvailableUpdate(releases.value, version, preferences.includePrereleases));
+  const installPhase = ref<InstallPhase>('idle');
+  const installError = ref('');
+  const installTag = ref('');
+  const downloadedBytes = ref(0);
+  const totalBytes = ref<number | null>(null);
+  const installBusy = computed(() => !['idle', 'failed'].includes(installPhase.value));
+  const downloadPercent = computed(() => totalBytes.value && totalBytes.value > 0
+    ? Math.min(100, Math.floor(downloadedBytes.value / totalBytes.value * 100)) : null);
   let started = false;
   let lastAttemptAt = 0;
   let timer: ReturnType<typeof setInterval> | undefined;
   let controller: AbortController | null = null;
   let requestId = 0;
+  let installRequestId = 0;
 
   async function check() {
-    if (checking.value) return;
+    if (checking.value || installBusy.value) return;
     const id = ++requestId;
     const pending = new AbortController();
     controller = pending;
@@ -62,7 +75,7 @@ export const useUpdatesStore = defineStore('updates', () => {
   }
 
   function checkIfDue() {
-    if (!started || !preferences.autoCheckUpdates || document.hidden || !navigator.onLine || checking.value) return;
+    if (!started || !preferences.autoCheckUpdates || document.hidden || !navigator.onLine || checking.value || installBusy.value) return;
     // 离线/失败不刷屏；恢复网络或回到窗口后再按冷却时间检查。
     const cooldown = errorKey.value ? 10 * 60 * 1000 : interval;
     if (!lastAttemptAt || Date.now() - lastAttemptAt >= cooldown) void check();
@@ -106,5 +119,38 @@ export const useUpdatesStore = defineStore('updates', () => {
   }, { flush: 'sync' });
   onScopeDispose(stop);
 
-  return { available, checking, errorKey, lastCheckedAt, check, start, stop };
+  async function installUpdate() {
+    if (installBusy.value || checking.value || !available.value) return;
+    if (!isTauri()) {
+      installError.value = t('请在桌面应用中更新');
+      installPhase.value = 'failed';
+      return;
+    }
+    const tag = available.value.tag;
+    const id = ++installRequestId;
+    installTag.value = tag;
+    installError.value = '';
+    downloadedBytes.value = 0;
+    totalBytes.value = null;
+    installPhase.value = 'confirming';
+    const progress = new Channel<InstallProgress>();
+    progress.onmessage = event => {
+      if (id !== installRequestId || !installBusy.value) return;
+      installPhase.value = event.phase;
+      if (event.phase === 'downloading' || event.phase === 'installing') {
+        downloadedBytes.value = event.downloaded;
+        totalBytes.value = event.total;
+      }
+    };
+    try {
+      const installed = await invoke<boolean>('install_app_update', { tag, language: preferences.language, progress });
+      if (!installed) installPhase.value = 'idle';
+    } catch (reason) {
+      installError.value = typeof reason === 'string' ? reason : t('更新失败，请重试');
+      installPhase.value = 'failed';
+    }
+  }
+
+  return { available, checking, errorKey, lastCheckedAt, check, start, stop, installUpdate,
+    installPhase, installError, installTag, installBusy, downloadedBytes, totalBytes, downloadPercent };
 });

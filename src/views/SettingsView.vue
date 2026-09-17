@@ -35,7 +35,7 @@
       <fieldset class="space-y-3 border-t border-neutral-200 pt-5 text-sm">
         <legend class="font-medium">{{ t('更新提醒') }}</legend>
         <label class="flex items-center gap-2"><input v-model="preferences.autoCheckUpdates" type="checkbox" />{{ t('自动检查更新') }}</label>
-        <p class="text-xs leading-5 text-neutral-500">{{ t('启动及使用期间每 6 小时检查 GitHub 公开版本，不上传工具内容，也不自动安装。关闭后仍可在版本页手动检查。') }}</p>
+        <p class="text-xs leading-5 text-neutral-500">{{ t('启动及使用期间每6小时检查公开版本，不上传工具内容。只有点击更新并确认后才下载和安装；关闭自动检查后仍可手动检查。') }}</p>
         <label class="flex items-center gap-2"><input v-model="preferences.includePrereleases" type="checkbox" />{{ t('接收预发布版本') }}</label>
         <p class="text-xs text-neutral-500">{{ t('关闭后仅提醒正式版本；预发布版可能仍有待验证的问题。') }}</p>
       </fieldset>

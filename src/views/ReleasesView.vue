@@ -14,17 +14,18 @@
             <h2 class="text-sm font-semibold" aria-live="polite" :class="updates.available ? 'text-blue-600' : 'text-neutral-700'">{{ updateStatus }}</h2>
             <p v-if="checkedAt" class="mt-1 text-xs text-neutral-500">{{ t('上次检查：{time}', { time: checkedAt }) }}</p>
           </div>
-          <button type="button" class="flex items-center gap-2 rounded-md border border-neutral-300 bg-surface px-3 py-1.5 text-xs disabled:opacity-50" :disabled="updates.checking" @click="updates.check">
+          <button type="button" class="flex items-center gap-2 rounded-md border border-neutral-300 bg-surface px-3 py-1.5 text-xs disabled:opacity-50" :disabled="updates.checking || updates.installBusy" @click="updates.check">
             <RefreshCw :size="14" :class="{ 'animate-spin': updates.checking }" />{{ updates.checking ? t('正在检查…') : t('检查更新') }}
           </button>
         </div>
         <p v-if="updates.errorKey" class="mt-2 text-xs text-amber-600">{{ t(updates.errorKey) }}</p>
         <template v-if="updates.available">
           <div class="release-notes mt-4 max-h-64 overflow-auto border-t border-neutral-200 pt-3 text-sm leading-6" v-html="releaseNotes"></div>
-          <button type="button" class="mt-3 flex items-center gap-2 rounded-md bg-blue-600 px-3 py-1.5 text-xs text-white" @click="openReleases(true)"><ExternalLink :size="14" />{{ t('查看更新并下载') }}</button>
+          <button type="button" class="mt-3 flex items-center gap-2 rounded-md bg-blue-600 px-3 py-1.5 text-xs text-white disabled:opacity-50" :disabled="updates.installBusy || updates.checking" @click="updates.installUpdate"><Download :size="14" />{{ t('更新') }}</button>
         </template>
+        <p v-if="updates.installError" class="mt-3 text-sm text-red-600" role="alert">{{ updates.installError }}</p>
       </section>
-      <p class="text-sm leading-6 text-neutral-600">{{ t('更新检查仅获取公开版本信息。下载会在浏览器打开对应版本页面，应用不会自动安装或关闭当前窗口。') }}</p>
+      <p class="text-sm leading-6 text-neutral-600">{{ t('检查更新不会自动安装。点击更新并确认后，将在应用内下载、校验签名，完成后自动安装并重启。') }}</p>
       <article v-for="release in changelog" :key="release.version" class="border-l-2 border-blue-500 pl-4">
         <h3 class="text-sm font-semibold">v{{ release.version }} · {{ t(release.status) }}</h3>
         <ul class="mt-2 list-disc space-y-2 pl-4 text-sm text-neutral-600">
@@ -32,9 +33,9 @@
         </ul>
       </article>
       <div class="rounded-md bg-neutral-50 p-3 text-sm leading-6 text-neutral-600">
-        {{ t('升级前保存内容并关闭旧版，再下载对应系统与芯片的安装包进行安装或替换。未签名／未公证版本可能触发系统提示；请核对下载来源。') }}
+        {{ t('更新前请结束正在运行的任务并保存内容。系统可能要求安装授权；更新包签名不等于系统开发者签名或公证。') }}
       </div>
-      <button type="button" class="flex items-center gap-2 rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700" @click="openReleases(false)"><ExternalLink :size="14" />{{ t('查看 GitHub 版本列表') }}</button>
+      <button type="button" class="flex items-center gap-2 rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700" @click="openReleases"><ExternalLink :size="14" />{{ t('查看 GitHub 版本列表') }}</button>
     </div>
   </div>
 </template>
@@ -45,7 +46,7 @@ import ToolNotice from "../components/ToolNotice.vue";
 import { computed, ref } from "vue";
 import { isTauri } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { ExternalLink, RefreshCw } from "lucide-vue-next";
+import { Download, ExternalLink, RefreshCw } from "lucide-vue-next";
 import { version } from "../../package.json";
 import changelog from "../data/changelog.json";
 import { useUpdatesStore } from '../stores/updates';
@@ -62,9 +63,9 @@ const updateStatus = computed(() => {
 });
 const releaseNotes = computed(() => renderMarkdownPreview(updates.available?.body || t('此版本未提供更新说明，请打开版本页面查看。')));
 
-async function openReleases(latest: boolean) {
+async function openReleases() {
   error.value = "";
-  const url = latest && updates.available ? updates.available.url : "https://github.com/liuxiangyu2026/TangTool/releases";
+  const url = "https://github.com/liuxiangyu2026/TangTool/releases";
   try {
     if (isTauri()) await openUrl(url);
     else window.open(url, "_blank", "noopener,noreferrer");

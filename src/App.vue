@@ -67,10 +67,12 @@
         </KeepAlive>
       </RouterView>
     </main>
+    <AppUpdateProgress />
   </div>
 </template>
 <script setup lang="ts">
 import { t } from "./i18n/index";
+import AppUpdateProgress from "./components/AppUpdateProgress.vue";
 import { PanelLeftClose, PanelLeftOpen, Settings, History, ChevronDown, ListTree, House, Star } from "lucide-vue-next";
 import { computed, onBeforeUnmount, onMounted } from "vue";
 import { useRoute } from "vue-router";

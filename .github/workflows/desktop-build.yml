@@ -7,6 +7,7 @@ permissions:
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/main'
     strategy:
       fail-fast: false
       matrix:
@@ -53,6 +54,9 @@ jobs:
       - run: cargo clippy --locked -- -D warnings
         working-directory: src-tauri
       - run: npm run desktop:build -- --bundles ${{ matrix.bundles }} -- --locked
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
       - name: Verify dependency locks did not change
         run: git diff --exit-code -- package-lock.json src-tauri/Cargo.lock
       - name: Collect candidate package and SHA-256 checksums

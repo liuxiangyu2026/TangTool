@@ -5,6 +5,9 @@ const { createHash } = require('node:crypto');
 const targets = ['aarch64-apple-darwin', 'x86_64-apple-darwin', 'x86_64-pc-windows-msvc'];
 
 module.exports = async function publish({ github, context, core }) {
+  const { verifyUpdaterSignature } = await import('../../scripts/verify-updater-signature.mjs');
+  const config = JSON.parse(await fs.readFile('src-tauri/tauri.conf.json', 'utf8'));
+  const publicKey = config.plugins.updater.pubkey;
   const repo = context.repo;
   const runId = Number(process.env.BUILD_RUN_ID);
   const releaseId = Number(process.env.RELEASE_ID);
@@ -21,11 +24,20 @@ module.exports = async function publish({ github, context, core }) {
 
   const files = [];
   const platforms = [];
+  const updaterPlatforms = {};
   for (const target of targets) {
     const directory = path.join('release-input', `TangTool-${target}`);
     const manifest = JSON.parse(await fs.readFile(path.join(directory, 'build-info.json'), 'utf8'));
     const checksums = await fs.readFile(path.join(directory, 'SHA256SUMS.txt'), 'utf8');
-    if (manifest.commit !== commit || manifest.dirty !== false || manifest.target !== target || release.tag_name !== `v${manifest.version}` || manifest.files.length !== 2) {
+    const mainFile = `TangTool-${manifest.version}-${target}${target.includes('windows') ? '-setup.exe' : '.zip'}`;
+    const updateFile = target.includes('windows') ? mainFile : `TangTool-${manifest.version}-${target}.app.tar.gz`;
+    const componentFile = `TangTool-DocumentRuntime-${manifest.componentVersion}-${target}${target.includes('windows') ? '-setup.exe' : '.pkg'}`;
+    const expectedFiles = [...new Set([mainFile, componentFile, updateFile, `${updateFile}.sig`])];
+    const platform = { 'aarch64-apple-darwin': 'darwin-aarch64', 'x86_64-apple-darwin': 'darwin-x86_64', 'x86_64-pc-windows-msvc': 'windows-x86_64' }[target];
+    if (manifest.commit !== commit || manifest.dirty !== false || manifest.target !== target || release.tag_name !== `v${manifest.version}`
+      || !Array.isArray(manifest.files) || manifest.files.length !== expectedFiles.length || new Set(manifest.files).size !== expectedFiles.length
+      || manifest.files.some(file => !expectedFiles.includes(file)) || manifest.updater?.platform !== platform
+      || manifest.updater.file !== updateFile || manifest.updater.signatureFile !== `${updateFile}.sig`) {
       throw new Error(`Invalid provenance for ${target}`);
     }
     platforms.push(manifest);
@@ -36,6 +48,13 @@ module.exports = async function publish({ github, context, core }) {
       if (!checksums.split(/\r?\n/).includes(`${sha256}  ${name}`)) throw new Error(`Checksum mismatch: ${name}`);
       files.push({ name, data, sha256 });
     }
+    const signature = (await fs.readFile(path.join(directory, `${updateFile}.sig`), 'utf8')).trim();
+    if (signature !== manifest.updater.signature) throw new Error('Signature metadata differs from signature file');
+    verifyUpdaterSignature(files.find(file => file.name === updateFile).data, signature, publicKey);
+    updaterPlatforms[platform] = {
+      signature,
+      url: `https://github.com/${repo.owner}/${repo.repo}/releases/download/${release.tag_name}/${updateFile}`,
+    };
   }
   if (new Set(platforms.map(item => item.componentVersion)).size !== 1) throw new Error('Component versions differ');
   const combined = {
@@ -45,6 +64,8 @@ module.exports = async function publish({ github, context, core }) {
     runId,
     platforms,
   };
+  const latest = Buffer.from(JSON.stringify({ version: platforms[0].version, notes: release.body, platforms: updaterPlatforms }, null, 2) + '\n');
+  files.push({ name: 'latest.json', data: latest, sha256: createHash('sha256').update(latest).digest('hex') });
   const metadata = {
     'SHA256SUMS.txt': files.map(file => `${file.sha256}  ${file.name}`).join('\n') + '\n',
     'build-info.json': JSON.stringify(combined, null, 2) + '\n',
