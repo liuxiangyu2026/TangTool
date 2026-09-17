@@ -1,6 +1,6 @@
-# TangTool v0.1.3 构建与验收记录
+# TangTool v0.1.3 构建与发布记录
 
-本轮任务是提交 main 并生成三平台安装包；构建成功不等于已公开发布，也不代替真机安装验收。版本更新内容见 [更新说明](release-notes-0.1.3.md)。
+[v0.1.3 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.3) 已公开，官网已部署更新。发布成功不代替真机安装验收，继续采用未签名／未公证预览方案。版本内容见 [更新说明](release-notes-0.1.3.md)。
 
 ## 已完成的本地检查
 
@@ -11,11 +11,22 @@
 
 ## 构建状态
 
-- 用户已推送代码，先前的网络阻塞已解除。功能提交为 `d72bc2b`，本次构建来源为包含接续文档的 main 提交 `8e25a10729fd99096e99f7426256c4f32ef18a87`，已通过 GitHub API 核对远端一致。
-- 三平台构建：[35185179323](https://github.com/liuxiangyu2026/TangTool/actions/runs/35185179323)，已成功启动；最后一次成功查询时仍在运行，Windows/ARM进入打包，Intel进行Rust检查。
+- 功能提交为 `d72bc2b`，构建及发布标签均指向 `8e25a10729fd99096e99f7426256c4f32ef18a87`；后续交接文档提交不修改安装包来源。
+- 三平台构建：[35185179323](https://github.com/liuxiangyu2026/TangTool/actions/runs/35185179323) 全部成功，Windows NSIS 主安装器和独立组件、两种 macOS 架构的主应用和组件包均已生成。
 - 对应质量检查：[35185026089](https://github.com/liuxiangyu2026/TangTool/actions/runs/35185026089) 已全部成功。
-- 后续本机到GitHub的API、网页及IPv4/HTTP1.1只读查询再次出现连接中断，尚未核验最终构建结果或下载产物。这不影响已经启动的云端任务；恢复访问后应继续查询本运行，不要重复触发。最终结果与产物校验确认后再补充。
-- 本次仅生成候选安装包，没有创建新的公开 Release，不使用旧版本或dirty产物代替本版。
+- 发布工作流 [35186998007](https://github.com/liuxiangyu2026/TangTool/actions/runs/35186998007) 成功，Release ID390461859。三份主包、三份组件、SHA256SUMS.txt和build-info.json共八份附件完成上传及无凭证公开下载回读，大小与SHA-256一致；已核对正式标签来源。
+- 官网部署 [35187185643](https://github.com/liuxiangyu2026/TangTool/actions/runs/35187185643) 成功，来源 `acd297759ded3fd73e5bdcfc9c31a5b0ad32e793`；它相对构建提交仅更新交接文档，官网代码一致。
+- 官网公开HTML和脚本经HTTPS回读，与当前重新构建结果摘要一致；按官网版本选择规则确认最新为v0.1.3，六个主包/组件链接均指向本版。本机浏览器仍遇到连接关闭，视觉复核未完成，未将资源校验冒充浏览器实测。结果保存于 `website-verification.json`。
+- 本地 `release-artifacts/ci-35185179323/` 保存公开版本元数据、来源、SHA-256清单及公开回读报告。旧v0.1.2附件保留，应用内组件下载继续复用v0.1.2的1.0.0组件。
+
+| 平台 / 文件 | 字节数 | SHA-256 |
+| --- | ---: | --- |
+| macOS ARM 主包 ZIP | 4175879 | `ad72a104d7d223be9e898346ebe442aca9dbecb1591fba7abe38e719bdf001fe` |
+| macOS ARM 组件 PKG | 58882747 | `9ffbfcc49cb8883fe7b402a47b71dcac5271300ba127e119b6f5afd033169fe0` |
+| macOS Intel 主包 ZIP | 4361450 | `cb2714789b9989d51643a263d3d09ab85dc2250809be29f9604e0b6e2046b8d4` |
+| macOS Intel 组件 PKG | 62758605 | `6d1fc003eb7bf8d127fd6ec8b0a479c2d41b830802825a30a2f8fde78d7414ef` |
+| Windows x64 主包 EXE | 3067561 | `e7751cfe5338a7d01bc3c5a0a9a13e4642848a4b20473a31dd660498f7a03c2d` |
+| Windows x64 组件 EXE | 48171378 | `5843bddacad00b49fe1884233e8d829e24d96ca861c857f4bce9654f816958e3` |
 
 ## 待目标机验收
 
