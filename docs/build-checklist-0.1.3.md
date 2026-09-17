@@ -1,5 +1,7 @@
 # TangTool v0.1.3 构建与发布记录
 
+> 历史记录：以下`8e25a10`来源的八份附件已按用户授权被同版本重建替换。当前下载、签名及验收状态请看 [v0.1.3 应用内更新重建记录](build-checklist-0.1.3-updater.md)，不要用本页旧摘要校验新下载。
+
 [v0.1.3 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.3) 已公开，官网已部署更新。发布成功不代替真机安装验收，继续采用未签名／未公证预览方案。版本内容见 [更新说明](release-notes-0.1.3.md)。
 
 ## 已完成的本地检查
