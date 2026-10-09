@@ -7,3 +7,4 @@
 - 新功能验证沿用 `release-artifacts/feature-upgrade-20260920/`，后续标题栏调整已通过中英文、窄分栏及格式化/转义/折叠检查。无永久新增测试。
 - 待目标机验收：LibreOffice实际DOCX→PDF、Windows/Intel原生文件操作、安装升级与重启。不得把浏览器、替身进程或CI结果当作这些检查通过。
 - 更新签名继续用GitHub Actions的`TAURI_SIGNING_PRIVATE_KEY`，不生成新密钥、不打印私钥、不把密钥放入仓库。发布流程校验三平台包签名和来源，公开后回读14份附件。
+- 发布前重新审计发现新公告，已在原兼容范围内升级brace-expansion至2.1.7、source-map-js至1.2.2、DOMPurify至3.4.16；npm官方审计回到0公告。不得将9月旧审计直接当作本次检查。
