@@ -2,7 +2,7 @@
 
 [简体中文](README.md) | English
 
-TangTool is a local desktop toolkit for Windows and macOS, bringing together 19 tools for data, documents, encoding, text and images. It supports Simplified Chinese and English, tool search, favorites, themes and update reminders. Your inputs and files are processed on your device.
+TangTool is a local desktop toolkit for Windows and macOS, bringing together 21 tools for data, documents, encoding, text and images. It supports Simplified Chinese and English, tool search, favorites, themes and update reminders. Your inputs and files are processed on your device.
 
 [Visit the website](https://liuxiangyu2026.github.io/TangTool/?lang=en)
 
@@ -11,10 +11,12 @@ TangTool is a local desktop toolkit for Windows and macOS, bringing together 19 
 | Tool | Features |
 | --- | --- |
 | JSON formatter | Format, minify, validate, highlight syntax and fold sections |
-| JSON comparison | Compare structures, locate differences and align key order |
+| JSON comparison | Format either input, compare all fields or keys only, locate differences and align key order |
 | JSON to Excel | Export multiple sheets and flatten recursive trees |
 | Excel / CSV to JSON | Select worksheets and convert tables to JSON |
 | Documents to Markdown | Install the separate document component to convert DOCX / PDF files in batches, with formatted and raw previews |
+| Word / PDF converter | DOCX to PDF requires LibreOffice; PDF to editable text or page-image DOCX, without OCR |
+| PDF to images | Export PNG / JPEG pages with custom dimensions, page ranges and ZIP output |
 | Password generator | Generate passwords in batches using secure randomness |
 | SHA digest | SHA-256 / SHA-512 text digests |
 | URL encoding | Encode and decode URL parameters |

@@ -21,7 +21,6 @@
           <Table2 :size="14" aria-hidden="true" />
           <span>{{ t('生成预览') }}</span>
         </button>
-        <JsonEscapeMenu @select="escapeQuotes" />
         <button class="flex items-center gap-1.5 rounded-md bg-sky-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2" type="button" @click="importJsonFile">
           <FolderOpen :size="14" aria-hidden="true" />
           <span>{{ t('导入') }}</span>
@@ -39,8 +38,12 @@
       <div ref="panelSplitContainer" class="flex min-h-0 flex-1">
         <section class="flex min-h-0 min-w-0 shrink-0 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface" :style="{ flexBasis: `${leftPanelPercent}%` }">
           <header class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-neutral-200 px-3 py-2">
-            <h2 class="text-sm font-medium text-neutral-700">{{ t('JSON 数据') }}</h2>
-            <JsonFoldActions @fold="setJsonFold(editorView, $event)" />
+            <h2 class="min-w-0 truncate text-sm font-medium text-neutral-700" :title="t('JSON 数据')">{{ t('JSON 数据') }}</h2>
+            <div class="ml-auto flex max-w-full flex-wrap items-center justify-end gap-2">
+              <JsonEscapeMenu compact :label="t('JSON 数据') + ' · ' + t('json.escape')" @select="escapeQuotes" />
+              <button type="button" class="flex shrink-0 items-center gap-1 rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700" @click="formatInput"><WandSparkles :size="12" aria-hidden="true" />{{ t('格式化') }}</button>
+              <JsonFoldActions @fold="setJsonFold(editorView, $event)" />
+            </div>
           </header>
           <div ref="editorHost" class="min-h-0 flex-1 overflow-hidden"></div>
         </section>
@@ -117,6 +120,7 @@
 <script setup lang="ts">
 import { t } from "../i18n/index";
 import { editorPreferences } from "../utils/editorPreferences";
+import { usePreferencesStore } from "../stores/preferences";
 import { usePanelRatio } from "../composables/usePanelRatio";
 import { exportDefaults } from "../utils/exportDefaults";
 import ToolNotice from "../components/ToolNotice.vue";
@@ -126,16 +130,17 @@ import { setJsonFold } from "../utils/jsonFolding";
 import { transformQuoteEscapes, type QuoteEscapeAction } from "../utils/quoteEscape";
 import { json } from "@codemirror/lang-json";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { Annotation } from "@codemirror/state";
 import { forceLinting, linter, lintGutter } from "@codemirror/lint";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeFile } from "@tauri-apps/plugin-fs";
 import { tags } from "@lezer/highlight";
 import { basicSetup, EditorView } from "codemirror";
-import { BookOpen, FolderOpen, GripVertical, Save, Table2, Trash2 } from "lucide-vue-next";
-import { computed, onActivated, onBeforeUnmount, onMounted, ref } from "vue";
+import { BookOpen, FolderOpen, GripVertical, Save, Table2, Trash2, WandSparkles } from "lucide-vue-next";
+import { computed, onActivated, onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
 import { useRoute } from "vue-router";
 
-import { formatJsonErrorMessage, validateJson, type JsonErrorResult } from "../utils/json";
+import { formatJson, formatJsonErrorMessage, validateJson, type JsonErrorResult } from "../utils/json";
 import { jsonToWorkbook, type JsonArrayField, type JsonRecursiveArrayField, type JsonTableRow, type JsonTableSheet, type JsonToWorkbookResult } from "../utils/jsonToTable";
 import { createWorksheetNames, createXlsxData } from "../utils/xlsx";
 
@@ -143,6 +148,7 @@ type StatusTone = "success" | "neutral";
 type JsonWorkbookSuccessResult = Extract<JsonToWorkbookResult, { ok: true }>;
 
 const PREVIEW_ROW_LIMIT = 50;
+const formattingOnly = Annotation.define<boolean>();
 const EXAMPLE_JSON = JSON.stringify([
   {
     name: "TangTool",
@@ -171,9 +177,11 @@ const JSON_FILE_FILTERS = computed(() => [{ name: t('JSON 文件'), extensions: 
 const XLSX_FILE_FILTERS = computed(() => [{ name: t('Excel 工作簿'), extensions: ["xlsx"] }]);
 
 const route = useRoute();
+const preferences = usePreferencesStore();
 const editorHost = ref<HTMLDivElement | null>(null);
 const panelSplitContainer = ref<HTMLDivElement | null>(null);
-const sheets = ref<JsonTableSheet[]>([]);
+// 转换结果整批替换，不为所有表格单元格建立深层响应式代理。
+const sheets = shallowRef<JsonTableSheet[]>([]);
 const arrayFields = ref<JsonArrayField[]>([]);
 const recursiveArrayFields = ref<JsonRecursiveArrayField[]>([]);
 const repeatableColumns = ref<string[]>([]);
@@ -242,7 +250,8 @@ onMounted(() => {
       editorTheme,
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
-          resetPreview();
+          // 格式化只改变 JSON 排版，保留已生成的表格和分表选项；普通编辑仍清空旧预览。
+          if (update.transactions.some(transaction => transaction.docChanged && !transaction.annotation(formattingOnly))) resetPreview();
           errorMessage.value = "";
           statusMessage.value = "";
         }
@@ -314,6 +323,18 @@ function clamp(value: number, minimum: number, maximum: number): number {
 function loadExample() {
   replaceEditorContent(EXAMPLE_JSON);
   generatePreview();
+}
+
+function formatInput() {
+  const input = editorView?.state.doc.toString() ?? "";
+  const result = formatJson(input, preferences.indentWidth);
+  statusMessage.value = "";
+  if (!result.ok) {
+    showJsonError(result);
+    return;
+  }
+  if (result.value !== input) replaceEditorContent(result.value, true);
+  errorMessage.value = "";
 }
 
 function generatePreview() {
@@ -435,13 +456,14 @@ function createPreviewStatus(result: JsonWorkbookSuccessResult): string {
     : t('已生成 {p0} 个 Sheet', { p0: result.sheets.length });
 }
 
-function replaceEditorContent(content: string) {
+function replaceEditorContent(content: string, isFormatting = false) {
   const view = editorView;
   if (!view) {
     return;
   }
 
   view.dispatch({
+    annotations: formattingOnly.of(isFormatting),
     changes: {
       from: 0,
       to: view.state.doc.length,

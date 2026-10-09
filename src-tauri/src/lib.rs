@@ -11,6 +11,7 @@ mod document_runtime;
 mod file_access;
 #[cfg(windows)]
 mod windows_icon;
+mod word_pdf;
 use document::convert_document_to_markdown;
 use tauri::{AppHandle, Emitter};
 
@@ -297,6 +298,8 @@ pub fn run() {
             calculate_file_md5,
             convert_document_to_markdown,
             document_runtime::check_document_runtime,
+            word_pdf::check_word_runtime,
+            word_pdf::convert_word_to_pdf,
             encode_file_base64,
             decode_file_base64,
             calculate_text_md5,

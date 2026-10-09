@@ -3,6 +3,8 @@ import { createRouter, createWebHashHistory } from "vue-router";
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
+    { path: "/document/word-pdf", name: "word-pdf", component: () => import("../views/DocumentConvertView.vue"), props: { kind: "word" }, meta: { title: "Word / PDF 互转", group: "文档" } },
+    { path: "/document/pdf-images", name: "pdf-images", component: () => import("../views/DocumentConvertView.vue"), props: { kind: "image" }, meta: { title: "PDF 转图片", group: "文档" } },
     { path: "/color", name: "color", component: () => import("../views/ColorPickerView.vue"), meta: { title: "颜色选择器", group: "图像" } },
     { path: "/excel/json", name: "excel-json", component: () => import("../views/ExcelJsonView.vue"), meta: { title: "Excel / CSV 转 JSON", group: "JSON / 表格" } },
     { path: "/cron", name: "cron", component: () => import("../views/CronView.vue"), meta: { title: "Cron 解析", group: "开发辅助" } },

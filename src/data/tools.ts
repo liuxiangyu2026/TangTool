@@ -18,6 +18,8 @@ import {
   TableProperties,
   FileDiff,
   Palette,
+  FileType2,
+  Images,
 } from "lucide-vue-next";
 import { toolCatalog, toolGroups } from "./toolCatalog";
 
@@ -28,6 +30,8 @@ const icons = {
   "/json/excel": FileSpreadsheet,
   "/excel/json": TableProperties,
   "/document/markdown": FileText,
+  "/document/word-pdf": FileType2,
+  "/document/pdf-images": Images,
   "/password": KeyRound,
   "/sha": ShieldCheck,
   "/hash-codec": Link2,

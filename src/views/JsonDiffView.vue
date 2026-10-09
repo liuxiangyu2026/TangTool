@@ -24,16 +24,20 @@
           <Trash2 :size="14" aria-hidden="true" />
           <span>{{ t('清除') }}</span>
         </button>
+        <label class="ml-2 flex items-center gap-2 text-sm text-neutral-700"><input v-model="keysOnly" type="checkbox" @change="hasCompared && compareInputs()" />{{ t('只对比 key') }}</label>
       </div>
 
       <div ref="verticalSplitContainer" class="flex min-h-0 flex-1 flex-col">
         <div ref="editorSplitContainer" class="flex min-h-48 flex-1">
           <section class="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface" :style="{ flexBasis: `${leftPanelPercent}%` }">
-            <header class="flex shrink-0 items-center justify-between gap-2 border-b border-neutral-200 px-3 py-1">
+            <header class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-neutral-200 px-3 py-1">
               <h2 class="min-w-0 truncate text-sm font-medium text-neutral-700" :title="t('原始 JSON')">{{ t('原始 JSON') }}</h2>
-              <JsonEscapeMenu :label="t('原始 JSON') + ' · ' + t('json.escape')" @select="escapeQuotes('left', $event)" />
+              <div class="ml-auto flex max-w-full flex-wrap items-center justify-end gap-2">
+                <JsonEscapeMenu compact :label="t('原始 JSON') + ' · ' + t('json.escape')" @select="escapeQuotes('left', $event)" />
+                <button type="button" class="flex shrink-0 items-center gap-1 rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700" :aria-label="t('格式化原始 JSON')" @click="formatInput('left')"><WandSparkles :size="12" />{{ t('格式化') }}</button>
+                <JsonFoldActions @fold="setJsonFold(leftEditor, $event)" />
+              </div>
             </header>
-            <div class="flex shrink-0 justify-end border-b border-neutral-200 px-3 py-2"><JsonFoldActions @fold="setJsonFold(leftEditor, $event)" /></div>
             <div ref="leftEditorHost" class="min-h-0 flex-1 overflow-hidden"></div>
           </section>
 
@@ -44,11 +48,14 @@
           </div>
 
           <section class="flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface">
-            <header class="flex shrink-0 items-center justify-between gap-2 border-b border-neutral-200 px-3 py-1">
+            <header class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-neutral-200 px-3 py-1">
               <h2 class="min-w-0 truncate text-sm font-medium text-neutral-700" :title="t('目标 JSON')">{{ t('目标 JSON') }}</h2>
-              <JsonEscapeMenu :label="t('目标 JSON') + ' · ' + t('json.escape')" @select="escapeQuotes('right', $event)" />
+              <div class="ml-auto flex max-w-full flex-wrap items-center justify-end gap-2">
+                <JsonEscapeMenu compact :label="t('目标 JSON') + ' · ' + t('json.escape')" @select="escapeQuotes('right', $event)" />
+                <button type="button" class="flex shrink-0 items-center gap-1 rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700" :aria-label="t('格式化目标 JSON')" @click="formatInput('right')"><WandSparkles :size="12" />{{ t('格式化') }}</button>
+                <JsonFoldActions @fold="setJsonFold(rightEditor, $event)" />
+              </div>
             </header>
-            <div class="flex shrink-0 justify-end border-b border-neutral-200 px-3 py-2"><JsonFoldActions @fold="setJsonFold(rightEditor, $event)" /></div>
             <div ref="rightEditorHost" class="min-h-0 flex-1 overflow-hidden"></div>
           </section>
         </div>
@@ -59,38 +66,18 @@
           </span>
         </div>
 
-        <section class="min-h-36 shrink-0 overflow-auto rounded-lg border border-neutral-200 bg-surface" :style="{ flexBasis: `${resultPanelPercent}%` }" :aria-label="t('JSON 差异结果')">
+        <section class="flex min-h-36 shrink-0 flex-col overflow-hidden rounded-lg border border-neutral-200 bg-surface" :style="{ flexBasis: `${resultPanelPercent}%` }" :aria-label="t('JSON 差异结果')">
           <header class="sticky top-0 z-10 flex items-center justify-between border-b border-neutral-200 bg-surface px-3 py-2">
             <h2 class="text-sm font-semibold text-neutral-800">{{ t('差异结果') }}</h2>
-            <span v-if="hasCompared && !leftErrorMessage && !rightErrorMessage" class="text-xs text-neutral-500">{{ t('{p0} 处差异', { p0: changes.length }) }}</span>
+            <span v-if="hasCompared && !leftErrorMessage && !rightErrorMessage" class="text-xs text-neutral-500">{{ t('{count} 项 · {differences} 处差异', { count: rows.length, differences: differenceCount }) }}</span>
           </header>
 
           <p v-if="!hasCompared" class="p-4 text-sm text-neutral-500">{{ t('输入左右 JSON 后点击“对比”。') }}</p>
           <p v-else-if="leftErrorMessage || rightErrorMessage" class="p-4 text-sm text-red-700">{{ t('请先修正两侧 JSON 的语法错误。') }}</p>
-          <p v-else-if="changes.length === 0" class="p-4 text-sm text-emerald-700">{{ t('左右 JSON 结构和值完全一致。') }}</p>
-          <ul v-else class="space-y-2 p-3">
-            <li v-for="(change, index) in changes" :key="`${change.type}:${change.pathLabel}`" class="cursor-pointer rounded-md border p-3 outline-none transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-1" :class="[CHANGE_META[change.type].containerClass, selectedChangeIndex === index ? 'ring-2 ring-blue-500 ring-offset-1' : '']" role="button" :aria-label="t('定位差异 {p0}', { p0: change.pathLabel })" tabindex="0" @click="selectChange(change, index)" @keydown.enter.prevent="selectChange(change, index)" @keydown.space.prevent="selectChange(change, index)">
-              <div class="flex items-center gap-2">
-                <span class="rounded px-2 py-0.5 text-xs font-medium" :class="CHANGE_META[change.type].badgeClass">{{ t(CHANGE_META[change.type].label) }}</span>
-                <code class="break-all text-xs font-medium text-neutral-700">{{ change.pathLabel }}</code>
-              </div>
-
-              <div v-if="change.type === 'changed'" class="mt-2 grid gap-2 sm:grid-cols-2">
-                <div>
-                  <p class="mb-1 text-xs text-red-600">{{ t('原值') }}</p>
-                  <pre class="overflow-x-auto whitespace-pre-wrap break-words rounded bg-surface/70 p-2 font-mono text-xs text-neutral-700">{{ formatDiffValue(change.oldValue) }}</pre>
-                </div>
-                <div>
-                  <p class="mb-1 text-xs text-emerald-600">{{ t('新值') }}</p>
-                  <pre class="overflow-x-auto whitespace-pre-wrap break-words rounded bg-surface/70 p-2 font-mono text-xs text-neutral-700">{{ formatDiffValue(change.newValue) }}</pre>
-                </div>
-              </div>
-              <div v-else class="mt-2">
-                <p class="mb-1 text-xs" :class="change.type === 'added' ? 'text-emerald-600' : 'text-red-600'">{{ change.type === "added" ? t('新增值') : t('删除值') }}</p>
-                <pre class="overflow-x-auto whitespace-pre-wrap break-words rounded bg-surface/70 p-2 font-mono text-xs text-neutral-700">{{ formatDiffValue(change.type === "added" ? change.newValue : change.oldValue) }}</pre>
-              </div>
-            </li>
-          </ul>
+          <template v-else>
+            <p class="shrink-0 border-b border-neutral-100 px-3 py-1 text-xs text-neutral-500">{{ keysOnly ? t('递归比较 key 路径，忽略值；数组按索引。') : t('相同值正常显示；红色为原值，绿色为新值。点击字段查看完整内容。') }}</p>
+            <JsonComparisonResults :rows="rows" :keys-only="keysOnly" :selected="selectedChangeIndex" @select="selectChange" />
+          </template>
         </section>
       </div>
     </div>
@@ -105,20 +92,21 @@ import { usePanelRatio } from "../composables/usePanelRatio";
 import ToolNotice from "../components/ToolNotice.vue";
 import JsonEscapeMenu from "../components/JsonEscapeMenu.vue";
 import JsonFoldActions from "../components/JsonFoldActions.vue";
+import JsonComparisonResults from "../components/JsonComparisonResults.vue";
 import { setJsonFold } from "../utils/jsonFolding";
 import { transformQuoteEscapes, type QuoteEscapeAction } from "../utils/quoteEscape";
 import { json } from "@codemirror/lang-json";
-import { HighlightStyle, syntaxHighlighting, syntaxTree } from "@codemirror/language";
+import { ensureSyntaxTree, foldedRanges, HighlightStyle, syntaxHighlighting, syntaxTree, unfoldEffect } from "@codemirror/language";
 import { StateEffect, StateField } from "@codemirror/state";
 import { Decoration, type DecorationSet, EditorView } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
 import { basicSetup } from "codemirror";
-import { AlignHorizontalJustifyCenter, BookOpen, GitCompareArrows, GripHorizontal, GripVertical, Trash2 } from "lucide-vue-next";
-import { onActivated, onBeforeUnmount, onMounted, ref } from "vue";
+import { AlignHorizontalJustifyCenter, BookOpen, GitCompareArrows, GripHorizontal, GripVertical, Trash2, WandSparkles } from "lucide-vue-next";
+import { onActivated, onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
 import { useRoute } from "vue-router";
 
-import { formatJsonErrorMessage } from "../utils/json";
-import { alignJsonKeys, compareJson, type JsonDiffChange } from "../utils/jsonDiff";
+import { formatJson, formatJsonErrorMessage } from "../utils/json";
+import { alignJsonKeys, compareJsonRows, type JsonComparisonRow } from "../utils/jsonDiff";
 
 type ResizeAxis = "horizontal" | "vertical";
 type JsonSyntaxNode = ReturnType<typeof syntaxTree>["topNode"];
@@ -191,7 +179,9 @@ const leftEditorHost = ref<HTMLDivElement | null>(null);
 const rightEditorHost = ref<HTMLDivElement | null>(null);
 const editorSplitContainer = ref<HTMLDivElement | null>(null);
 const verticalSplitContainer = ref<HTMLDivElement | null>(null);
-const changes = ref<JsonDiffChange[]>([]);
+const rows = shallowRef<JsonComparisonRow[]>([]);
+const differenceCount = ref(0);
+const keysOnly = ref(false);
 const leftErrorMessage = ref("");
 const rightErrorMessage = ref("");
 const statusMessage = ref("");
@@ -258,7 +248,8 @@ function createJsonEditor(parent: HTMLDivElement, ariaLabel: string): EditorView
       diffHighlightField,
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
-          changes.value = [];
+          rows.value = [];
+          differenceCount.value = 0;
           leftErrorMessage.value = "";
           rightErrorMessage.value = "";
           statusMessage.value = "";
@@ -276,15 +267,36 @@ function loadExample() {
   statusMessage.value = t('已填充对比示例');
 }
 
+function formatInput(side: "left" | "right") {
+  const editor = side === "left" ? leftEditor : rightEditor;
+  if (!editor) return;
+  const result = formatJson(editor.state.doc.toString(), preferences.indentWidth);
+  statusMessage.value = "";
+  if (!result.ok) {
+    const message = formatJsonErrorMessage(result);
+    if (side === "left") leftErrorMessage.value = message;
+    else rightErrorMessage.value = message;
+    return;
+  }
+  clearEditorHighlights();
+  // 仅改当前一侧，缩进沿用设置；已有差异由内容变化监听器清理。
+  if (editor.state.doc.toString() !== result.value) replaceEditorContent(editor, result.value);
+  if (side === "left") leftErrorMessage.value = "";
+  else rightErrorMessage.value = "";
+  editor.focus();
+}
+
 function compareInputs() {
-  const result = compareJson(
+  const result = compareJsonRows(
     leftEditor?.state.doc.toString() ?? "",
     rightEditor?.state.doc.toString() ?? "",
+    keysOnly.value,
   );
 
   clearEditorHighlights();
   hasCompared.value = true;
-  changes.value = [];
+  rows.value = [];
+  differenceCount.value = 0;
   leftErrorMessage.value = "";
   rightErrorMessage.value = "";
   statusMessage.value = "";
@@ -296,8 +308,9 @@ function compareInputs() {
     return;
   }
 
-  changes.value = result.changes;
-  statusMessage.value = result.changes.length === 0 ? t('左右 JSON 完全一致') : t('发现 {p0} 处差异', { p0: result.changes.length });
+  rows.value = result.rows;
+  differenceCount.value = result.differenceCount;
+  statusMessage.value = result.differenceCount === 0 ? t('按当前规则，两侧 JSON 一致') : t('发现 {p0} 处差异', { p0: result.differenceCount });
 }
 
 function alignInputs() {
@@ -354,10 +367,10 @@ function replaceEditorContent(editor: EditorView | null, content: string) {
   });
 }
 
-function selectChange(change: JsonDiffChange, index: number) {
-  const leftRange = change.type === "added" ? null : findJsonPathRange(leftEditor, change.path);
-  const rightRange = change.type === "removed" ? null : findJsonPathRange(rightEditor, change.path);
-  const editorClass = CHANGE_META[change.type].editorClass;
+function selectChange(change: JsonComparisonRow, index: number) {
+  const leftRange = change.leftPresent ? findJsonPathRange(leftEditor, change.path) : null;
+  const rightRange = change.rightPresent ? findJsonPathRange(rightEditor, change.path) : null;
+  const editorClass = change.type === "same" ? "cm-diff-same" : CHANGE_META[change.type].editorClass;
 
   selectedChangeIndex.value = index;
   highlightEditorRange(leftEditor, leftRange, editorClass, change.type !== "added");
@@ -369,7 +382,9 @@ function findJsonPathRange(editor: EditorView | null, path: (string | number)[])
     return null;
   }
 
-  let currentNode = syntaxTree(editor.state).topNode.firstChild;
+  // 大文档的后台语法树可能只覆盖可见区域，定位远处字段前补齐解析。
+  const tree = ensureSyntaxTree(editor.state, editor.state.doc.length, 1000) ?? syntaxTree(editor.state);
+  let currentNode = tree.topNode.firstChild;
   if (!currentNode) {
     return null;
   }
@@ -481,6 +496,9 @@ function highlightEditorRange(editor: EditorView | null, range: JsonNodeRange | 
     setDiffHighlight.of({ ...range, className }),
     EditorView.scrollIntoView(range.from, { y: "center" }),
   ];
+  foldedRanges(editor.state).between(0, editor.state.doc.length, (from, to) => {
+    if (from < range.to && to > range.from) effects.push(unfoldEffect.of({ from, to }));
+  });
 
   if (shouldFocus) {
     editor.dispatch({
@@ -577,7 +595,4 @@ function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(Math.max(value, minimum), maximum);
 }
 
-function formatDiffValue(value: unknown): string {
-  return JSON.stringify(value, null, 2) ?? String(value);
-}
 </script>

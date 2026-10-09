@@ -22,7 +22,7 @@
 - `src/data/toolCatalog.ts` 是桌面与官网共用的工具目录；图标依赖单独保留在桌面的 `tools.ts`，官网构建时注入完整目录，因此没有 JavaScript 时仍能阅读功能。
 - 官网用 `tangtool.website.language.v1` 记住选择，也支持 `?lang=en` / `?lang=zh-CN` 链接。语言切换复用已获取的 Release 数据，不重复请求 API。
 - 固定文案使用 `data-i18n`，辅助标签和图片说明使用 `data-i18n-aria`、`data-i18n-alt`；翻译只写 textContent/属性，远端 Release 文字不作为 HTML 注入。
-- `website/screenshots/` 包含首页、JSON 格式化/对比/转 Excel、Cron、颜色选择器六组中英文截图。它们来自生产前端的实际渲染，使用虚构演示数据；不是绘制的示意界面，也不能代替原生文件能力验收。
+- `website/screenshots/` 包含首页、JSON格式化/对比/转Excel、Cron、颜色选择器、PDF转图片七组中英文截图。2026-09-20已用独立Playwright浏览器从生产前端重拍，使用虚构演示数据；不是绘制的示意界面，也不能代替原生文件能力验收。
 - 截图均为 1280×720，无损 WebP，保持原始像素比例；禁止旋转、透视或拉伸。更换截图后同时检查中英文版本、缩略图、大图和手机布局。
 
 ## 验证

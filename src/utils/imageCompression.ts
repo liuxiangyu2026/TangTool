@@ -7,12 +7,12 @@ export async function compressImage(file: File, options: CompressionOptions): Pr
   if (!Number.isInteger(options.maxEdge) || options.maxEdge < 64 || options.maxEdge > 8192) throw new Error(t('最长边需要是 64～8192 像素的整数。'));
   if (file.size > 20 * 1024 * 1024 || !/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error(t('请选择 20 MiB 以内的 JPEG、PNG 或 WebP 图片。'));
   const bitmap = await createImageBitmap(file);
+  const canvas = document.createElement("canvas");
   try {
     if (bitmap.width * bitmap.height > 24_000_000) throw new Error(t('图片超过 2400 万像素，请先缩小后再处理。'));
     const ratio = Math.min(1, options.maxEdge / Math.max(bitmap.width, bitmap.height));
     const width = Math.max(1, Math.round(bitmap.width * ratio));
     const height = Math.max(1, Math.round(bitmap.height * ratio));
-    const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
     const context = canvas.getContext("2d");
@@ -32,5 +32,8 @@ export async function compressImage(file: File, options: CompressionOptions): Pr
     return { blob, width, height, originalWidth: bitmap.width, originalHeight: bitmap.height };
   } finally {
     bitmap.close();
+    // 编码后的 Blob 已独立持有图片，立即释放大画布的像素缓冲区。
+    canvas.width = 0;
+    canvas.height = 0;
   }
 }

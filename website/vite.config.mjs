@@ -8,6 +8,7 @@ const symbols = {
   "/hash-codec": "URL", "/md5": "MD5", "/base64": "64", "/timestamp": "◷",
   "/uuid": "ID", "/cron": "↻", "/regex": ".*", "/text": "≡", "/text/diff": "±",
   "/qrcode": "▣", "/image/compress": "↘",
+  "/document/word-pdf": "W⇄", "/document/pdf-images": "P▧",
 };
 
 function escapeHtml(value) {

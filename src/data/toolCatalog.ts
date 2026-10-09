@@ -43,6 +43,20 @@ export const toolCatalog = [
     "keywords": "word docx pdf md markdown wendang 文档"
   },
   {
+    "label": "Word / PDF 互转",
+    "path": "/document/word-pdf",
+    "group": "document",
+    "description": "DOCX 与 PDF 互转，可编辑文字或保留页面外观。",
+    "keywords": "word docx pdf convert 文档 转换 互转"
+  },
+  {
+    "label": "PDF 转图片",
+    "path": "/document/pdf-images",
+    "group": "document",
+    "description": "PDF 按页导出 PNG / JPEG，自定义尺寸与页码。",
+    "keywords": "pdf png jpeg image 图片 文档 尺寸 页码"
+  },
+  {
     "label": "密码生成器",
     "path": "/password",
     "group": "security",

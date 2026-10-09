@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { t } from "../i18n/index";
 import SplitPane from "../components/SplitPane.vue";
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
+import { computed, onActivated, onBeforeUnmount, onDeactivated, ref, shallowRef, watch } from "vue";
 import { FolderOpen, ImageDown, Save, Trash2 } from "lucide-vue-next";
 import ToolPage from "../components/ToolPage.vue";
 import { compressImage, type CompressionResult } from "../utils/imageCompression";
@@ -81,6 +81,7 @@ const error = ref("");
 const status = ref("");
 const busy = ref(false);
 let revision = 0;
+let pageActive = true;
 const sizeMessage = computed(() => {
   if (!source.value || !result.value) return "";
   const reduction = 1 - result.value.blob.size / source.value.size;
@@ -88,6 +89,18 @@ const sizeMessage = computed(() => {
 });
 watch([format, quality, maxEdge], reset, { flush: "sync" });
 onBeforeUnmount(clear);
+onDeactivated(() => {
+  pageActive = false;
+  URL.revokeObjectURL(sourceUrl.value);
+  URL.revokeObjectURL(resultUrl.value);
+  sourceUrl.value = "";
+  resultUrl.value = "";
+});
+onActivated(() => {
+  pageActive = true;
+  if (source.value && !sourceUrl.value) sourceUrl.value = URL.createObjectURL(source.value);
+  if (result.value && !resultUrl.value) resultUrl.value = URL.createObjectURL(result.value.blob);
+});
 
 function reset() {
   revision++;
@@ -129,7 +142,7 @@ async function run() {
     const value = await compressImage(source.value, { format: format.value, quality: quality.value, maxEdge: maxEdge.value });
     if (id !== revision) return;
     result.value = value;
-    resultUrl.value = URL.createObjectURL(value.blob);
+    if (pageActive) resultUrl.value = URL.createObjectURL(value.blob);
     status.value = t('处理完成，检查预览后另存。');
   } catch (reason) {
     if (id === revision) error.value = reason instanceof Error ? reason.message : t('图片无法解码或压缩。');

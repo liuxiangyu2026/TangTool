@@ -1,5 +1,5 @@
 <template>
-  <button ref="trigger" type="button" class="tool-button shrink-0 bg-slate-600 transition hover:bg-slate-700" :disabled="disabled" :aria-label="label || t('json.escape')" :title="t('json.escapeHint')"
+  <button ref="trigger" type="button" class="shrink-0 bg-slate-600 transition hover:bg-slate-700" :class="compact ? 'flex items-center gap-1 rounded px-2 py-1 text-xs text-white disabled:opacity-50' : 'tool-button'" :disabled="disabled" :aria-label="label || t('json.escape')" :title="t('json.escapeHint')"
     aria-haspopup="menu" :aria-expanded="opened" :aria-controls="opened ? menuId : undefined" @click="toggleMenu" @keydown.down.prevent="openMenu(0)" @keydown.up.prevent="openMenu(1)">
     <span class="font-mono" aria-hidden="true">\</span>{{ t('json.escapeLabel') }}<ChevronDown :size="12" aria-hidden="true" />
   </button>
@@ -17,7 +17,7 @@ import { ChevronDown, Minus, Plus } from "lucide-vue-next";
 import { t } from "../i18n/index";
 import type { QuoteEscapeAction } from "../utils/quoteEscape";
 
-const props = defineProps<{ disabled?: boolean; label?: string }>();
+const props = defineProps<{ disabled?: boolean; label?: string; compact?: boolean }>();
 const emit = defineEmits<{ select: [action: QuoteEscapeAction] }>();
 const menuId = useId();
 const trigger = ref<HTMLButtonElement | null>(null);

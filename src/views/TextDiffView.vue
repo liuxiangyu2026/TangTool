@@ -53,7 +53,7 @@
 <script setup lang="ts">
 import { t } from "../i18n/index";
 import SplitPane from "../components/SplitPane.vue";
-import { onBeforeUnmount, ref, watch } from "vue";
+import { onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { BookOpen, GitCompareArrows, Trash2 } from "lucide-vue-next";
 import ToolPage from "../components/ToolPage.vue";
 import type { TextDiffResult } from "../utils/textDiff";
@@ -62,7 +62,7 @@ import { runWorker } from "../utils/workerTask";
 const left = ref("");
 const right = ref("");
 const ignoreWhitespace = ref(false);
-const result = ref<TextDiffResult | null>(null);
+const result = shallowRef<TextDiffResult | null>(null);
 const error = ref("");
 const status = ref("");
 const busy = ref(false);

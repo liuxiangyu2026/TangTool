@@ -77,7 +77,7 @@
           </header>
           <div v-if="previewMode === 'rendered'" class="markdown-preview min-h-0 flex-1 overflow-auto p-5" v-html="renderedMarkdown"></div>
           <textarea v-else class="min-h-0 flex-1 resize-none bg-neutral-50 p-5 font-mono text-sm leading-6" :aria-label="t('原始 Markdown')"
-            :value="activeDocument?.markdown || ''" readonly :placeholder="t('转换结果会显示在这里')"></textarea>
+            :value="pageActive ? activeDocument?.markdown || '' : ''" readonly :placeholder="t('转换结果会显示在这里')"></textarea>
           <p class="shrink-0 border-t border-neutral-100 px-3 py-2 text-xs text-neutral-500">{{ t('预览仅展示排版，不加载图片或打开链接；复制与保存保留原始 Markdown。') }}</p>
         </section>
       </div>
@@ -98,7 +98,7 @@ import { open, save } from "@tauri-apps/plugin-dialog";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
 import { renderMarkdownPreview } from "../utils/markdownPreview";
-import { computed, onActivated, onBeforeUnmount, ref } from "vue";
+import { computed, onActivated, onBeforeUnmount, onDeactivated, ref } from "vue";
 import { useRoute } from "vue-router";
 import { Download, GripVertical, RefreshCw, Trash2 } from "lucide-vue-next";
 
@@ -109,6 +109,7 @@ const route = useRoute();
 const documents = ref<DocumentItem[]>([]);
 const activeIndex = ref(0);
 const previewMode = ref<"rendered" | "raw">("rendered");
+const pageActive = ref(true);
 const status = ref("");
 const operationError = ref("");
 const converting = ref(false);
@@ -128,7 +129,7 @@ let pointerId: number | null = null;
 let handle: HTMLElement | null = null;
 const activeDocument = computed(() => documents.value[activeIndex.value]);
 const renderedMarkdown = computed(() =>
-  activeDocument.value?.markdown
+  !pageActive.value || previewMode.value !== "rendered" ? "" : activeDocument.value?.markdown
     ? renderMarkdownPreview(activeDocument.value.markdown)
     : renderMarkdownPreview(t('转换结果会显示在这里')),
 );
@@ -159,7 +160,15 @@ async function openComponentDownload() {
   }
 }
 
-onActivated(checkRuntime);
+onActivated(() => {
+  pageActive.value = true;
+  if (!runtime.value) void checkRuntime();
+});
+onDeactivated(() => {
+  // 离开页面释放预览 DOM 和解析后 HTML，原始 Markdown 仍在会话内保留。
+  pageActive.value = false;
+  stopResize();
+});
 
 async function selectDocuments() {
   if (queueBusy.value || !runtime.value?.available) return;

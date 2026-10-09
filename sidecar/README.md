@@ -2,6 +2,8 @@
 
 TangTool 从 v0.1.2 开始公开发布，主程序与文档组件分开交付。组件包含 Python、MarkItDown 0.1.7 及 DOCX/PDF 依赖，用户不需要手动配置 Python，也不支持旧式 .doc、OCR 或 Word/PDF 互转。
 
+2026-09-20开发版新增的Word/PDF互转和PDF图片工具独立于本组件：PDF处理使用本地PDF.js，DOCX→PDF按需安装LibreOffice，详见[文档转换说明](../docs/document-conversion.md)。本组件1.0.0无需因此重新安装。
+
 ## 用户安装
 
 - Windows：主安装器仅检测必需的 WebView2；缺少时提供微软下载链接，点击下一步重新检测。不显示、安装或检查文档组件。用户安装主程序后，在文档工具页按需下载独立组件安装器。

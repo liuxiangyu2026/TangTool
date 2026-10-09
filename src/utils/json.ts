@@ -48,7 +48,7 @@ export function formatJsonErrorMessage(result: JsonErrorResult): string {
   return t('{p0}（第 {p1} 行，第 {p2} 列）', { p0: result.error, p1: result.line, p2: result.column });
 }
 
-function parseJson(input: string): ParseJsonResult {
+export function parseJson(input: string): ParseJsonResult {
   if (input.trim() === "") {
     return { ok: false, error: t('JSON 内容不能为空') };
   }

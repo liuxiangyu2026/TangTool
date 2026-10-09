@@ -1,24 +1,118 @@
 import diff from "microdiff";
 
-import { validateJson, type JsonErrorResult } from "./json";
+import { parseJson, type JsonErrorResult } from "./json";
 
 export type JsonDiffChange =
   | { type: "added"; path: (string | number)[]; pathLabel: string; newValue: unknown }
   | { type: "removed"; path: (string | number)[]; pathLabel: string; oldValue: unknown }
   | { type: "changed"; path: (string | number)[]; pathLabel: string; oldValue: unknown; newValue: unknown };
 
-export type CompareJsonResult =
-  | { ok: true; changes: JsonDiffChange[] }
-  | JsonPairErrorResult;
+export type CompareJsonResult = { ok: true; changes: JsonDiffChange[] } | JsonPairErrorResult;
 
-export type AlignJsonKeysResult =
-  | { ok: true; leftValue: string; rightValue: string }
-  | JsonPairErrorResult;
+export type JsonComparisonRow = {
+  path: (string | number)[];
+  pathLabel: string;
+  type: "same" | "added" | "removed" | "changed";
+  leftPresent: boolean;
+  rightPresent: boolean;
+  leftPreview: string;
+  rightPreview: string;
+  parent: number;
+};
+
+export type JsonComparisonResult = { ok: true; rows: JsonComparisonRow[]; differenceCount: number } | JsonPairErrorResult;
+
+export function compareJsonRows(leftInput: string, rightInput: string, keysOnly = false): JsonComparisonResult {
+  const parsed = parseJsonPair(leftInput, rightInput);
+  if (!parsed.ok) return parsed;
+  const rows: JsonComparisonRow[] = [];
+  type Pending = { left: unknown; right: unknown; leftPresent: boolean; rightPresent: boolean; path: (string | number)[]; parent: number };
+  const pending: Pending[] = [
+    { left: parsed.leftValue, right: parsed.rightValue, leftPresent: true, rightPresent: true, path: [], parent: -1 },
+  ];
+  let differenceCount = 0;
+
+  // 迭代遍历避免深层 JSON 的递归栈溢出；只保留短预览，不复制整棵子树到结果。
+  while (pending.length) {
+    const item = pending.pop()!;
+    const { left, right, leftPresent, rightPresent, path, parent } = item;
+    const leftContainer = left !== null && typeof left === "object";
+    const rightContainer = right !== null && typeof right === "object";
+    const sameContainer = leftContainer && rightContainer && Array.isArray(left) === Array.isArray(right);
+    const type = !leftPresent
+      ? "added"
+      : !rightPresent
+        ? "removed"
+        : keysOnly || sameContainer || Object.is(left, right)
+          ? "same"
+          : "changed";
+    const index = rows.length;
+    rows.push({
+      path,
+      pathLabel: formatJsonPath(path),
+      type,
+      leftPresent,
+      rightPresent,
+      leftPreview: leftPresent ? previewJsonValue(left) : "",
+      rightPreview: rightPresent ? previewJsonValue(right) : "",
+      parent,
+    });
+    if (type !== "same") differenceCount++;
+
+    const children = new Map<
+      string,
+      { segment: string | number; leftPresent: boolean; rightPresent: boolean; left: unknown; right: unknown }
+    >();
+    for (const [value, side] of [
+      [left, "left"],
+      [right, "right"],
+    ] as const) {
+      if (value === null || typeof value !== "object") continue;
+      for (const key of Object.keys(value)) {
+        const segment = Array.isArray(value) ? Number(key) : key;
+        // 对象的 "0" 与数组的 [0] 是不同路径，不能把容器类型变化混为同一字段。
+        const identity = `${typeof segment}:${key}`;
+        const child = children.get(identity) ?? { segment, leftPresent: false, rightPresent: false, left: undefined, right: undefined };
+        child[side] = (value as Record<string, unknown>)[key];
+        if (side === "left") child.leftPresent = true;
+        else child.rightPresent = true;
+        children.set(identity, child);
+      }
+    }
+    for (const child of [...children.values()].reverse()) {
+      pending.push({ ...child, path: [...path, child.segment], parent: index });
+    }
+  }
+  if (!keysOnly) {
+    // 容器的颜色反映子项差异，但差异计数不重复累加祖先节点。
+    for (let index = rows.length - 1; index > 0; index--) {
+      const row = rows[index];
+      if (row.type !== "same" && row.parent >= 0 && rows[row.parent].type === "same") rows[row.parent].type = "changed";
+    }
+  }
+  return { ok: true, rows, differenceCount };
+}
+
+function previewJsonValue(value: unknown, depth = 0): string {
+  if (Array.isArray(value)) {
+    if (depth) return `[${value.length}]`;
+    return `[${value.slice(0, 3).map(item => previewJsonValue(item, 1)).join(", ")}${value.length > 3 ? ", …" : ""}]`;
+  }
+  if (value !== null && typeof value === "object") {
+    const keys = Object.keys(value);
+    if (depth) return `{${keys.length}}`;
+    const entries = keys.slice(0, 3).map(key => `${JSON.stringify(key.slice(0, 60))}: ${previewJsonValue((value as Record<string, unknown>)[key], 1)}`);
+    return `{${entries.join(", ")}${keys.length > 3 ? ", …" : ""}}`;
+  }
+  const limit = depth ? 60 : 240;
+  if (typeof value === "string") return JSON.stringify(value.length > limit ? `${value.slice(0, limit)}…` : value);
+  return JSON.stringify(value) ?? "";
+}
+
+export type AlignJsonKeysResult = { ok: true; leftValue: string; rightValue: string } | JsonPairErrorResult;
 
 type JsonPairErrorResult = { ok: false; leftError?: JsonErrorResult; rightError?: JsonErrorResult };
-type ParsedJsonPairResult =
-  | { ok: true; leftValue: unknown; rightValue: unknown }
-  | JsonPairErrorResult;
+type ParsedJsonPairResult = { ok: true; leftValue: unknown; rightValue: unknown } | JsonPairErrorResult;
 
 export function compareJson(leftInput: string, rightInput: string): CompareJsonResult {
   const parsedResult = parseJsonPair(leftInput, rightInput);
@@ -68,8 +162,9 @@ export function alignJsonKeys(leftInput: string, rightInput: string, indent = 2)
 }
 
 function parseJsonPair(leftInput: string, rightInput: string): ParsedJsonPairResult {
-  const leftValidation = validateJson(leftInput);
-  const rightValidation = validateJson(rightInput);
+  // 校验直接复用解析结果，避免大文档在一次对比中被重复解析。
+  const leftValidation = parseJson(leftInput);
+  const rightValidation = parseJson(rightInput);
 
   if (!leftValidation.ok || !rightValidation.ok) {
     return {
@@ -81,8 +176,8 @@ function parseJsonPair(leftInput: string, rightInput: string): ParsedJsonPairRes
 
   return {
     ok: true,
-    leftValue: JSON.parse(leftInput),
-    rightValue: JSON.parse(rightInput),
+    leftValue: leftValidation.value,
+    rightValue: rightValidation.value,
   };
 }
 
@@ -146,8 +241,6 @@ function formatJsonPath(path: (string | number)[]): string {
       return `${result}[${segment}]`;
     }
 
-    return /^[A-Za-z_$][\w$]*$/.test(segment)
-      ? `${result}.${segment}`
-      : `${result}[${JSON.stringify(segment)}]`;
+    return /^[A-Za-z_$][\w$]*$/.test(segment) ? `${result}.${segment}` : `${result}[${JSON.stringify(segment)}]`;
   }, "$");
 }

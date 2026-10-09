@@ -2,7 +2,7 @@
 
 简体中文 | [English](README.en.md)
 
-TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱，集成 19 个常用工具，涵盖数据、文档、编码、文本和图像处理。支持简体中文与英文、工具搜索与收藏、主题切换和新版本提醒，输入内容和文件在本机处理。
+TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱，集成 21 个常用工具，涵盖数据、文档、编码、文本和图像处理。支持简体中文与英文、工具搜索与收藏、主题切换和新版本提醒，输入内容和文件在本机处理。
 
 [访问官网](https://liuxiangyu2026.github.io/TangTool/)
 
@@ -11,10 +11,12 @@ TangTool 是一款面向 Windows 和 macOS 的本地桌面工具箱，集成 19 
 | 工具 | 功能 |
 | --- | --- |
 | JSON 格式化 | 格式化、压缩、校验、语法高亮与折叠 |
-| JSON 对比 | 结构化差异、定位与 key 顺序对齐 |
+| JSON 对比 | 两侧格式化、完整字段对照、只比较 key、定位与 key 顺序对齐 |
 | JSON 转 Excel | 多 Sheet 导出、递归树形数据平铺 |
 | Excel / CSV 转 JSON | 选择工作表，将表格转换为 JSON |
 | 文档转 Markdown | 安装独立文档组件后，批量转换 DOCX / PDF，支持排版与原始预览 |
+| Word / PDF 互转 | DOCX 转 PDF 需 LibreOffice；PDF 转可编辑文字或页面图片版 DOCX，不含 OCR |
+| PDF 转图片 | 按页生成 PNG / JPEG，自定义尺寸、页码范围及 ZIP 导出 |
 | 密码生成器 | 使用安全随机源批量生成密码 |
 | SHA 摘要 | SHA-256 / SHA-512 文本摘要 |
 | URL 编码 | URL 参数编码与解码 |

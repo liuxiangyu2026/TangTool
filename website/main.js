@@ -199,7 +199,7 @@ function renderReleases() {
 function applyLanguage() {
   document.documentElement.lang = language;
   document.title = t("TangTool — 常用工具，就在手边");
-  document.querySelector('meta[name="description"]').content = t("TangTool 本地桌面工具箱：19 个工具，覆盖 JSON、Excel、文档、编码、时间与图像，支持简体中文和英文。");
+  document.querySelector('meta[name="description"]').content = t("TangTool 本地桌面工具箱：21 个工具，覆盖 JSON、Excel、文档、编码、时间与图像，支持简体中文和英文。");
   languageSelect.value = language;
   for (const { node, key } of textBindings) {
     if (node.isConnected) node.textContent = t(key);
