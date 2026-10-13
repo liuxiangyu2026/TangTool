@@ -42,12 +42,25 @@
       </div>
 
       <div class="flex shrink-0 justify-end border-b border-neutral-200 px-3 py-2"><JsonFoldActions @fold="setJsonFold(editorView, $event)" /></div>
+      <div class="flex shrink-0 flex-wrap items-center gap-2 border-b border-neutral-200 px-3 py-2 text-sm">
+        <label class="flex min-w-0 flex-1 items-center gap-2">JSONPath<input v-model="pathExpression" class="tool-field min-w-0 flex-1 font-mono" placeholder="$.tools[?@.enabled == true].name" /></label>
+        <button class="tool-button bg-blue-600" type="button" :disabled="pathBusy" @click="queryPath">{{ pathBusy ? t('查询中') : t('查询') }}</button>
+        <button class="tool-button bg-emerald-600" type="button" :disabled="!pathResult" @click="copyPath">{{ t('复制查询结果') }}</button>
+        <button class="tool-button bg-neutral-600" type="button" :disabled="!pathResult" @click="resetPath">{{ t('收起结果') }}</button>
+      </div>
+      <div v-if="pathResult" class="flex max-h-60 shrink-0 flex-col gap-2 overflow-auto border-b border-neutral-200 p-3">
+        <div class="flex items-center gap-3 text-xs"><span>{{ t('命中 {count} 项', { count: pathResult.count }) }}</span><label class="flex items-center gap-2"><input v-model="showPaths" type="checkbox" />{{ t('显示路径和值') }}</label></div>
+        <pre class="whitespace-pre-wrap break-all font-mono text-sm" :aria-label="t('JSONPath 查询结果')">{{ showPaths ? pathResult.paths : pathResult.values }}</pre>
+      </div>
       <div ref="editorHost" class="min-h-0 flex-1 overflow-hidden"></div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
+import { runWorker } from "../utils/workerTask";
+import { copyText } from "../utils/textClipboard";
+import type { JsonPathResult } from "../utils/jsonPath";
 import { t } from "../i18n/index";
 import { editorPreferences } from "../utils/editorPreferences";
 import { usePreferencesStore } from "../stores/preferences";
@@ -66,7 +79,7 @@ import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { basicSetup, EditorView } from "codemirror";
 import { BookOpen, Copy, FolderOpen, Minimize2, Save, Trash2, WandSparkles } from "lucide-vue-next";
-import { computed, onActivated, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onActivated, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import { formatJson, formatJsonErrorMessage, minifyJson, validateJson, type FormatJsonResult, type JsonErrorResult } from "../utils/json";
@@ -97,6 +110,13 @@ const errorMessage = ref("");
 const statusMessage = ref("");
 const statusTone = ref<StatusTone>("success");
 let editorView: EditorView | null = null;
+const pathExpression = ref("$.tools[*].name");
+const pathResult = ref<JsonPathResult | null>(null);
+const pathBusy = ref(false);
+const showPaths = ref(false);
+let pathRevision = 0;
+let pathController: AbortController | undefined;
+watch([pathExpression, () => preferences.indentWidth], resetPath, { flush: "sync" });
 
 onMounted(() => {
   if (!editorHost.value) {
@@ -126,6 +146,7 @@ onMounted(() => {
       jsonEditorTheme,
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
+          resetPath();
           errorMessage.value = "";
           statusMessage.value = "";
         }
@@ -135,6 +156,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  pathController?.abort();
   editorView?.destroy();
 });
 
@@ -300,4 +322,36 @@ function clearJson() {
   statusMessage.value = "";
 }
 
+function resetPath() {
+  pathController?.abort();
+  pathRevision++;
+  pathBusy.value = false;
+  pathResult.value = null;
+}
+
+async function queryPath() {
+  resetPath();
+  const id = pathRevision;
+  pathController = new AbortController();
+  pathBusy.value = true;
+  errorMessage.value = "";
+  try {
+    const result = await runWorker<JsonPathResult>(new Worker(new URL("../workers/jsonPath.worker.ts", import.meta.url), { type: "module" }), { input: editorView?.state.doc.toString() ?? "", expression: pathExpression.value, indent: preferences.indentWidth }, 3000, pathController.signal);
+    if (id === pathRevision) pathResult.value = result;
+  } catch (reason) {
+    if (id === pathRevision) errorMessage.value = reason instanceof Error ? reason.message : t('JSONPath 查询失败。');
+  } finally {
+    if (id === pathRevision) pathBusy.value = false;
+  }
+}
+
+async function copyPath() {
+  if (!pathResult.value) return;
+  try {
+    await copyText(showPaths.value ? pathResult.value.paths : pathResult.value.values);
+    setStatus(t('已复制到剪贴板'));
+  } catch {
+    errorMessage.value = t('复制失败，请检查剪贴板权限。');
+  }
+}
 </script>

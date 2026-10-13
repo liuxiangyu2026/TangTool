@@ -9,7 +9,7 @@
       <slot name="actions" />
     </div>
     <ToolNotice :error="error" :status="status" />
-    <div class="mt-4 flex min-h-0 flex-1 flex-col gap-3 overflow-auto"><slot /></div>
+    <div class="tool-page-content mt-4 flex min-h-0 flex-1 flex-col gap-3 overflow-auto"><slot /></div>
   </section>
 </template>
 

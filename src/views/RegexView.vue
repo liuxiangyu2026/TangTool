@@ -5,10 +5,12 @@
         <FileText :size="14" />
         {{ t('示例') }}
       </button>
-      <button class="tool-button bg-blue-600" type="button" :disabled="busy" @click="run">
+      <button class="tool-button bg-blue-600" type="button" :disabled="busy" @click="run(false)">
         <Regex :size="14" />
         {{ busy ? t('匹配中') : t('开始匹配') }}
       </button>
+      <button class="tool-button bg-cyan-600" type="button" :disabled="busy" @click="run(true)"><Regex :size="14" />{{ t('替换预览') }}</button>
+      <button class="tool-button bg-emerald-600" type="button" :disabled="replacementResult === null" @click="copyReplacement"><Copy :size="14" />{{ t('复制替换结果') }}</button>
       <button v-if="busy" class="tool-button bg-orange-600" type="button" @click="cancel">
         <Square :size="14" />
         {{ t('停止') }}
@@ -28,6 +30,8 @@
         <input v-model="flags" class="tool-field w-24 font-mono" placeholder="gim" />
       </label>
     </div>
+    <label class="tool-panel flex items-center gap-3 text-sm">{{ t('替换内容') }}<input v-model="replacement" class="tool-field min-w-0 flex-1 font-mono" :aria-label="t('替换内容')" placeholder="$1 / $<name> / $& / $$" /></label>
+    <p class="text-xs text-neutral-500">{{ t('替换使用 JavaScript 语义：无 g 只替换首个匹配，有 g 替换全部；支持数字和命名捕获组，原文保持不变。') }}</p>
     <SplitPane direction="vertical" :label="t('调整测试文本和匹配结果高度')" :initial="65" :min="30" :max="80">
       <template #first>
         <textarea v-model="input" class="tool-editor" :aria-label="t('正则测试文本')" :placeholder="t('输入测试文本，最多 10 万字符')"></textarea>
@@ -35,6 +39,7 @@
       <template #second>
         <div class="tool-panel h-full overflow-auto">
           <p class="mb-2 text-xs text-neutral-500">{{ t('单个匹配最多 2000 字符，前 20 个捕获组各显示最多 500 字符；1 秒内未完成会自动停止。') }}</p>
+          <textarea v-if="replacementResult !== null" class="tool-editor mb-3 h-40" :value="replacementResult" readonly :aria-label="t('正则替换结果')"></textarea>
           <ol class="space-y-2 text-sm" :aria-label="t('正则匹配结果')">
             <li v-for="(match, index) in matches" :key="index" class="rounded border border-neutral-200 p-2">
               <span class="text-xs text-neutral-500">{{ t('#{p0} · 位置 {p1}', { p0: index + 1, p1: match.index }) }}</span>
@@ -52,26 +57,31 @@
 import { locale, t } from "../i18n/index";
 import SplitPane from "../components/SplitPane.vue";
 import { onBeforeUnmount, onDeactivated, ref, watch } from "vue";
-import { FileText, Regex, Square, Trash2 } from "lucide-vue-next";
+import { Copy, FileText, Regex, Square, Trash2 } from "lucide-vue-next";
 import ToolPage from "../components/ToolPage.vue";
+import { copyText } from "../utils/textClipboard";
 import type { RegexMatch, RegexResponse } from "../workers/regex.worker";
 
 const pattern = ref("");
 const flags = ref("g");
 const input = ref("");
+const replacement = ref("$1 [at] $2");
+const replacementResult = ref<string | null>(null);
 const matches = ref<RegexMatch[]>([]);
 const busy = ref(false);
 const error = ref("");
 const status = ref("");
 let worker: Worker | null = null;
+let revision = 0;
 let timer: ReturnType<typeof setTimeout> | undefined;
-watch([pattern, flags, input], reset, { flush: "sync" });
+watch([pattern, flags, input, replacement], reset, { flush: "sync" });
 onBeforeUnmount(stopWorker);
 onDeactivated(() => {
   if (busy.value) cancel();
 });
 
 function stopWorker() {
+  revision++;
   clearTimeout(timer);
   worker?.terminate();
   worker = null;
@@ -81,6 +91,7 @@ function stopWorker() {
 function reset() {
   stopWorker();
   matches.value = [];
+  replacementResult.value = null;
   error.value = "";
   status.value = "";
 }
@@ -96,7 +107,7 @@ function example() {
   input.value = "联系：hello@example.com，备用：dev@example.org";
 }
 
-function run() {
+function run(replace = false) {
   reset();
   if (!pattern.value || pattern.value.length > 2000 || input.value.length > 100_000) {
     error.value = t('请输入表达式（最多 2000 字符），测试文本最多 10 万字符。');
@@ -105,26 +116,40 @@ function run() {
   try {
     // 正则可能灾难性回溯，必须在独立 Worker 中运行，超时直接终止线程。
     worker = new Worker(new URL("../workers/regex.worker.ts", import.meta.url), { type: "module" });
+    const id = revision;
     busy.value = true;
     worker.onmessage = (event: MessageEvent<RegexResponse>) => {
+      if (id !== revision) return;
       matches.value = event.data.matches;
+      replacementResult.value = event.data.error ? null : event.data.replacement ?? null;
       error.value = event.data.error;
       status.value = event.data.error ? "" : t('找到 {p0} 个匹配{p1}', { p0: matches.value.length, p1: event.data.limited ? t('（已达到展示上限）') : "" });
       stopWorker();
     };
     worker.onerror = (event) => {
+      if (id !== revision) return;
       event.preventDefault();
       error.value = t('正则工作线程无法运行，请重试。');
       stopWorker();
     };
     timer = setTimeout(() => {
+      if (id !== revision) return;
       stopWorker();
       error.value = t('匹配超过 1 秒，已停止。请简化表达式或缩短测试文本。');
     }, 1000);
-    worker.postMessage({ pattern: pattern.value, flags: flags.value, input: input.value, locale: locale.value });
+    worker.postMessage({ pattern: pattern.value, flags: flags.value, input: input.value, replacement: replace ? replacement.value : undefined, locale: locale.value });
   } catch {
     stopWorker();
     error.value = t('无法启动正则工作线程。');
+  }
+}
+async function copyReplacement() {
+  if (replacementResult.value === null) return;
+  try {
+    await copyText(replacementResult.value);
+    status.value = t('已复制到剪贴板');
+  } catch {
+    error.value = t('复制失败，请检查剪贴板权限。');
   }
 }
 </script>

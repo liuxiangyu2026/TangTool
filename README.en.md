@@ -2,7 +2,7 @@
 
 [简体中文](README.md) | English
 
-TangTool is a local desktop toolkit for Windows and macOS, bringing together 21 tools for data, documents, encoding, text and images. It supports Simplified Chinese and English, tool search, favorites, themes and update reminders. Your inputs and files are processed on your device.
+TangTool is a local desktop toolkit for Windows and macOS, bringing together 24 tools for data, documents, encoding, text and images. It supports Simplified Chinese and English, tool search, favorites, themes and update reminders. Your inputs and files are processed on your device.
 
 [Visit the website](https://liuxiangyu2026.github.io/TangTool/?lang=en)
 
@@ -10,7 +10,9 @@ TangTool is a local desktop toolkit for Windows and macOS, bringing together 21 
 
 | Tool | Features |
 | --- | --- |
-| JSON formatter | Format, minify, validate, highlight syntax and fold sections |
+| JSON formatter | Format, minify, validate, highlight syntax, fold sections and query with JSONPath |
+| JSON / YAML converter | Convert, validate and export locally |
+| Text redaction | Mask phone numbers, emails, IDs and bank cards with custom regex rules |
 | JSON comparison | Format either input, compare all fields or keys only, locate differences and align key order |
 | JSON to Excel | Export multiple sheets and flatten recursive trees |
 | Excel / CSV to JSON | Select worksheets and convert tables to JSON |
@@ -24,10 +26,11 @@ TangTool is a local desktop toolkit for Windows and macOS, bringing together 21 
 | Base64 | Encode and decode text and files |
 | Timestamp / Timezone | Convert seconds, milliseconds and ISO dates across timezones |
 | UUID generator | Generate UUID v4 batches with case and hyphen options |
-| Cron parser | Explain standard 5-field rules and preview the next 10 executions |
-| Regex tester | Inspect match positions and capture groups, with timeout protection |
+| Cron parser | Explain Unix / seconds / Quartz / Spring / macro rules and preview execution times |
+| Regex tester | Inspect matches and capture groups, preview replacements, with timeout protection |
 | Text cleanup | Live trimming, deduplication, sorting, delimiter joining and surrounding quote handling |
 | Text comparison | Highlight line differences, with an option to ignore whitespace |
 | QR code generator | Generate QR codes locally and export PNG / SVG |
-| Image compression | Adjust quality and dimensions, then save as JPEG / WebP |
-| Color picker | Pick colors, copy multiple color formats and explore 216 web-safe colors |
+| Logo / icon maker | Center crop, padding and backgrounds; multi-size PNG / ICO export |
+| Image conversion & compression | Batch convert JPEG / PNG / WebP / BMP / ICO / GIF; adjust quality and dimensions by format |
+| Color picker | Pick colors from one image, extract palettes and explore 216 web-safe colors |

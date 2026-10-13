@@ -10,7 +10,8 @@
     @apply inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50;
   }
   .tool-field {
-    @apply rounded-md border border-neutral-300 bg-surface px-3 py-2 text-sm;
+    /* 固定外框高度，消除原生数字框与下拉框差异；随界面字号缩放，显隐时不撑高工具栏。 */
+    @apply box-border h-8 rounded-md border border-neutral-300 bg-surface px-3 py-1 text-sm leading-5;
   }
   .tool-panel {
     @apply rounded-lg border border-neutral-200 bg-surface p-4;
@@ -30,6 +31,9 @@
   --diff-added: #dcfce7;
   --diff-removed: #fee2e2;
   --diff-changed: #fef3c7;
+  --selection-background: #2563eb;
+  --selection-text: #ffffff;
+  --editor-selection-background: #bfdbfe;
 }
 
 /* 中性色作为全应用的明暗阶梯；surface 与 text-white 分开，避免反转按钮白字。 */
@@ -71,6 +75,15 @@
   --diff-added: #234332;
   --diff-removed: #4b2a30;
   --diff-changed: #4b4025;
+  --selection-background: #93c5fd;
+  --selection-text: #172554;
+  --editor-selection-background: #365b85;
+}
+
+/* 普通文本和原生输入框使用实色选区，避免系统默认选中色在主题下不明显。 */
+::selection {
+  color: var(--selection-text);
+  background-color: var(--selection-background);
 }
 
 /* 状态文字变亮，但保留按钮背景色及白色按钮文字。 */
@@ -169,9 +182,27 @@ select:focus,
 .cm-editor .cm-dropCursor {
   border-left-color: var(--color-neutral-900);
 }
-.cm-editor .cm-selectionBackground,
-.cm-editor.cm-focused .cm-selectionBackground {
-  background: var(--color-blue-200);
+#app .cm-editor .cm-selectionBackground,
+#app .cm-editor.cm-focused .cm-selectionBackground {
+  background: var(--editor-selection-background);
+}
+/* 编辑器自行绘制背景，选中文字用当前主题的正文色，避免继承普通选区的白字/深字。 */
+#app .cm-line::selection,
+#app .cm-line ::selection {
+  color: var(--color-neutral-900);
+}
+/* CodeMirror 选区在文字下方；不透明的光标行/差异行背景会遮住单行及选区末行。 */
+#app .cm-editor .cm-activeLine {
+  background-color: color-mix(in srgb, var(--color-neutral-500) 8%, transparent);
+}
+#app .cm-editor .cm-diff-added {
+  background-color: color-mix(in srgb, var(--diff-added) 55%, transparent);
+}
+#app .cm-editor .cm-diff-removed {
+  background-color: color-mix(in srgb, var(--diff-removed) 55%, transparent);
+}
+#app .cm-editor .cm-diff-changed {
+  background-color: color-mix(in srgb, var(--diff-changed) 55%, transparent);
 }
 .cm-editor .cm-panels,
 .cm-editor .cm-tooltip {

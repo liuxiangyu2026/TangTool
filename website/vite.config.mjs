@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 import { toolCatalog, toolGroups } from "../src/data/toolCatalog.ts";
 
 const symbols = {
+  "/json/yaml": "Y⇄", "/text/redact": "•••", "/image/logo": "◈",
   "/color": "◐", "/json/format": "{ }", "/json/diff": "⇄", "/json/excel": "▦",
   "/excel/json": "CSV", "/document/markdown": "M↓", "/password": "✳", "/sha": "SHA",
   "/hash-codec": "URL", "/md5": "MD5", "/base64": "64", "/timestamp": "◷",

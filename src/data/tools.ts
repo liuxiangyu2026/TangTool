@@ -20,10 +20,15 @@ import {
   Palette,
   FileType2,
   Images,
+  Stamp,
+  ShieldEllipsis,
+  ArrowLeftRight,
 } from "lucide-vue-next";
 import { toolCatalog, toolGroups } from "./toolCatalog";
 
 const icons = {
+  "/json/yaml": ArrowLeftRight,
+  "/text/redact": ShieldEllipsis,
   "/color": Palette,
   "/json/format": Braces,
   "/json/diff": GitCompareArrows,
@@ -45,6 +50,7 @@ const icons = {
   "/text/diff": FileDiff,
   "/qrcode": QrCode,
   "/image/compress": ImageDown,
+  "/image/logo": Stamp,
 };
 
 export const tools = toolCatalog.map(tool => ({ ...tool, icon: icons[tool.path] }));

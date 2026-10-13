@@ -1,14 +1,23 @@
+import { replaceTextBounded } from "../utils/regexReplacement";
 import { configureLocale, normalizeLocale, t } from "../i18n/core";
 export type RegexMatch = { index: number; value: string; groups: (string | null)[] };
-export type RegexResponse = { matches: RegexMatch[]; limited: boolean; error: string };
+export type RegexResponse = { matches: RegexMatch[]; limited: boolean; error: string; replacement?: string };
 
-self.onmessage = (event: MessageEvent<{ pattern: string; flags: string; input: string; locale?: string }>) => {
+self.onmessage = (event: MessageEvent<{ pattern: string; flags: string; input: string; replacement?: string; locale?: string }>) => {
   configureLocale(() => normalizeLocale(event.data.locale));
-  const { pattern, flags, input } = event.data;
+  const { pattern, flags, input, replacement } = event.data;
   const response: RegexResponse = { matches: [], limited: false, error: "" };
   try {
     if (!/^[gimsuy]*$/.test(flags)) throw new Error(t('仅支持 g、i、m、s、u、y 标志。'));
     const regex = new RegExp(pattern, flags);
+    if (replacement !== undefined) {
+      if (replacement.length > 2000) throw new Error(t('替换内容最多 2000 字符。'));
+      // 使用 JavaScript 原生替换语义，支持 $1、$<name>、$& 与 $$；仍受外层 Worker 超时保护。
+      const replaced = replaceTextBounded(input, regex, replacement).output;
+      if (replaced.length > 2_000_000) throw new Error(t('替换结果超过 200 万字符，请缩小输入或替换内容。'));
+      response.replacement = replaced;
+      regex.lastIndex = 0;
+    }
     let match: RegExpExecArray | null;
     while ((match = regex.exec(input)) !== null) {
       response.matches.push({

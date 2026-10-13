@@ -1,7 +1,7 @@
 {
   "name": "tangtool",
   "private": true,
-  "version": "0.1.4",
+  "version": "0.1.5",
   "type": "module",
   "scripts": {
     "site:dev": "vite --config website/vite.config.mjs",
@@ -38,6 +38,8 @@
     "diff": "^9.0.0",
     "docx": "9.7.1",
     "dompurify": "^3.4.15",
+    "gifenc": "1.0.3",
+    "jsonpath-js": "0.3.1",
     "jszip": "3.10.1",
     "lucide-vue-next": "^1.0.0",
     "marked": "^18.0.12",
@@ -47,7 +49,8 @@
     "qrcode": "^1.5.4",
     "vue": "^3.5.13",
     "vue-router": "^4.6.4",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "yaml": "2.9.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",

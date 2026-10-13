@@ -15,7 +15,7 @@
             <div class="flex items-center justify-between gap-4">
               <label class="text-sm font-medium text-neutral-700" for="password-length">{{ t('密码长度') }}</label>
               <input id="password-length-number" v-model.number="options.length"
-                class="w-20 rounded-md border border-neutral-300 px-2 py-1.5 text-center text-sm text-neutral-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                class="tool-field w-20 px-2 text-center text-neutral-800"
                 type="number" min="4" max="128" @change="normalizeLengthAndGenerate" />
             </div>
             <input id="password-length" v-model.number="options.length" class="mt-3 w-full accent-blue-600" type="range" min="4" max="128" @change="generatePassword" />
@@ -29,7 +29,7 @@
             <div class="flex items-center justify-between gap-4">
               <label class="text-sm font-medium text-neutral-700" for="password-count">{{ t('生成数量') }}</label>
               <input id="password-count" v-model.number="options.count"
-                class="w-20 rounded-md border border-neutral-300 px-2 py-1.5 text-center text-sm text-neutral-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                class="tool-field w-20 px-2 text-center text-neutral-800"
                 type="number" min="1" max="20" @change="normalizeCountAndGenerate" />
             </div>
             <p class="mt-1 text-xs text-neutral-400">{{ t('一次生成 1～20 条') }}</p>

@@ -6,7 +6,7 @@
     <div class="mt-4 max-w-3xl space-y-5 rounded-lg border border-neutral-200 bg-surface p-5">
       <div>
         <label for="interface-language" class="block text-sm font-medium">{{ t('语言') }}</label>
-        <select id="interface-language" v-model="preferences.language" class="mt-3 rounded-md border border-neutral-300 bg-surface px-3 py-2 text-sm">
+        <select id="interface-language" v-model="preferences.language" class="tool-field mt-3">
           <option value="zh-CN">{{ t('简体中文') }}</option>
           <option value="en">English</option>
         </select>
@@ -24,7 +24,7 @@
       </fieldset>
       <div class="border-t border-neutral-200 pt-5">
         <label for="interface-size" class="block text-sm font-medium">{{ t('界面字号') }}</label>
-        <select id="interface-size" v-model="preferences.fontSize" class="mt-3 rounded-md border border-neutral-300 bg-surface px-3 py-2 text-sm">
+        <select id="interface-size" v-model="preferences.fontSize" class="tool-field mt-3">
           <option :value="14">{{ t('紧凑') }}</option>
           <option :value="16">{{ t('标准（默认）') }}</option>
           <option :value="18">{{ t('较大') }}</option>
