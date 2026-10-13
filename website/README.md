@@ -2,7 +2,7 @@
 
 独立静态站点，不进入 Tauri 安装包。原生 HTML / CSS / JavaScript，Vite 仅用于本地预览、资源路径和构建。无外部字体、埋点或文件上传功能。
 
-支持简体中文与英文，顶部切换并在官网独立保存选择，也可使用 `?lang=en` 分享英文页面。桌面与官网共用 `src/data/toolCatalog.ts`，当前工作区构建输出24项工具（含尚未发布的Logo、JSON/YAML、脱敏及其他扩展），支持按分类筛选；线上仍为2026-10-09的v0.1.4和21项工具。
+支持简体中文与英文，顶部切换并在官网独立保存选择，也可使用 `?lang=en` 分享英文页面。桌面与官网共用 `src/data/toolCatalog.ts`，当前线上v0.1.5提供24项工具，支持按分类筛选。
 
 `screenshots/` 提供七组中英文实际界面截图：1280×720、无损WebP，包含首页、JSON格式化/对比/转Excel、Cron、颜色和PDF转图片。2026-10-13通过独立Playwright浏览器从v0.1.5生产前端重新截取，使用演示数据；不旋转、不透视、不拉伸，不代表原生文件/安装能力已全部验收。轮播每4.5秒切换，只显示玻璃圆点；点击可放大，再点击或Escape关闭，悬停/焦点/大图/后台暂停，尊重减少动态效果偏好。中英文14张图片、大图开关与390/900/1920宽度验收通过。
 
@@ -21,7 +21,7 @@ npm run site:dev
 
 ## GitHub Pages 部署
 
-官网已上线：[TangTool](https://liuxiangyu2026.github.io/TangTool/)。最新部署 [37892878783](https://github.com/liuxiangyu2026/TangTool/actions/runs/37892878783) 来自主分支提交 `02f8f501a924797a9fc179ee70c41529a1bb5612`，包含v0.1.4说明、21工具目录、7组双语截图，截图侧栏同步为0.1.4。
+官网已上线：[TangTool](https://liuxiangyu2026.github.io/TangTool/)。最新部署 [38371988894](https://github.com/liuxiangyu2026/TangTool/actions/runs/38371988894) 来自主分支提交 `50c62736049b27d23dd9cb64a7d45536cb4ce379`，包含v0.1.5说明、24工具目录、7组双语截图，截图侧栏同步为0.1.5。
 
 1. 提交并推送官网代码到 main。
 2. 仓库 Pages 已使用 **GitHub Actions**，无需重复设置。
@@ -34,9 +34,9 @@ npm run site:dev
 
 公开版本从v0.1.2开始，主程序与文档组件分别下载。主包匹配排除DocumentRuntime文件，组件匹配对应平台EXE/PKG后缀，不跨版本补附件。v0.1.3已公开为预发布包：Windows主安装器只检查WebView2，不再提供文档组件选项或检查；各平台用户在文档工具页按需下载组件。
 
-最新为 [v0.1.4 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.4)，包含三平台主包、三平台组件、两份macOS更新归档、三份签名及更新/摘要/来源清单，共14份公开附件回读校验通过。网站仍展示六个手工安装入口，不能匹配到`.app.tar.gz`更新归档。文档组件仍为1.0.0，已有组件无需重装，应用内链接复用v0.1.2组件；LibreOffice需另行安装。当前来源与待验边界见 `../docs/build-checklist-0.1.4.md`，旧v0.1.2/v0.1.3发布保留。
+最新为 [v0.1.5 Preview](https://github.com/liuxiangyu2026/TangTool/releases/tag/v0.1.5)，包含三平台主包、三平台组件、两份macOS更新归档、三份签名及更新/摘要/来源清单，共14份公开附件回读校验通过。网站仍展示六个手工安装入口，不能匹配到`.app.tar.gz`更新归档。文档组件仍为1.0.0，已有组件无需重装，应用内链接复用v0.1.2组件；LibreOffice需另行安装。当前来源与待验边界见 [v0.1.5交付记录](../docs/build-checklist-0.1.5.md)，旧v0.1.2/v0.1.3/v0.1.4发布保留。
 
-本轮官网公开HTML、脚本、样式和引用截图回读与本地构建一致；独立浏览器实际显示v0.1.4，六个下载链接指向本版，没有误选更新归档。21工具、7个圆点及英文7张图片加载通过；主包约Windows6.2MiB、ARM7.7MiB、Intel8.0MiB。报告位于 `release-artifacts/ci-37890398796/website-verification.json`。
+本轮官网公开HTML、脚本、样式和引用截图回读与本地构建一致；独立浏览器实际显示v0.1.5，六个下载链接指向本版，没有误选更新归档。24工具、7个圆点及英文7张图片加载通过；主包约Windows6.4MiB、ARM7.9MiB、Intel8.2MiB。报告位于 `release-artifacts/ci-38369037757/website-public-verification.json` 和 `website-assets-verification.json`。
 
 “如何升级”已说明点击更新、确认保存内容、进度、签名验证和安装重启；系统权限提示仍可能出现。旧v0.1.3必须手动安装重建版一次，同版本不会提示更新，后续更高版本才走应用内更新。更新签名不同于Windows正式代码签名/Apple公证。
 
